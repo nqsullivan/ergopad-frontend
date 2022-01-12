@@ -42,7 +42,7 @@ const Footer = () => {
 				<Grid item xs={12} md={4}>
 					<MuiNextLink activeClassName='active' href='/'>
 								<IconButton sx={{ mb: '2rem' }}>
-								<Image src="/ergopad-logo-transparent.svg" alt="Ergopad Logo" width="32" height="32" />
+								<Image src="/favicon-32x32.png" alt="Ergopad Logo" width="32" height="32" />
 									{/* <svg width="32px" height="32px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
 										<linearGradient id="b" x2="32" y1="8" y2="8" gradientUnits="userSpaceOnUse">
 											<stop stopColor="#3ABAB4" offset=".2813"/>
