@@ -60,7 +60,6 @@ const AssetModal = ({ open, handleClose, asset }) => {
 
   return (
     <Modal
-      keepMounted
       open={open}
       onClose={handleClose}
       aria-labelledby="modal-modal-title"

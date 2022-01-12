@@ -11,8 +11,6 @@ import AssetItem from './AssetItem';
 ]; */
 
 const AssetList = ({ assets, title, type }) => {
-  console.log(assets)
-
   return (
     <Container sx={{ px: '0!important' }}>
       <Typography align='center' variant='h4'>
