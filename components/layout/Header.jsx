@@ -63,7 +63,7 @@ const Header = () => {
               <Box sx={{ display: 'inline-flex' }} >
                 <MuiNextLink activeClassName='active' href='/' sx={{ pr: '2rem' }}>
                   <IconButton>
-                    <Image src="/ergopad-logo-transparent.svg" alt="Ergopad Logo" width="32" height="32" />
+                    <Image priority src="/ergopad-logo-transparent.svg" alt="Ergopad Logo" width="32" height="32" />
                     {/* <svg width="32px" height="32px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
                       <linearGradient id="b" x2="32" y1="8" y2="8" gradientUnits="userSpaceOnUse">
                         <stop stopColor={theme.palette.primary.main} offset=".2813"/>

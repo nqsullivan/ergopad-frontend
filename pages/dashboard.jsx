@@ -5,6 +5,8 @@ import { VictoryArea, VictoryContainer, VictoryPie } from 'victory';
 import axios from 'axios';
 import { useWallet } from 'utils/WalletContext'
 import CenterTitle from '@components/CenterTitle'
+import useMediaQuery from '@mui/material/useMediaQuery';
+import VestingTable from '@components/dashboard/VestingTable';
 
 const rawData2 = 
 {
@@ -128,7 +130,7 @@ const Dashboard = () => {
 						});
 						if (res2?.data) {
 						let data2 = res2?.data;
-	
+
 							let tokenObject = {
 								name: data2[0].assets[0].name,
 								ch: data2[0].creationHeight,
@@ -169,7 +171,7 @@ const Dashboard = () => {
 				setImgNftList(newImgNftList);
 	
 				// console.log(res.data);
-				// console.log(victoryData);
+				console.log(victoryData);
 				// console.log(assetListArray(res.data));
 				// console.log(portfolioTotal);
 			}
@@ -186,6 +188,41 @@ const Dashboard = () => {
 			noAssetSetup()
 		}
 	}, [wallet])
+
+	const checkSmall = useMediaQuery((theme) => theme.breakpoints.up('sm'));
+
+	const vestedTokens = [
+		{
+			tokenName: 'ergopad',
+			tokenId: 'd71693c49a84fbbecd4908c94813b46514b18b67a99952dc1e6e4791556de413',
+			remainingVested: 19696.95,
+			outstanding: [
+				{
+					amount: 6565.65,
+					date: '2022-01-26'
+				},
+				{
+					amount: 6565.65,
+					date: '2022-02-26'
+				},
+				{
+					amount: 6565.65,
+					date: '2022-03-26'
+				},
+			]
+		},
+		{
+			tokenName: 'Other Token',
+			tokenId: 'abcdefg',
+			remainingVested: 100,
+			outstanding: [
+				{
+					amount: 100,
+					date: '2022-01-26'
+				},
+			]
+		}
+	]
 
 	return (
 		<>
@@ -295,7 +332,23 @@ const Dashboard = () => {
 								)
 							}
 				
+				<Grid item xs={12}>
+					
+					<Paper sx={paperStyle}>
+							<Typography variant="h4" sx={{ fontWeight: '700' }}>
+								Tokens Locked in Vesting Contracts
+							</Typography>
+							<Typography variant="p" sx={{ fontSize: '1rem'}}>
+								Note: This is planned functionality for when vesting contracts go live and currently only displaying placeholder data.
+							</Typography>
+							<VestingTable vestedObject={vestedTokens} />
+					</Paper>
+
+				</Grid>
+
 			</Grid>
+
+			
 		</Container>
 		</>
 	);
@@ -318,6 +371,7 @@ function tokenDataArray(data) {
     y: data.balance.ERG.price * data.balance.ERG.balance
   };
   if (ergoValue.y > 0) res.unshift(ergoValue);
+  console.log('token data array: ' + JSON.stringify(res))
   return res;
 }
 
@@ -336,7 +390,7 @@ function assetListArray(data) {
       amount: amount,
       amountUSD: price
     };
-    
+    console.log('asset list array: ' + JSON.stringify(obj))
     res.push(obj);
   }
   const ergoValue = {

@@ -61,7 +61,7 @@ const stakingItems = [
 	},
 	{
 		title: 'Current APY',
-		value: '94.3%',
+		value: '-',
 		background: theme.palette.tertiary.main
 	},
 ]
@@ -184,13 +184,13 @@ const Staking = () => {
 							When new IDOs are announced on ErgoPad, we will also announce a snapshot date and time. If you are staking during that time, you will be eligible to receive an allocation of the IDO tokens at a reduced price. This will be weighted based on your staking tier. You&apos;ll be able to check your allocation on this website and interact with the sales contract. 
 						</Typography>
 						
-						<Typography variant="p" sx={{ textAlign: 'center' }}><Checkbox color="tertiary" /> I have read and agree to the staking <MuiNextLink href="/terms">Terms and Conditions</MuiNextLink></Typography>
+						<Typography variant="p" sx={{ textAlign: 'center' }}><Checkbox color="primary" /> I have read and agree to the staking <MuiNextLink href="/terms">Terms and Conditions</MuiNextLink></Typography>
 						
 
 						<Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
 							<Button 
 								variant="contained"
-								
+								disabled
 								sx={{
 									color: '#fff',
 									fontSize: '1rem',
@@ -235,6 +235,7 @@ const Staking = () => {
 								<Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
 									<Button 
 										variant="contained"
+										disabled
 										sx={{
 											color: '#fff',
 											fontSize: '1rem',
