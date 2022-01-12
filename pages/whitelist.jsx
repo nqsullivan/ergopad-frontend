@@ -108,7 +108,7 @@ const Whitelist = () => {
                 console.log(res)
                 const maxSale = 550000
                 // console.log(res)
-                if (res.data.gmt > 1640538000 && !checkboxError && !soldOut) {
+                if (res.data.gmt > 1642266000 && !checkboxError && !soldOut) {
                     setbuttonDisabled(false)
                     setTimeLock(false)
                     // console.log('set enabled due to GMT date API call')
@@ -581,7 +581,7 @@ const Whitelist = () => {
 
                     </Box>
                     <Typography sx={{ color: theme.palette.text.secondary }}>{soldOut && 'We apologize for the inconvenience, the pre-sale round is sold out'}</Typography>
-                    <Typography sx={{ color: theme.palette.text.secondary }}>{timeLock && 'Please wait until 17:00 UTC, December 26th. If the submit button is not active after this time and all check-boxes are checked, refresh the page to activate the form.'}</Typography>
+                    <Typography sx={{ color: theme.palette.text.secondary }}>{timeLock && 'Please wait until 17:00 UTC, January 15th. If the submit button is not active after this time and all check-boxes are checked, refresh the page to activate the form.'}</Typography>
 					<Snackbar open={openError} autoHideDuration={6000} onClose={handleCloseError}>
 						<Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
 							{errorMessage}
