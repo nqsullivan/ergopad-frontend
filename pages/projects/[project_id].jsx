@@ -1,13 +1,16 @@
 import { useRouter } from 'next/router';
-import Image from 'next/image';
 import { Container, Typography, IconButton, Divider, Box } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import PageTitle from '@components/PageTitle';
 import Link from '@components/MuiNextLink';
 import CenterTitle from '@components/CenterTitle';
 import RelatedLinks from '@components/RelatedLinks/RelatedLinks';
 import TelegramIcon from '@mui/icons-material/Telegram';
+import ShareIcon from '@mui/icons-material/Share';
 import theme from '../../styles/theme';
-import fs from 'fs';
+import CopyToClipboard from '../../components/CopyToClipboard';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const relatedLinkList = [
   {
@@ -36,60 +39,100 @@ const relatedLinkList = [
   },
 ];
 
-const Project = (props) => {
+const Project = () => {
   const router = useRouter();
   const { project_id } = router.query;
-  const projects = props?.projects.filter(
-    (project) => project.project_id == project_id
-  );
-  const project = projects.length ? projects[0] : null;
+  const [isLoading, setLoading] = useState(true);
+  const [project, setProject] = useState({});
+
+  useEffect(() => {
+    const getProject = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.API_URL}/projects/${project_id}`
+        );
+        setProject(res.data);
+      } catch {
+        setProject(null);
+      }
+      setLoading(false);
+    };
+
+    if (project_id) getProject();
+  }, [project_id]);
 
   return (
     <>
       {project ? (
         <>
-          <Container maxWidth="760px" sx={{ maxWidth: '760px', mx: 'auto' }}>
-            <Image
-              src={project.banner_img_url}
-              alt={project.name}
-              layout="responsive"
-              height="40%"
-              width="80%"
-            />
-            <Box sx={{ mt: '-5rem' }}>
-              <PageTitle title={project.name} />
-            </Box>
-            <Typography variant="h3">
-              Funds raised:{' '}
-              {project.funds_raised ? project.funds_raised : 'N/A'}
-            </Typography>
-            <Divider sx={{ width: '100%', mb: '1.5rem' }} />
-            <Typography variant="h4">Description:</Typography>
-            <Typography variant="p">{project.description}</Typography>
-            <Divider sx={{ width: '100%', mb: '1.5rem' }} />
-            <Typography variant="h4">Meet the team:</Typography>
-            {/* todo: Add rendering for team */}
-            <Typography variant="p">
-              Update team description for content in this section.
-            </Typography>
-            {project.team_telegram_handle ? (
-              <Link
-                href={project.team_telegram_handle}
-                aria-label="Telegram"
-                title="Telegram"
-                rel="noreferrer"
-                target="_blank"
-              >
-                <IconButton aria-label="telegram">
-                  <TelegramIcon />
-                </IconButton>
-              </Link>
-            ) : (
-              <IconButton aria-label="telegram">
-                <TelegramIcon />
-              </IconButton>
-            )}
-          </Container>
+          {isLoading && (
+            <Container sx={{ mb: '3rem' }}>
+              <CircularProgress
+                size={24}
+                sx={{
+                  position: 'relative',
+                  left: '50%',
+                  marginLeft: '-12px',
+                  marginTop: '120px',
+                }}
+              />
+            </Container>
+          )}
+          {!isLoading && (
+            <Container maxWidth="760px" sx={{ maxWidth: '760px', mx: 'auto' }}>
+              <img
+                src={project.bannerImgUrl}
+                alt={project.name}
+                height="50%"
+                width="100%"
+              />
+              <Box sx={{ mt: '-5rem' }}>
+                <PageTitle title={project.name} />
+              </Box>
+              {/* <Typography variant="h4">Summary:</Typography> */}
+              <Typography variant="h5">{project.shortDescription}</Typography>
+              <Typography variant="h4">
+                Funds raised:{' '}
+                {project.fundsRaised ? project.fundsRaised : 'N/A'}
+              </Typography>
+              <Divider sx={{ width: '100%', mb: '1.5rem' }} />
+              <Typography variant="h4">Description</Typography>
+              <Typography variant="p">
+                {project.description
+                  ? project.description
+                  : 'Update project description for content in this section.'}
+              </Typography>
+              <Divider sx={{ width: '100%', mb: '1.5rem' }} />
+              <Typography variant="h4">Meet the team</Typography>
+              {/* todo: Add rendering for team */}
+              <Typography variant="p">
+                Update team description for content in this section.
+              </Typography>
+              {project.teamTelegramHandle ? (
+                <Link
+                  href={project.teamTelegramHandle}
+                  aria-label="Telegram"
+                  title="Telegram"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <IconButton aria-label="telegram">
+                    <TelegramIcon />
+                  </IconButton>
+                </Link>
+              ) : null}
+              <CopyToClipboard>
+                {({ copy }) => (
+                  <IconButton
+                    aria-label="share"
+                    onClick={() => copy(window.location)}
+                  >
+                    <ShareIcon />
+                  </IconButton>
+                )}
+              </CopyToClipboard>
+            </Container>
+          )}
         </>
       ) : (
         <CenterTitle
@@ -101,22 +144,6 @@ const Project = (props) => {
       <RelatedLinks title="Learn More" subtitle="" links={relatedLinkList} />
     </>
   );
-};
-
-export const getStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
-
-export const getStaticProps = async () => {
-  const data = JSON.parse(
-    fs.readFileSync('data/projects.json', { encoding: 'utf-8' })
-  );
-  return {
-    props: { ...data },
-  };
 };
 
 export default Project;
