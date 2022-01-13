@@ -9,13 +9,13 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import CenterTitle from '@components/CenterTitle';
 import RelatedLinks from '@components/RelatedLinks/RelatedLinks';
-import theme from '../../styles/theme';
+import theme from '@styles/theme';
 import Search from '@components/Search';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import ShareIcon from '@mui/icons-material/Share';
 import { useSearch } from '../../utils/SearchContext';
 import { useEffect, useState } from 'react';
-import CopyToClipboard from '../../components/CopyToClipboard';
+import CopyToClipboard from '@components/CopyToClipboard';
 import axios from 'axios';
 
 const relatedLinkList = [

@@ -7,8 +7,8 @@ import CenterTitle from '@components/CenterTitle';
 import RelatedLinks from '@components/RelatedLinks/RelatedLinks';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import ShareIcon from '@mui/icons-material/Share';
-import theme from '../../styles/theme';
-import CopyToClipboard from '../../components/CopyToClipboard';
+import theme from '@styles/theme';
+import CopyToClipboard from '@components/CopyToClipboard';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
