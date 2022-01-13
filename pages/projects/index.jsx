@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { Typography, Box, Container, Grid, IconButton } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import Link from '@components/MuiNextLink';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
@@ -11,8 +12,11 @@ import RelatedLinks from '@components/RelatedLinks/RelatedLinks';
 import theme from '../../styles/theme';
 import Search from '@components/Search';
 import TelegramIcon from '@mui/icons-material/Telegram';
-import fs from 'fs';
+import ShareIcon from '@mui/icons-material/Share';
 import { useSearch } from '../../utils/SearchContext';
+import { useEffect, useState } from 'react';
+import CopyToClipboard from '../../components/CopyToClipboard';
+import axios from 'axios';
 
 const relatedLinkList = [
   {
@@ -41,22 +45,40 @@ const relatedLinkList = [
   },
 ];
 
-const Projects = (props) => {
+const Projects = () => {
   const router = useRouter();
   const { search } = useSearch();
-  const filteredProjects = props.projects?.filter((project) =>
-    project.name.includes(search)
+  // loading spinner for submit button
+  const [isLoading, setLoading] = useState(true);
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    const getProjects = async () => {
+      try {
+        const res = await axios.get(`${process.env.API_URL}/projects`);
+        setProjects(res.data);
+      } catch (e) {
+        console.error(e);
+      }
+      setLoading(false);
+    };
+
+    getProjects();
+  }, []);
+
+  const filteredProjects = projects?.filter((project) =>
+    project.name.toLowerCase().includes(search.toLowerCase())
   );
   const launchedProjects = filteredProjects?.filter(
-    (project) => project.launched
+    (project) => project.isLaunched
   );
   const upcomingProjects = filteredProjects?.filter(
-    (project) => !project.launched
+    (project) => !project.isLaunched
   );
 
   const projectCard = (project) => {
     return (
-      <Grid item xs={12} sm={6} md={4} key={project.project_id}>
+      <Grid item xs={12} sm={6} md={4} key={project.id}>
         <Card
           sx={{
             display: 'flex',
@@ -66,30 +88,31 @@ const Projects = (props) => {
           }}
         >
           <CardActionArea
-            onClick={() =>
-              router.push('/projects/' + project.project_id.toString(10))
-            }
+            onClick={() => {
+              setLoading(true);
+              router.push('/projects/' + project.id.toString(10));
+            }}
           >
             <CardMedia
               component="img"
               alt=""
               height="180"
-              image={project.banner_img_url}
+              image={project.bannerImgUrl}
             />
             <CardContent>
               <Typography gutterBottom variant="h5" component="div">
                 {project.name}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {project.description}
+                {project.shortDescription}
               </Typography>
             </CardContent>
           </CardActionArea>
           <CardActions sx={{ justifyContent: 'right' }}>
-            {project.team_telegram_handle ? (
+            {project.teamTelegramHandle ? (
               <Link
                 sx={{ display: 'flex', justifyContent: 'center' }}
-                href={project.team_telegram_handle}
+                href={project.teamTelegramHandle}
                 aria-label="Telegram"
                 title="Telegram"
                 rel="noreferrer"
@@ -99,11 +122,19 @@ const Projects = (props) => {
                   <TelegramIcon />
                 </IconButton>
               </Link>
-            ) : (
-              <IconButton aria-label="telegram">
-                <TelegramIcon />
-              </IconButton>
-            )}
+            ) : null}
+            <CopyToClipboard>
+              {({ copy }) => (
+                <IconButton
+                  aria-label="share"
+                  onClick={() =>
+                    copy(window.location + '/' + project.id.toString(10))
+                  }
+                >
+                  <ShareIcon />
+                </IconButton>
+              )}
+            </CopyToClipboard>
           </CardActions>
         </Card>
       </Grid>
@@ -120,9 +151,20 @@ const Projects = (props) => {
         />
         <Box sx={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
           <Search placeholder="Search projects" sx={{}} />
+          {isLoading && (
+            <CircularProgress
+              size={24}
+              sx={{
+                position: 'absolute',
+                left: '50%',
+                marginLeft: '-12px',
+                marginTop: '72px',
+              }}
+            />
+          )}
         </Box>
       </Container>
-      <Container maxWidth="lg" sx={{}}>
+      <Container maxWidth="lg" sx={{ mt: 1 }}>
         <Typography variant="h4" sx={{ fontWeight: '800', mb: 4 }}>
           Upcoming
         </Typography>
@@ -139,15 +181,6 @@ const Projects = (props) => {
       <RelatedLinks title="Learn More" subtitle="" links={relatedLinkList} />
     </>
   );
-};
-
-export const getStaticProps = async () => {
-  const data = JSON.parse(
-    fs.readFileSync('data/projects.json', { encoding: 'utf-8' })
-  );
-  return {
-    props: { ...data },
-  };
 };
 
 export default Projects;
