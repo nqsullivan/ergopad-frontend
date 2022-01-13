@@ -6,15 +6,19 @@ import {
   FormControlLabel,
   Checkbox,
   Button,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import { forwardRef } from 'react';
 import { useEffect, useState } from 'react';
-import theme from '../../styles/theme';
+import theme from '@styles/theme';
 import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import FileUploadS3 from '../FileUploadS3';
+import FileUploadS3 from '@components/FileUploadS3';
+import PaginatedTable from '@components/PaginatedTable';
 
 const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -40,6 +44,8 @@ const initialFormErrors = Object.freeze({
 });
 
 const EditProjectForm = () => {
+  // project data
+  const [projectData, setProjectData] = useState([]);
   // form data is all strings
   const [formData, updateFormData] = useState(initialFormData);
   // form error object, all booleans
@@ -64,6 +70,22 @@ const EditProjectForm = () => {
       setbuttonDisabled(false);
     }
   }, [isLoading]);
+
+  useEffect(() => {
+    const getTableData = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`${process.env.API_URL}/projects`);
+        res.data.sort((a, b) => a.id - b.id);
+        setProjectData(res.data);
+      } catch (e) {
+        console.log(e);
+      }
+      setLoading(false);
+    };
+
+    getTableData();
+  }, []);
 
   // snackbar for error reporting
   const handleCloseError = (event, reason) => {
@@ -126,8 +148,7 @@ const EditProjectForm = () => {
     setLoading(true);
     setOpenError(false);
     try {
-      const parsedUrl = formData.url.split('/');
-      const projectId = parsedUrl[parsedUrl.length - 1];
+      const projectId = formData.url;
       const res = await axios.get(
         `${process.env.API_URL}/projects/${projectId}`
       );
@@ -155,8 +176,7 @@ const EditProjectForm = () => {
     setLoading(true);
     const errorCheck = Object.values(formErrors).every((v) => v === false);
     if (errorCheck) {
-      const parsedUrl = formData.url.split('/');
-      const projectId = parsedUrl[parsedUrl.length - 1];
+      const projectId = formData.url;
       const defaultOptions = {
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem(
@@ -205,28 +225,39 @@ const EditProjectForm = () => {
         <Grid container spacing={2} />
         <Grid item xs={12}>
           <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
-            Enter the url of the project to edit. Eg.
-            https://ergopad.io/projects/project_id and press FETCH PROJECT
-            DETAILS to prefill form
+            Enter project id manually or select a project from the table below.
           </Typography>
           <TextField
             InputProps={{ disableUnderline: true }}
             required
             fullWidth
             id="url"
-            label="Project Url"
+            label="Project Id"
             name="url"
             variant="filled"
             value={formData.url}
             onChange={handleChange}
           />
+          <Accordion sx={{ mt: 1 }}>
+            <AccordionSummary>
+              <strong>Expand to see projects</strong>
+            </AccordionSummary>
+            <AccordionDetails>
+              <PaginatedTable
+                rows={projectData}
+                onClick={(id) => {
+                  updateFormData({ ...formData, url: id });
+                }}
+              />
+            </AccordionDetails>
+          </Accordion>
         </Grid>
         <Box sx={{ position: 'relative', mb: 2 }}>
           <Button
             onClick={fetchDetails}
             disabled={buttonDisabled}
             variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+            sx={{ mt: 1, mb: 2 }}
           >
             Fetch Project Details
           </Button>
