@@ -75,7 +75,7 @@ const EditProjectForm = () => {
     const getTableData = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${process.env.API_URL}/projects`);
+        const res = await axios.get(`${process.env.API_URL}/projects/`);
         res.data.sort((a, b) => a.id - b.id);
         setProjectData(res.data);
       } catch (e) {

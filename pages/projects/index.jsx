@@ -55,7 +55,7 @@ const Projects = () => {
   useEffect(() => {
     const getProjects = async () => {
       try {
-        const res = await axios.get(`${process.env.API_URL}/projects`);
+        const res = await axios.get(`${process.env.API_URL}/projects/`);
         setProjects(res.data);
       } catch (e) {
         console.error(e);
