@@ -29,6 +29,7 @@ const Alert = forwardRef(function Alert(props, ref) {
 	return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
   
+const EVENT_NAME = 'presale-ergopad-202201wl';  
 
 const initialFormData = Object.freeze({
     name: '',
@@ -103,24 +104,30 @@ const Whitelist = () => {
     }
 
     const apiCheck = () => {
-        axios.get(`${process.env.API_URL}/util/whitelist`, { ...defaultOptions })
+        // call new endpoint for checking
+        axios.get(`${process.env.API_URL}/whitelist/info/${EVENT_NAME}`, { ...defaultOptions })
             .then(res => {
-                console.log(res)
-                const maxSale = 550000
-                // console.log(res)
-                if (res.data.gmt > 1642266000 && !checkboxError && !soldOut) {
-                    setbuttonDisabled(false)
-                    setTimeLock(false)
-                    // console.log('set enabled due to GMT date API call')
-                }
-                if (res.data.qty > maxSale && !soldOut) {
-                    setbuttonDisabled(true)
-                    // console.log('set disabled due to max applicants')
-                    setSoldOut(true)
-                }
-                else if (res.data.qty < maxSale) {
-                    // ('not sold out')
-                    setSoldOut(false)
+                // only enable button for the window
+                if (res.data.isBeforeSignup) {
+                    // if too early
+                    setbuttonDisabled(true);
+                    setTimeLock(true);
+                    setSoldOut(false);
+                } else if (res.data.isAfterSignup || res.data.isFundingComplete) {
+                    // if too late or sold out
+                    setbuttonDisabled(true);
+                    setTimeLock(false);
+                    setSoldOut(true);
+                } else {
+                    // else we are okay
+                    if (!checkboxError) {
+                        // but only if there are no checkbox errors
+                        setbuttonDisabled(false);
+                    } else {
+                        setbuttonDisabled(true);
+                    }
+                    setTimeLock(false);
+                    setSoldOut(false);
                 }
             })
             .catch((err) => {
@@ -130,7 +137,7 @@ const Whitelist = () => {
 
     useEffect(() => {
         apiCheck()
-    }, [buttonDisabled])
+    }, [])
 
     useEffect(() => {
         updateFormData({
@@ -153,8 +160,9 @@ const Whitelist = () => {
 
     useEffect(() => {
         if (isLoading) {
-            // console.log('set disabled due to isLoading')
             setbuttonDisabled(true)
+        } else {
+            setbuttonDisabled(false)
         }
     }, [isLoading])
 
@@ -209,8 +217,6 @@ const Whitelist = () => {
           // Trimming any whitespace
           [e.target.name]: e.target.value.trim()
         });
-
-        console.log(formData)
       };
 
     const handleChecked = (e) => {
@@ -225,9 +231,8 @@ const Whitelist = () => {
 
     useEffect(() => {
         apiCheck()
-        if (checkboxError && buttonDisabled != true) {
+        if (checkboxError) {
             setbuttonDisabled(true)
-            // console.log('set disabled due to checkbox error')
         }
     }, [checkboxError])
 
@@ -258,14 +263,14 @@ const Whitelist = () => {
             ergoAddress: formData.ergoAddress,
             chatHandle: formData.chatHandle,
             chatPlatform: formData.chatPlatform,
-            socialHandle: formData.socialHandle,
-            socialPlatform: formData.socialPlatform,
+            socialHandle: "__hardcoded_patch",
+            socialPlatform: "__hardcoded_patch",
+            event: EVENT_NAME
         }
 
 		if (errorCheck && emptyCheck) { 
-			axios.post(`${process.env.API_URL}/util/whitelist`, { ...form })
+			axios.post(`${process.env.API_URL}/whitelist/signup`, { ...form })
             .then(res => {
-                console.log(res);
                 console.log(res.data);
                 setLoading(false)
 
@@ -274,7 +279,7 @@ const Whitelist = () => {
             })
             .catch((err) => {
                 // snackbar for error message
-				setErrorMessage('ERROR ' + err.response.status + ' ' + err.response.data.message)
+				setErrorMessage('Error: ' + err.response.status + ' ' + err.response.data.message)
                 setOpenError(true)
                 console.log(err.response.data)
                 setLoading(false)
