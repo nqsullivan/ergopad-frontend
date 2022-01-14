@@ -603,7 +603,7 @@ const Whitelist = () => {
 						</DialogTitle>
 						<DialogContent>
 							<DialogContentText id="alert-dialog-description">
-								We have received your application and will get back to you shortly. If approved, instructions will be sent on how to secure your tokens on January 3rd. Thanks a lot for your support!
+								We have received your application and will get back to you shortly. If approved, instructions will be sent on how to secure your tokens on January 20th. Thanks a lot for your support!
 							</DialogContentText>
 						</DialogContent>
 						<DialogActions>
