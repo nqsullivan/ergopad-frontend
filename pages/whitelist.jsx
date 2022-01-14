@@ -279,9 +279,9 @@ const Whitelist = () => {
             })
             .catch((err) => {
                 // snackbar for error message
-				setErrorMessage('Error: ' + err.response.status + ' ' + err.response.data.message)
+				setErrorMessage('Error: ' + err.response.status + ' - ' + err.response.data)
                 setOpenError(true)
-                console.log(err.response.data)
+                console.log(err.response)
                 setLoading(false)
             }); 
 		}
