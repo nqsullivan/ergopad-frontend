@@ -115,33 +115,39 @@ const stakingHeading = {
 const stakingTiers = [
 	{
 		tier: '(A) Alpha',
-		value: '50000',
-		requirements: 'Twitter like, comment, and retweet',
-		weight: '3',
+		value: '25000',
+		requirements: 'Twitter like, retweet',
+		weight: '10',
 	},
 	{
 		tier: '(B) Beta',
+		value: '50000',
+		requirements: 'Twitter like, retweet',
+		weight: '24',
+	},
+	{
+		tier: '(Γ) Gamma',
 		value: '100000',
-		requirements: 'Twitter like, comment, and retweet',
-		weight: '10',
+		requirements: 'Twitter like, retweet',
+		weight: '58',
 	},
 	{
 		tier: '(Ω) Omega',
 		value: '250000',
-		requirements: 'Twitter like, retweet',
-		weight: '25',
+		requirements: 'Twitter like',
+		weight: '175',
 	},
 	{
 		tier: '(Φ) Phi',
 		value: '500000',
 		requirements: 'Twitter like',
-		weight: '60',
+		weight: '420',
 	},
 	{
 		tier: '(Σ) SIgma',
 		value: '1500000',
 		requirements: 'none',
-		weight: '200',
+		weight: '1500',
 	}
 ]
 
