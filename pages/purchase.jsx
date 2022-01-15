@@ -1,4 +1,4 @@
-import { Typography, Grid, Box, TextField, Button, Container } from '@mui/material';
+import { Typography, Grid, Box, TextField, Button, Container, LinearProgress } from '@mui/material';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
@@ -67,7 +67,8 @@ const defaultOptions = {
 };
 
 // wait time in mins
-const WAIT_TIME = 5;
+// config in assembler
+const WAIT_TIME = 10;
 
 const Purchase = () => {
     const mediumWidthUp = useMediaQuery((theme) => theme.breakpoints.up('md'));
@@ -97,7 +98,7 @@ const Purchase = () => {
     // helper text for sigvalue
     const [sigHelper, setSigHelper] = useState('')
     // erg conversion rate loading from backend
-    const [conversionRate, setConversionRate] = useState(0);
+    const [conversionRate, setConversionRate] = useState(1);
     // modal is closed
     // used to reopen modal if user closes the modal after form
     // is submitted
@@ -105,22 +106,26 @@ const Purchase = () => {
     // used to control the Timer component
     // timer
     const [timer, setTimer] = useState('');
+    const [progress, setProgress] = useState(0.0);
     // interval
     const [interval, setStateInterval] = useState(0);
 
     const apiCheck = () => {
-        axios.get(`${process.env.API_URL}/blockchain/info`, { ...defaultOptions })
-            .then(res => {
-                console.log(res)
-                if (res.data.currentTime_ms > 1641229200000 && !checkboxError) {
-                    setbuttonDisabled(false)
-                    // console.log('set enabled due to GMT date API call')
-                }
-            })
-            .catch((err) => {
-				console.log(err)
-            }); 
-    }
+      axios
+        .get(`${process.env.API_URL}/blockchain/info`, { ...defaultOptions })
+        .then((res) => {
+          console.log(res.data);
+          // todo: change button enable time
+          if (res.data.currentTime_ms > 1641229200000 && !checkboxError) {
+            setbuttonDisabled(false);
+          } else {
+            setbuttonDisabled(true);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
 
     // set erg/usd conversion rate
     const updateConversionRate = async () => {
@@ -141,8 +146,13 @@ const Purchase = () => {
         const pmm = mm.length === 2 ? mm : ('0'+mm);
         const pss = ss.length === 2 ? ss : ('0'+ss);
         setTimer(`${pmm}:${pss}`);
-        if (mm === 0 && ss === 0) {
-            clearInterval(interval);
+        // calculate progress
+        const n = Math.max(0, diff);
+        const d = WAIT_TIME * 60 * 1000;
+        setProgress((n / d) * 100);
+        // if zero check for wallet approval
+        if (Math.floor(diff / 1000) == 0) {
+            checkWalletApproval(false);
         }
     }
 
@@ -155,11 +165,23 @@ const Purchase = () => {
         setStateInterval(setInterval(() => updateWaitCounter(now), 1000));
     }, [])
 
+    // when loading button is disabled
     useEffect(() => {
-        if (!isLoading) {
+        setbuttonDisabled(isLoading);
+    }, [isLoading])
+
+    const { legal, risks, dao } = checkboxState;
+    const checkboxError = [legal, risks, dao].filter((v) => v).length !== 3
+
+    // if there are no checkbox errors confirm time from api
+    // if there are checkbox errors button is disabled regardless
+    useEffect(() => {
+        if (checkboxError) {
+            setbuttonDisabled(true);
+        } else {
             apiCheck()
         }
-    }, [isLoading])
+    }, [checkboxError])
 
     const handleCurrencyChange = (e, newAlignment) => {
         if (newAlignment !== null) {
@@ -191,17 +213,18 @@ const Purchase = () => {
         // show the conversion rate if currency is erg
         const additionalMsg =
           formData.currency === 'erg'
-            ? ' For erg current conversion rate is ' + conversionRate + '$.'
+            ? ' For erg current conversion rate is ~' + conversionRate + '$.'
             : '';
+        const allowed =
+          formData.currency === 'erg'
+            ? `~${Math.floor(sigusdAllowed / conversionRate)} erg`
+            : `${sigusdAllowed} sigUsd`;
         setSigusdApprovalMessage(
-          'This address is approved for ' +
-            sigusdAllowed +
-            ' sigUSD max.' +
-            additionalMsg
+          'This address is approved for ' + allowed + ' max.' + additionalMsg
         );
       } else if (sigusdAllowed < 0.0 && wallet) {
         setSigusdApprovalMessage(
-          'There is a pending transaction, either send the funds or wait for it to time-out to try again. '
+          'There is a pending transaction, either send the funds or wait(may take upto 10 mins) for it to time-out and refresh the page to try again. '
         );
       } else if (!wallet) {
         setSigusdApprovalMessage(
@@ -210,6 +233,9 @@ const Purchase = () => {
       }
     }, [sigusdAllowed, formData.currency, wallet, conversionRate]);
 
+    // todo: refactor
+    // the checkWalletApproval and useEffect for wallet has a good degree of code repeatation
+    // a good idea might be to refactor the two
     const checkWalletApproval = (noSnack) => {
         if (wallet != '') {
             axios.get(`${process.env.API_URL}/blockchain/allowance/${wallet}`)
@@ -219,13 +245,13 @@ const Purchase = () => {
                   setSigusdAllowed(res.data.sigusd);
                   setCheckTimeout(false);
                   setModalClosed(false);
-                  updateFormData({ ...formData, amount: '' });
+                  updateFormData({ ...formData, amount: 0 });
                   setFormErrors({ ...formErrors, amount: false });
                 } else if (res.data?.message === 'pending') {
                   setSigusdAllowed(res.data.sigusd);
                   setCheckTimeout(true);
                   setSigHelper(
-                    'Please wait for pending transaction to time-out'
+                    'Please wait(may take upto 10 mins) for pending transaction to time-out'
                   );
                   if (formErrors.amount != true) {
                     setFormErrors({
@@ -235,7 +261,7 @@ const Purchase = () => {
                   }
                   if (noSnack) {
                     setErrorMessage(
-                      'Transaction is still pending (it takes 5 minutes)'
+                      'Transaction is still pending (it takes approx. 10 minutes)'
                     );
                     setOpenError(true);
                   }
@@ -263,7 +289,7 @@ const Purchase = () => {
                         wallet: wallet
                     });
                 }
-                if (res.data?.message === 'not found') {
+                else if (res.data?.message === 'not found') {
                     setSigusdAllowed(0.0)
                     setFormErrors({
                         ...formErrors,
@@ -276,7 +302,7 @@ const Purchase = () => {
                 }
                 else if (res.data?.message === 'pending') {
                     setSigusdAllowed(res.data.sigusd)
-                    setSigHelper('Please wait for pending transaction to time-out')
+                    setSigHelper('Please wait(may take upto 10 mins) for pending transaction to time-out')
                     setFormErrors({
                         ...formErrors,
                         wallet: false,
@@ -303,29 +329,12 @@ const Purchase = () => {
         }
     }, [wallet])
 
-    useEffect(() => {
-        if (isLoading) {
-            setbuttonDisabled(true)
-        }
-    }, [isLoading])
-
     const handleChecked = (e) => {
         setCheckboxState({
             ...checkboxState,
             [e.target.name]: e.target.checked
         })
     }
-
-    const { legal, risks, dao } = checkboxState;
-    const checkboxError = [legal, risks, dao].filter((v) => v).length !== 3
-
-    useEffect(() => {
-        apiCheck()
-        if (checkboxError) {
-            setbuttonDisabled(true)
-            // console.log('set disabled due to checkbox error')
-        }
-    }, [checkboxError])
 
     // snackbar for error reporting
 	const handleCloseError = (e, reason) => {
@@ -527,15 +536,6 @@ const Purchase = () => {
                         error={formErrors.amount}
                         helperText={formErrors.amount && sigHelper}
                     />
-                    {checkTimeout && (
-                    <>
-                        <Button onClick={checkWalletApproval} variant="outlined" sx={{mt: -2, mb: 1}}>
-                            Check if transaction has timed-out
-                        </Button>
-                        <Typography variant="p" sx={{ fontSize: '1.2rem', mb: 1 }}>
-                            Estimated wait time: {timer}
-                        </Typography>
-                    </>)}
                     <Typography variant="p" sx={{ fontSize: '1rem', mb: 1 }}>Select which currency you would like to send: </Typography>
                     <ToggleButtonGroup
                         color="primary"
@@ -694,16 +694,16 @@ const Purchase = () => {
                             </Typography>
                             {(successMessageData.sigusd > 0.0) && 
                                 <>
-                                    <Typography variant="p" sx={{ fontSize: '0.9rem', mt: 2, mb: 2 }}>
+                                    <Typography variant="p" sx={{ fontSize: mediumWidthUp ? '0.8rem' : '0.7rem', mt: 1, mb: 1 }}>
                                         Note: Yoroi users will not need to add 0.01 erg, it is already done by Yoroi. Other wallet users do need to include that amount with the sigUSD tokens they send.
                                     </Typography>
                                 </>
                             }
                         </DialogContentText>
-                        <Card sx={{ background: '#fff', width: {xs: '200px', md: '370px'}, margin: '16px auto', display: 'flex', justifyContent: 'center'}}>
+                        <Card sx={{ background: '#fff', width: {xs: '180px', md: '280px'}, margin: 'auto', display: 'flex', justifyContent: 'center'}}>
                             <CardContent sx={{ display: 'flex', justifyContent: 'center' }}>
                                 <QRCode
-                                    size={mediumWidthUp ? 320 : 160}
+                                    size={mediumWidthUp ? 240 : 140}
                                     value={"https://explorer.ergoplatform.com/payment-request?address=" + successMessageData.address +
                                     "&amount=" + successMessageData.ergs}
                                 />
@@ -711,11 +711,23 @@ const Purchase = () => {
                         </Card>
                         {(successMessageData.sigusd > 0.0) && 
                                 <>
-                                    <Typography variant="p" sx={{ fontSize: '0.9rem', mt: 2, mb: 2 }}>
+                                    <Typography variant="p" sx={{ fontSize: mediumWidthUp ? '0.8rem' : '0.7rem', mt: 1, mb: 1 }}>
                                         The QR code will not enter sigUSD values for you, you must enter them manually. 
                                     </Typography>
                                 </>
                             }
+                        <>
+                            <Typography variant="p" sx={{ fontSize: '1rem', mb: 1 }}>
+                                Time remaining: {timer}
+                            </Typography>
+                            <Box sx={{px: 5, mb: 2}}>
+                                <LinearProgress variant="determinate" value={progress} />
+                            </Box>
+                            <Typography variant="p" sx={{ fontSize: mediumWidthUp ? '0.8rem' : '0.7rem', mb: 1 }}>
+                                Please make sure you complete the transaction before the timer runs out.
+                                If you are close to the timeout refresh the page and restart the transaction.
+                            </Typography>
+                        </>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleCloseSuccess} autoFocus>
