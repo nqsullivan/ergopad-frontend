@@ -70,43 +70,40 @@ const Purchase = () => {
     const mediumWidthUp = useMediaQuery((theme) => theme.breakpoints.up('md'));
     // boolean object for each checkbox
     const [checkboxState, setCheckboxState] = useState(initialCheckboxState)
-
     // set true to disable submit button
     const [buttonDisabled, setbuttonDisabled] = useState(true)
-
     // loading spinner for submit button
     const [isLoading, setLoading] = useState(false);
-
     // form error object, all booleans
     const [formErrors, setFormErrors] = useState(initialFormErrors)
-    
     const [formData, updateFormData] = useState(initialFormData);
-
     // open error snackbar 
 	const [openError, setOpenError] = useState(false);
     // change error message for error snackbar
 	const [errorMessage, setErrorMessage] = useState('Please eliminate form errors and try again')
-
     const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false)
     // change error message for error snackbar
 	const [successMessageSnackbar, setSuccessMessageSnackbar] = useState('Copied to Clipboard')
-
     // open success modal
 	const [openSuccess, setOpenSuccess] = useState(false);
-
     const [successMessageData, setSuccessMessageData] = useState(initialSuccessMessageData)
-
     const [sigusdAllowed, setSigusdAllowed] = useState(0.0)
-
     const [alignment, setAlignment] = useState('sigusd');
-
     const [sigusdApprovalMessage, setSigusdApprovalMessage] = useState('Please enter an Ergo address to see how much sigUSD is approved.')
-
     const [checkTimeout, setCheckTimeout] = useState(false)
-
     // helper text for sigvalue
     const [sigHelper, setSigHelper] = useState('')
-
+    // erg conversion rate loading from backend
+    const [conversionRate, setConversionRate] = useState(0);
+    // modal is closed
+    // used to reopen modal if user closes the modal after form
+    // is submitted
+    const [modalClosed, setModalClosed] = useState(false);
+    // used to control the Timer component
+    // timer
+    const [timer, setTimer] = useState('');
+    // interval
+    const [interval, setStateInterval] = useState(0);
 
     const apiCheck = () => {
         axios.get(`${process.env.API_URL}/blockchain/info`, { ...defaultOptions })
@@ -122,20 +119,60 @@ const Purchase = () => {
             }); 
     }
 
+    // set erg/usd conversion rate
+    const updateConversionRate = async () => {
+        try {
+            const res = await axios.get(`${process.env.API_URL}/asset/price/ergo`);
+            setConversionRate(res.data.price);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    // calculate and update the timer string
+    const updateWaitCounter = (lastSubmit) => {
+        const now = new Date().valueOf();
+        const diff = lastSubmit - now + 5 * 60 * 1000;
+        const mm = Math.floor(diff / (60 * 1000)).toString(10);
+        const ss = (Math.floor(diff / (1000)) % 60).toString(10);
+        const pmm = mm.length === 2 ? mm : ('0'+mm);
+        const pss = ss.length === 2 ? ss : ('0'+ss);
+        setTimer(`${pmm}:${pss}`);
+        if (mm === 0 && ss === 0) {
+            clearInterval(interval);
+        }
+    }
+
+    // when component is loaded initializing the conversion rate and counter
+    useEffect(() => {
+        updateConversionRate();
+        const now = new Date().valueOf();
+        // update counter every 1 second or 1000ms
+        setStateInterval(setInterval(() => updateWaitCounter(now), 1000));
+    }, [])
+
     useEffect(() => {
         if (!isLoading) {
             apiCheck()
         }
-    }, [buttonDisabled])
+    }, [isLoading])
 
     const handleCurrencyChange = (e, newAlignment) => {
         if (newAlignment !== null) {
             setAlignment(newAlignment);
             updateFormData({
                 ...formData,
+                amount: 0,
                 currency: e.target.value
             });
+            setFormErrors({
+                ...formErrors,
+                amount: true,
+            })
         }
+
+        // get latest data on change
+        updateConversionRate();
     };
 
     const { wallet } = useWallet()
@@ -146,42 +183,58 @@ const Purchase = () => {
     }
 
     useEffect(() => {
-        if (sigusdAllowed >= 0.0) {
-            setSigusdApprovalMessage('This address is approved for ' + sigusdAllowed + ' sigUSD max')
-        }
-        else if (sigusdAllowed < 0.0 && wallet) {
-            setSigusdApprovalMessage('There is a pending transaction, either send the funds or wait for it to time-out to try again. ')
-        }
-        else if (!wallet) {
-            setSigusdApprovalMessage('Please enter an Ergo address to see how much sigUSD is approved.')
-        }
-    }, [sigusdAllowed])
+      if (sigusdAllowed >= 0.0) {
+        // show the conversion rate if currency is erg
+        const additionalMsg =
+          formData.currency === 'erg'
+            ? ' For erg current conversion rate is ' + conversionRate + '.'
+            : '';
+        setSigusdApprovalMessage(
+          'This address is approved for ' +
+            sigusdAllowed +
+            ' sigUSD max.' +
+            additionalMsg
+        );
+      } else if (sigusdAllowed < 0.0 && wallet) {
+        setSigusdApprovalMessage(
+          'There is a pending transaction, either send the funds or wait for it to time-out to try again. '
+        );
+      } else if (!wallet) {
+        setSigusdApprovalMessage(
+          'Please enter an Ergo address to see how much sigUSD is approved.'
+        );
+      }
+    }, [sigusdAllowed, formData.currency, wallet, conversionRate]);
 
     const checkWalletApproval = (noSnack) => {
         if (wallet != '') {
             axios.get(`${process.env.API_URL}/blockchain/allowance/${wallet}`)
             .then(res => {
-                console.log(res);
                 console.log(res.data);
                 if (res.data?.message === 'remaining sigusd') {
-                    setSigusdAllowed(res.data.sigusd)
-                    setCheckTimeout(false)
-                    handleChange({target: {name: 'amount', value: ''}})
-                }
-                else if (res.data?.message === 'pending') {
-                    setSigusdAllowed(res.data.sigusd)
-                    setCheckTimeout(true)
-                    setSigHelper('Please wait for pending transaction to time-out')
-                    if (formErrors.amount != true) {
-                        setFormErrors({
-                            ...formErrors,
-                            amount: true
-                        });
-                    }
-                    if (noSnack) {
-                        setErrorMessage('Transaction is still pending (it takes 5 minutes)')
-                        setOpenError(true)
-                    }
+                  setSigusdAllowed(res.data.sigusd);
+                  setCheckTimeout(false);
+                  setModalClosed(false);
+                  updateFormData({ ...formData, amount: '' });
+                  setFormErrors({ ...formErrors, amount: false });
+                } else if (res.data?.message === 'pending') {
+                  setSigusdAllowed(res.data.sigusd);
+                  setCheckTimeout(true);
+                  setSigHelper(
+                    'Please wait for pending transaction to time-out'
+                  );
+                  if (formErrors.amount != true) {
+                    setFormErrors({
+                      ...formErrors,
+                      amount: true,
+                    });
+                  }
+                  if (noSnack) {
+                    setErrorMessage(
+                      'Transaction is still pending (it takes 5 minutes)'
+                    );
+                    setOpenError(true);
+                  }
                 }
             })
             .catch((err) => {
@@ -194,7 +247,6 @@ const Purchase = () => {
         if (wallet != '') {
             axios.get(`${process.env.API_URL}/blockchain/allowance/${wallet}`)
             .then(res => {
-                console.log(res);
                 console.log(res.data);
                 if (res.data?.message === 'remaining sigusd') {
                     setSigusdAllowed(res.data.sigusd)
@@ -265,7 +317,7 @@ const Purchase = () => {
 
     useEffect(() => {
         apiCheck()
-        if (checkboxError && buttonDisabled != true) {
+        if (checkboxError) {
             setbuttonDisabled(true)
             // console.log('set disabled due to checkbox error')
         }
@@ -288,6 +340,8 @@ const Purchase = () => {
 
     // modal for success message
 	const handleCloseSuccess = () => {
+        // show additional button to reopen modal
+        setModalClosed(true);
 		setOpenSuccess(false);
 	};
 
@@ -298,7 +352,7 @@ const Purchase = () => {
 
     const handleChange = (e) => {
         if (e.target.value == '' || e.target.value == 0.0) {
-            setSigHelper('Please enter the amount you\'d like to invest in sigUSD. ')
+            setSigHelper('Please enter the amount you\'d like to invest in sigUSD or erg.')
 			setFormErrors({
 				...formErrors,
 				[e.target.name]: true
@@ -312,27 +366,36 @@ const Purchase = () => {
 		}
 
         if (e.target.name == 'amount') {
-			const sigNumber = Number(e.target.value)
-			if (sigNumber <= 20000.0 && sigNumber > 0.0 && sigNumber <= sigusdAllowed) {
-				setFormErrors({
-					...formErrors,
-					amount: false
-				});
-                updateFormData({
-                    ...formData,
-                    amount: sigNumber,
-                });
-			}
-			else {
-                setSigHelper('Must be a value within your approved amount')
-				setFormErrors({
-					...formErrors,
-					amount: true
-				});
-			}
-		}
-        
-        // console.log(formErrors)
+          const amount = Number(e.target.value);
+          // if currency is in erg calculate sigUSD value to check if value is
+          // within the approved amount
+          const sigNumber =
+            formData.currency === 'sigusd' ? amount : amount * conversionRate;
+          if (
+            sigNumber <= 20000.0 &&
+            sigNumber > 0.0 &&
+            sigNumber <= sigusdAllowed
+          ) {
+            setFormErrors({
+              ...formErrors,
+              amount: false,
+            });
+            updateFormData({
+              ...formData,
+              amount: amount,
+            });
+          } else {
+            setSigHelper('Must be a value within your approved amount');
+            setFormErrors({
+              ...formErrors,
+              amount: true,
+            });
+            updateFormData({
+                ...formData,
+                amount: amount,
+              });
+          }
+        }
       };
 
     const handleSubmit = (e) => {
@@ -341,19 +404,25 @@ const Purchase = () => {
 
 		const emptyCheck = Object.values(formData).every(v => (v != '') || (v != 0))
 		const errorCheck = Object.values(formErrors).every(v => v === false)
-
-        // console.log(formData)
-        // console.log(formErrors)
-        // console.log('empty: ' + emptyCheck + ' error: ' + errorCheck)
 		
 		if (errorCheck && emptyCheck) { 
             console.log(formData)
+            // new request format
+            const data = {
+              wallet: formData.wallet,
+              vestingAmount: formData.amount,
+              vestingScenario:
+                formData.currency === 'sigusd'
+                  ? 'presale_sigusd'
+                  : 'presale_ergo',
+            };
+            // todo: update endpoint
+            // use var data instead of formData
+            setModalClosed(false);
 			axios.post(`${process.env.API_URL}/blockchain/purchase/`, { ...formData })
             .then(res => {
-                console.log(res);
                 console.log(res.data);
                 setLoading(false)
-
                 // modal for success message
 				setOpenSuccess(true)
                 setSuccessMessageData({
@@ -362,14 +431,19 @@ const Purchase = () => {
                     address: res.data.smartContract,
                     sigusd: (formData.currency === 'sigusd') ? formData.amount : 0.0
                 })
+                
+                clearInterval(interval);
+                const now = new Date().valueOf();
+                setStateInterval(setInterval(() => updateWaitCounter(now, 1000)));
+
                 checkWalletApproval(false)
             })
             .catch((err) => {
                 if (err.response?.status) {
-                    setErrorMessage('ERROR ' + err.response?.status + ' ' + err.response?.data?.message)
+                    setErrorMessage('Error: ' + err.response?.status + ' ' + err.response?.data?.message)
                 }
                 else {
-                    setErrorMessage('ERROR: Network error')
+                    setErrorMessage('Error: Network error')
                 }
                 
                 setOpenError(true)
@@ -439,18 +513,25 @@ const Purchase = () => {
                         InputProps={{ disableUnderline: true }}
                         required
                         fullWidth
-                        id="sigValue"
-                        label="Enter the sigUSD value you are sending"
+                        id="amount"
+                        label={`Enter the ${formData.currency === 'sigusd' ? 'sigUSD' : 'erg' } value you are sending`}
                         name="amount"
                         variant="filled"
                         sx={{ mb: 3 }}
                         onChange={handleChange}
+                        value={formData.amount}
                         error={formErrors.amount}
                         helperText={formErrors.amount && sigHelper}
                     />
-
-                    {checkTimeout && <Button onClick={checkWalletApproval} variant="outlined" sx={{mt: -2, mb: 3}}>Check if transaction has timed-out</Button>}
-
+                    {checkTimeout && (
+                    <>
+                        <Button onClick={checkWalletApproval} variant="outlined" sx={{mt: -2, mb: 1}}>
+                            Check if transaction has timed-out
+                        </Button>
+                        <Typography variant="p" sx={{ fontSize: '1.2rem', mb: 1 }}>
+                            Estimated wait time: {timer}
+                        </Typography>
+                    </>)}
                     <Typography variant="p" sx={{ fontSize: '1rem', mb: 1 }}>Select which currency you would like to send: </Typography>
                     <ToggleButtonGroup
                         color="primary"
@@ -553,6 +634,11 @@ const Purchase = () => {
                                 marginLeft: '-12px',
                             }}
                         />
+                    )}
+                    {modalClosed && (
+                        <Button onClick={() => setOpenSuccess(true)} variant="outlined" sx={{mt: 1, mb: 1}}>
+                            Re-Open Payment Modal
+                        </Button>
                     )}
 				</Box>
 
