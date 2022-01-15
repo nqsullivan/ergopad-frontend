@@ -146,8 +146,9 @@ const Purchase = () => {
     // when component is loaded initializing the conversion rate and counter
     useEffect(() => {
         updateConversionRate();
-        const now = new Date().valueOf();
         // update counter every 1 second or 1000ms
+        const now = new Date().valueOf();
+        clearInterval(interval);
         setStateInterval(setInterval(() => updateWaitCounter(now), 1000));
     }, [])
 
@@ -432,8 +433,8 @@ const Purchase = () => {
                     sigusd: (formData.currency === 'sigusd') ? formData.amount : 0.0
                 })
                 
-                clearInterval(interval);
                 const now = new Date().valueOf();
+                clearInterval(interval);
                 setStateInterval(setInterval(() => updateWaitCounter(now, 1000)));
 
                 checkWalletApproval(false)
