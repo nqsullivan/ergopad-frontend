@@ -66,6 +66,9 @@ const defaultOptions = {
     },
 };
 
+// wait time in mins
+const WAIT_TIME = 5;
+
 const Purchase = () => {
     const mediumWidthUp = useMediaQuery((theme) => theme.breakpoints.up('md'));
     // boolean object for each checkbox
@@ -132,9 +135,9 @@ const Purchase = () => {
     // calculate and update the timer string
     const updateWaitCounter = (lastSubmit) => {
         const now = new Date().valueOf();
-        const diff = lastSubmit - now + 5 * 60 * 1000;
-        const mm = Math.floor(diff / (60 * 1000)).toString(10);
-        const ss = (Math.floor(diff / (1000)) % 60).toString(10);
+        const diff = lastSubmit - now + WAIT_TIME * 60 * 1000;
+        const mm = Math.max(0, Math.floor(diff / (60 * 1000))).toString(10);
+        const ss = Math.max(0, (Math.floor(diff / (1000)) % 60)).toString(10);
         const pmm = mm.length === 2 ? mm : ('0'+mm);
         const pss = ss.length === 2 ? ss : ('0'+ss);
         setTimer(`${pmm}:${pss}`);
@@ -188,7 +191,7 @@ const Purchase = () => {
         // show the conversion rate if currency is erg
         const additionalMsg =
           formData.currency === 'erg'
-            ? ' For erg current conversion rate is ' + conversionRate + '.'
+            ? ' For erg current conversion rate is ' + conversionRate + '$.'
             : '';
         setSigusdApprovalMessage(
           'This address is approved for ' +
@@ -383,7 +386,7 @@ const Purchase = () => {
             });
             updateFormData({
               ...formData,
-              amount: amount,
+              amount: e.target.value,
             });
           } else {
             setSigHelper('Must be a value within your approved amount');
@@ -393,7 +396,7 @@ const Purchase = () => {
             });
             updateFormData({
                 ...formData,
-                amount: amount,
+                amount: e.target.value,
               });
           }
         }
@@ -670,7 +673,7 @@ const Purchase = () => {
                                     navigator.clipboard.writeText(successMessageData.ergs)
                                     copyToClipboard(successMessageData.ergs)
                                 }
-                            } variant="span" sx={{ color: 'text.primary' }}>
+                            } variant="span" sx={{ color: 'text.primary', cursor: 'pointer' }}>
                                 {successMessageData.ergs} Erg
                             </Typography>
                             {(successMessageData.sigusd > 0.0) && 
@@ -678,7 +681,7 @@ const Purchase = () => {
                                 navigator.clipboard.writeText(successMessageData.sigusd)
                                 copyToClipboard(successMessageData.sigusd)
                             }
-                            } variant="span" sx={{ color: 'text.primary' }}>
+                            } variant="span" sx={{ color: 'text.primary', cursor: 'pointer' }}>
                                  {successMessageData.sigusd} sigUSD
                             </Typography></>}
                             {' '}to{' '}
@@ -686,7 +689,7 @@ const Purchase = () => {
                                     navigator.clipboard.writeText(successMessageData.address)
                                     copyToClipboard(successMessageData.address)
                                 }
-                            } variant="span" sx={{ color: 'text.primary' }}>
+                            } variant="span" sx={{ color: 'text.primary', cursor: 'pointer' }}>
                                 {friendlyAddress(successMessageData.address)}
                             </Typography>
                             {(successMessageData.sigusd > 0.0) && 
