@@ -22,7 +22,7 @@ const drawerLinks = [
   { title: 'Roadmap', path: '/#roadmap' },
   { title: 'Projects', path: '/projects' },
   { title: 'Apply for IDO', path: '/apply' },
-  { title: 'Documentation', path: '/documentation' },
+  { title: 'Documentation', path: 'https://github.com/ergo-pad/ergopad/blob/dev/docs/README.md' },
   { title: 'Tutorials', path: '/guides' },
   { title: 'FAQ', path: '/faq' },
   

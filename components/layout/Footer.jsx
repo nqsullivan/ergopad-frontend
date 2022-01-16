@@ -93,7 +93,7 @@ const Footer = () => {
 					<Typography variant='inherit' sx={titleStyles}>SUPPORT</Typography>
 					<List>
 						<ListItem disableGutters sx={listItemStyles}>
-							<Link activeClassName='active' href='https://github.com/ergo-pad/ergopad/blob/main/docs/README.md' target="_blank" rel="noreferrer" sx={linkStyles}>
+							<Link activeClassName='active' href='https://github.com/ergo-pad/ergopad/blob/dev/docs/README.md' target="_blank" rel="noreferrer" sx={linkStyles}>
 								Documentation
 							</Link>
 						</ListItem>
