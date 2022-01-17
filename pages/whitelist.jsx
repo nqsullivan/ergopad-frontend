@@ -603,7 +603,7 @@ const Whitelist = () => {
 						</DialogTitle>
 						<DialogContent>
 							<DialogContentText id="alert-dialog-description">
-								We have received your application and will get back to you shortly. If approved, instructions will be sent on how to secure your tokens on January 20th. Thanks a lot for your support!
+								The white-list is now full, but we have received your application and have placed you on a wait list. After the white-list investing period expires, waitlisted individuals will be invited to invest on a first-come-first-served basis. Instructions will be sent on how to secure your tokens at that time. Thank you for your support!
 							</DialogContentText>
 						</DialogContent>
 						<DialogActions>
