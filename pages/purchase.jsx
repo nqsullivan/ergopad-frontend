@@ -85,8 +85,9 @@ const Purchase = () => {
 	const [openError, setOpenError] = useState(false);
     // change error message for error snackbar
 	const [errorMessage, setErrorMessage] = useState('Please eliminate form errors and try again')
+    // open success snackbar
     const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false)
-    // change error message for error snackbar
+    // change message for success snackbar
 	const [successMessageSnackbar, setSuccessMessageSnackbar] = useState('Copied to Clipboard')
     // open success modal
 	const [openSuccess, setOpenSuccess] = useState(false);
