@@ -327,6 +327,8 @@ const Purchase = () => {
             });
             setSigusdAllowed(0.0)
         }
+        // hide reopen modal button on wallet change
+        setModalClosed(false);
     }, [wallet])
 
     const handleChecked = (e) => {
