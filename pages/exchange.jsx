@@ -124,6 +124,7 @@ const Exchange = () => {
   const [interval, setStateInterval] = useState(0);
 
   const apiCheck = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(`${process.env.API_URL}/blockchain/info`, {
         ...defaultOptions,
@@ -137,69 +138,81 @@ const Exchange = () => {
     } catch (e) {
       console.log(e);
     }
+    setLoading(false);
+  };
+
+  // test for pending transactions
+  const isTransactionPending = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.API_URL}/assembler/status/${wallet}`
+      );
+      return (
+        res.data.values().filter((status) => status === 'pending').length > 0
+      );
+    } catch {
+      return false;
+    }
   };
 
   const checkWalletApproval = async () => {
     if (wallet != '') {
+      const pending = await isTransactionPending();
+      if (pending) {
+        setValueAllowed({
+          seedsale: -1,
+          strategic: -1,
+        });
+        setValueHelper(
+          'Please wait(may take upto 10 mins) for pending transaction to time-out'
+        );
+        setFormErrors({
+          ...formErrors,
+          wallet: false,
+          amount: true,
+        });
+        updateFormData({
+          ...formData,
+          wallet: wallet,
+        });
+        return;
+      }
+
+      // if not pending
       try {
-        // todo: hit endpoint to check pending transactions
-        const approval = {
-          data: {
-            message: 'ok',
-          },
-        };
-        if (approval.data.message === 'ok') {
-          // no pending transactions
-          // hit balances endpoint and get allowed ammount for seedsale and strategic tokens
-          const res = await axios.get(
-            `${process.env.API_URL}/asset/balance/${wallet}`
-          );
-          const tokens = res.data.balance.ERG.tokens;
-          const seedsale = tokens
-            .filter((token) => token.tokenId === ERGOPAD_SEEDSALE)
-            .map((token) => token.amount / Math.pow(10, token.decimals))
-            .reduce((a, c) => a + c, 0);
-          const strategic = tokens
-            .filter((token) => token.tokenId === ERGOPAD_STRATEGIC)
-            .map((token) => token.amount / Math.pow(10, token.decimals))
-            .reduce((a, c) => a + c, 0);
-          setModalClosed(false);
-          setValueAllowed({
-            ...initialValueAllowed,
-            seedsale,
-            strategic,
-          });
-          updateFormData({ ...formData, wallet: wallet, vestingAmount: 0 });
-          setFormErrors({ ...formErrors, wallet: false, vestingAmount: false });
-        } else if (approval.data.message === 'pending') {
-          setValueAllowed(initialValueAllowed);
-          setValueHelper(
-            'Please wait(may take upto 10 mins) for pending transaction to time-out'
-          );
-          setFormErrors({
-            ...formErrors,
-            vestingAmount: true,
-            wallet: false,
-          });
-          updateFormData({
-            ...formData,
-            wallet: wallet,
-          });
-        } else {
-          // invalid wallet
-          setModalClosed(false);
-          setValueAllowed(initialValueAllowed);
-          setFormErrors({
-            ...formErrors,
-            wallet: true,
-          });
-          updateFormData({
-            ...formData,
-            wallet: wallet,
-          });
-        }
+        const res = await axios.get(
+          `${process.env.API_URL}/asset/balance/${wallet}`
+        );
+        const tokens = res.data.balance.ERG.tokens;
+        const seedsale = tokens
+          .filter((token) => token.tokenId === ERGOPAD_SEEDSALE)
+          .map((token) => token.amount / Math.pow(10, token.decimals))
+          .reduce((a, c) => a + c, 0);
+        const strategic = tokens
+          .filter((token) => token.tokenId === ERGOPAD_STRATEGIC)
+          .map((token) => token.amount / Math.pow(10, token.decimals))
+          .reduce((a, c) => a + c, 0);
+        setModalClosed(false);
+        setValueAllowed({
+          ...initialValueAllowed,
+          seedsale,
+          strategic,
+        });
+        updateFormData({ ...formData, wallet: wallet, vestingAmount: 0 });
+        setFormErrors({ ...formErrors, wallet: false, vestingAmount: false });
       } catch (e) {
         console.log(e);
+        // invalid wallet
+        setModalClosed(false);
+        setValueAllowed(initialValueAllowed);
+        setFormErrors({
+          ...formErrors,
+          wallet: true,
+        });
+        updateFormData({
+          ...formData,
+          wallet: wallet,
+        });
       }
     } else {
       setModalClosed(false);
@@ -226,7 +239,7 @@ const Exchange = () => {
     setProgress((n / d) * 100);
     // if zero check for wallet approval
     if (Math.floor(diff / 1000) == 0) {
-      checkWalletApproval(false);
+      checkWalletApproval();
     }
   };
 
@@ -357,8 +370,47 @@ const Exchange = () => {
     const errorCheck = Object.values(formErrors).every((v) => v === false);
 
     if (errorCheck && emptyCheck) {
-      // todo: make sure the values and keys are correct
-      console.log(formData);
+      try {
+        const data = {
+          ...formData,
+          vestingScenario:
+            formData.vestingAmount === 'seedsale'
+              ? 'seedsale'
+              : 'strategic_sale',
+        };
+        setModalClosed(false);
+        const res = await axios.post(`${process.env.API_URL}/vesting/vest/`, {
+          ...data,
+        });
+        console.log(res.data);
+        setLoading(false);
+        // modal for success message
+        setOpenSuccess(true);
+        // setSuccessMessageData({
+        //   ...successMessageData,
+        //   ergs: res.data.total,
+        //   address: res.data.smartContract,
+        //   sigusd: formData.currency === 'sigusd' ? formData.amount : 0.0,
+        // });
+
+        const now = new Date().valueOf();
+        clearInterval(interval);
+        setStateInterval(setInterval(() => updateWaitCounter(now, 1000)));
+
+        checkWalletApproval();
+      } catch (err) {
+        if (err.response?.status) {
+          setErrorMessage(
+            'Error: ' + err.response?.status + ' ' + err.response?.data?.message
+          );
+        } else {
+          setErrorMessage('Error: Network error');
+        }
+
+        setOpenError(true);
+        console.log(err);
+        setLoading(false);
+      }
     } else {
       let updateErrors = {};
       Object.entries(formData).forEach((entry) => {
@@ -491,8 +543,7 @@ const Exchange = () => {
                 }}
               />
               <FormHelperText>
-                {formErrors.wallet &&
-                  'Enter a valid ergo wallet address'}
+                {formErrors.wallet && 'Enter a valid ergo wallet address'}
               </FormHelperText>
             </FormControl>
             <Button
