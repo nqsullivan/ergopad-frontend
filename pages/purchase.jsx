@@ -477,7 +477,7 @@ const Purchase = () => {
             })
             .catch((err) => {
                 if (err.response?.status) {
-                    setErrorMessage('Error: ' + err.response?.status + ' ' + err.response?.data?.message)
+                    setErrorMessage('Error: ' + err.response?.status + ' ' + err.response?.data)
                 }
                 else {
                     setErrorMessage('Error: Network error')

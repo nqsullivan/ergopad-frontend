@@ -401,7 +401,7 @@ const Exchange = () => {
       } catch (err) {
         if (err.response?.status) {
           setErrorMessage(
-            'Error: ' + err.response?.status + ' ' + err.response?.data?.message
+            'Error: ' + err.response?.status + ' ' + err.response?.data
           );
         } else {
           setErrorMessage('Error: Network error');
