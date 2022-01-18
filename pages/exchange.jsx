@@ -492,7 +492,7 @@ const Exchange = () => {
               />
               <FormHelperText>
                 {formErrors.wallet &&
-                  'Your address must be approved on the whitelist'}
+                  'Enter a valid ergo wallet address'}
               </FormHelperText>
             </FormControl>
             <Button
