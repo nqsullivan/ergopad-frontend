@@ -18,19 +18,29 @@ const vestedHeading = {
 const VestingTable = ({ vestedObject }) => {
     const checkSmall = useMediaQuery((theme) => theme.breakpoints.up('sm'));
 
+    if (vestedObject.length === 0) {
+        return <>
+            <Box>
+                <Typography variant="p" color="text.primary" sx={{ fontWeight: '400', fontSize: '1rem', mb: 1, pl: 1 }}>
+                    Looks like you do not have any locked tokens associated with your wallet.
+                </Typography>
+            </Box>
+        </>
+    }
+
     return (
         <>{vestedObject.map(vestedToken => (
-            <Box sx={{ mt: 4 }}>
+            <Box sx={{ mt: 4 }} key={vestedToken.tokenId}>
                 <Typography variant="p" color="text.primary" sx={{ fontWeight: '600', fontSize: '1rem', mb: 1, pl: 1 }}>
                     Name: {' '}
                     <Typography variant="span" color="text.secondary" sx={{ textTransform: 'capitalize', fontWeight: '400' }}>
-                        {vestedToken.tokenName}
+                        {vestedToken.name}
                     </Typography>
                 </Typography>
                 <Typography variant="p" color="text.primary" sx={{ fontWeight: '600', fontSize: '1rem', mb: 1, pl: 1 }}>
                     Total Locked: {' '}
                     <Typography variant="span" color="text.secondary" sx={{ textTransform: 'capitalize', fontWeight: '400' }}>
-                        {vestedToken.remainingVested}
+                        {vestedToken.totalVested}
                     </Typography>
                 </Typography>
                 {checkSmall ? (
