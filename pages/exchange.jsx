@@ -7,15 +7,12 @@ import {
   Container,
   LinearProgress,
 } from '@mui/material';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import FilledInput from '@mui/material/FilledInput';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import FormHelperText from '@mui/material/FormHelperText';
+import MuiNextLink from '@components/MuiNextLink';
 import PageTitle from '@components/PageTitle';
-import theme from '../styles/theme';
 import axios from 'axios';
 import { useWallet } from 'utils/WalletContext';
 import { useAddWallet } from 'utils/AddWalletContext';
@@ -50,12 +47,6 @@ const initialFormErrors = Object.freeze({
   vestingAmount: false,
 });
 
-const initialCheckboxState = Object.freeze({
-  legal: false,
-  risks: false,
-  dao: false,
-});
-
 const initialSuccessMessageData = Object.freeze({
   ergs: 0.0,
   address: '',
@@ -65,7 +56,6 @@ const initialSuccessMessageData = Object.freeze({
 const initialValueAllowed = Object.freeze({
   seedsale: 0,
   strategic: 0,
-  strategic2: 0,
 });
 
 function friendlyAddress(addr, tot = 13) {
@@ -85,8 +75,6 @@ const ERGOPAD_SEEDSALE =
   '02203763da5f27c01ba479c910e479c4f479e5803c48b2bf4fd4952efa5c62d9';
 const ERGOPAD_STRATEGIC =
   '60def1ed45ffc6493c8c6a576c7a23818b6b2dfc4ff4967e9867e3795886c437';
-const ERGOPAD_STRATEGIC_2 =
-  'b0c092bbe7ab2f9998f25e7952f43bf1ee2cd7b1a5e1a4d769ec3d8dcdb3e6f0';
 
 // wait time in mins
 // config in assembler
@@ -98,8 +86,6 @@ const Exchange = () => {
   // standard form stuff
   // alignment for currency
   const [alignment, setAlignment] = useState('seedsale');
-  // boolean object for each checkbox
-  const [checkboxState, setCheckboxState] = useState(initialCheckboxState);
   // submit button
   const [buttonDisabled, setbuttonDisabled] = useState(true);
   const [isLoading, setLoading] = useState(false);
@@ -138,11 +124,13 @@ const Exchange = () => {
   const [interval, setStateInterval] = useState(0);
 
   const apiCheck = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(`${process.env.API_URL}/blockchain/info`, {
         ...defaultOptions,
       });
-      if (res.data.currentTime_ms > 1641229200000 && !checkboxError) {
+      // todo: fix this time
+      if (res.data.currentTime_ms > 1641229200000) {
         setbuttonDisabled(false);
       } else {
         setbuttonDisabled(true);
@@ -150,74 +138,81 @@ const Exchange = () => {
     } catch (e) {
       console.log(e);
     }
+    setLoading(false);
+  };
+
+  // test for pending transactions
+  const isTransactionPending = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.API_URL}/assembler/status/${wallet}`
+      );
+      return (
+        res.data.values().filter((status) => status === 'pending').length > 0
+      );
+    } catch {
+      return false;
+    }
   };
 
   const checkWalletApproval = async () => {
     if (wallet != '') {
+      const pending = await isTransactionPending();
+      if (pending) {
+        setValueAllowed({
+          seedsale: -1,
+          strategic: -1,
+        });
+        setValueHelper(
+          'Please wait(may take upto 10 mins) for pending transaction to time-out'
+        );
+        setFormErrors({
+          ...formErrors,
+          wallet: false,
+          amount: true,
+        });
+        updateFormData({
+          ...formData,
+          wallet: wallet,
+        });
+        return;
+      }
+
+      // if not pending
       try {
-        // todo: hit endpoint to check pending transactions
-        const approval = {
-          data: {
-            message: 'ok',
-          },
-        };
-        if (approval.data.message === 'ok') {
-          // no pending transactions
-          // hit balances endpoint and get allowed ammount for seedsale and strategic tokens
-          const res = await axios.get(
-            `${process.env.API_URL}/asset/balance/${wallet}`
-          );
-          const tokens = res.data.balance.ERG.tokens;
-          const seedsale = tokens
-            .filter((token) => token.tokenId === ERGOPAD_SEEDSALE)
-            .map((token) => token.amount / Math.pow(10, token.decimals))
-            .reduce((a, c) => a + c, 0);
-          const strategic = tokens
-            .filter((token) => token.tokenId === ERGOPAD_STRATEGIC)
-            .map((token) => token.amount / Math.pow(10, token.decimals))
-            .reduce((a, c) => a + c, 0);
-          const strategic2 = tokens
-            .filter((token) => token.tokenId === ERGOPAD_STRATEGIC_2)
-            .map((token) => token.amount / Math.pow(10, token.decimals))
-            .reduce((a, c) => a + c, 0);
-          setModalClosed(false);
-          setValueAllowed({
-            ...initialValueAllowed,
-            seedsale,
-            strategic,
-            strategic2,
-          });
-          updateFormData({ ...formData, wallet: wallet, vestingAmount: 0 });
-          setFormErrors({ ...formErrors, wallet: false, vestingAmount: false });
-        } else if (approval.data.message === 'pending') {
-          setValueAllowed(initialValueAllowed);
-          setValueHelper(
-            'Please wait(may take upto 10 mins) for pending transaction to time-out'
-          );
-          setFormErrors({
-            ...formErrors,
-            vestingAmount: true,
-            wallet: false,
-          });
-          updateFormData({
-            ...formData,
-            wallet: wallet,
-          });
-        } else {
-          // invalid wallet
-          setModalClosed(false);
-          setValueAllowed(initialValueAllowed);
-          setFormErrors({
-            ...formErrors,
-            wallet: true,
-          });
-          updateFormData({
-            ...formData,
-            wallet: wallet,
-          });
-        }
+        const res = await axios.get(
+          `${process.env.API_URL}/asset/balance/${wallet}`
+        );
+        const tokens = res.data.balance.ERG.tokens;
+        const seedsale = tokens
+          .filter((token) => token.tokenId === ERGOPAD_SEEDSALE)
+          .map((token) => token.amount / Math.pow(10, token.decimals))
+          .reduce((a, c) => a + c, 0);
+        const strategic = tokens
+          .filter((token) => token.tokenId === ERGOPAD_STRATEGIC)
+          .map((token) => token.amount / Math.pow(10, token.decimals))
+          .reduce((a, c) => a + c, 0);
+        setModalClosed(false);
+        setValueAllowed({
+          ...initialValueAllowed,
+          seedsale,
+          strategic,
+        });
+        updateFormData({ ...formData, wallet: wallet, vestingAmount: 0 });
+        setFormErrors({ ...formErrors, wallet: false, vestingAmount: false });
       } catch (e) {
         console.log(e);
+        // invalid wallet
+        setModalClosed(false);
+        setValueAllowed(initialValueAllowed);
+        setFormErrors({
+          ...formErrors,
+          wallet: true,
+        });
+        updateFormData({
+          ...formData,
+          wallet: wallet,
+        });
       }
     } else {
       setModalClosed(false);
@@ -244,12 +239,13 @@ const Exchange = () => {
     setProgress((n / d) * 100);
     // if zero check for wallet approval
     if (Math.floor(diff / 1000) == 0) {
-      checkWalletApproval(false);
+      checkWalletApproval();
     }
   };
 
   // when component is loaded initializing the conversion rate and counter
   useEffect(() => {
+    apiCheck();
     // update counter every 1 second or 1000ms
     const now = new Date().valueOf();
     clearInterval(interval);
@@ -260,19 +256,6 @@ const Exchange = () => {
   useEffect(() => {
     setbuttonDisabled(isLoading);
   }, [isLoading]);
-
-  const { legal, risks, dao } = checkboxState;
-  const checkboxError = [legal, risks, dao].filter((v) => v).length !== 3;
-
-  // if there are no checkbox errors confirm time from api
-  // if there are checkbox errors button is disabled regardless
-  useEffect(() => {
-    if (checkboxError) {
-      setbuttonDisabled(true);
-    } else {
-      apiCheck();
-    }
-  }, [checkboxError]);
 
   const { wallet } = useWallet();
   const { setAddWalletOpen } = useAddWallet();
@@ -323,13 +306,6 @@ const Exchange = () => {
   const copyToClipboard = (text) => {
     setSuccessMessageSnackbar('Copied ' + text + ' to clipboard');
     setOpenSuccessSnackbar(true);
-  };
-
-  const handleChecked = (e) => {
-    setCheckboxState({
-      ...checkboxState,
-      [e.target.name]: e.target.checked,
-    });
   };
 
   const handleCurrencyChange = (e, newAlignment) => {
@@ -394,8 +370,47 @@ const Exchange = () => {
     const errorCheck = Object.values(formErrors).every((v) => v === false);
 
     if (errorCheck && emptyCheck) {
-      // todo: make sure the values and keys are correct
-      console.log(formData);
+      try {
+        const data = {
+          ...formData,
+          vestingScenario:
+            formData.vestingAmount === 'seedsale'
+              ? 'seedsale'
+              : 'strategic_sale',
+        };
+        setModalClosed(false);
+        const res = await axios.post(`${process.env.API_URL}/vesting/vest/`, {
+          ...data,
+        });
+        console.log(res.data);
+        setLoading(false);
+        // modal for success message
+        setOpenSuccess(true);
+        // setSuccessMessageData({
+        //   ...successMessageData,
+        //   ergs: res.data.total,
+        //   address: res.data.smartContract,
+        //   sigusd: formData.currency === 'sigusd' ? formData.amount : 0.0,
+        // });
+
+        const now = new Date().valueOf();
+        clearInterval(interval);
+        setStateInterval(setInterval(() => updateWaitCounter(now, 1000)));
+
+        checkWalletApproval();
+      } catch (err) {
+        if (err.response?.status) {
+          setErrorMessage(
+            'Error: ' + err.response?.status + ' ' + err.response?.data
+          );
+        } else {
+          setErrorMessage('Error: Network error');
+        }
+
+        setOpenError(true);
+        console.log(err);
+        setLoading(false);
+      }
     } else {
       let updateErrors = {};
       Object.entries(formData).forEach((entry) => {
@@ -427,7 +442,6 @@ const Exchange = () => {
           subtitle="If you bought Ergopad seedsale or strategic sale tokens you can vest them here."
         />
       </Container>
-
       <Grid
         container
         maxWidth="lg"
@@ -442,8 +456,22 @@ const Exchange = () => {
               Details
             </Typography>
             <Typography variant="p" sx={{ fontSize: '1rem', mb: 3 }}>
-              Placeholder details for this page. todo: add information about
-              burnt tokens and vesting schedule
+              This form will generate a transaction to lock your
+              ergopad_strategic or ergopad_seedsale tokens into their
+              appropriate vesting contracts. Once sent, your ergopad tokens will
+              be automatically deposited into your wallet once per month,
+              starting January 26th.
+            </Typography>
+            <Typography variant="p" sx={{ fontSize: '1rem', mb: 3 }}>
+              If you have both tokens, please send them in two separate
+              transactions. Once your tokens are vested, you can see them on the{' '}
+              <MuiNextLink href="/dashboard">dashboard</MuiNextLink> page in the
+              vesting table. Please follow the instructions closely when you
+              submit this form.
+            </Typography>
+            <Typography variant="p" sx={{ fontSize: '1rem', mb: 3 }}>
+              The instructions differ if you&aposre using Yoroi wallet or one of
+              the mobile wallets.
             </Typography>
           </Box>
         </Grid>
@@ -486,7 +514,6 @@ const Exchange = () => {
             >
               <ToggleButton value="seedsale">Seedsale</ToggleButton>
               <ToggleButton value="strategic">Strategic</ToggleButton>
-              <ToggleButton value="strategic2">Strategic(2)</ToggleButton>
             </ToggleButtonGroup>
             <FormControl
               variant="filled"
@@ -516,52 +543,9 @@ const Exchange = () => {
                 }}
               />
               <FormHelperText>
-                {formErrors.wallet &&
-                  'Your address must be approved on the whitelist'}
+                {formErrors.wallet && 'Enter a valid ergo wallet address'}
               </FormHelperText>
             </FormControl>
-
-            <FormControl required error={checkboxError}>
-              <FormGroup sx={{ mt: 6 }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={legal}
-                      onChange={handleChecked}
-                      name="legal"
-                    />
-                  }
-                  label="I have confirmed that I am legally entitled to invest in a cryptocurrency project of this nature in the jurisdiction in which I reside"
-                  sx={{ color: theme.palette.text.secondary, mb: 3 }}
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={risks}
-                      onChange={handleChecked}
-                      name="risks"
-                    />
-                  }
-                  label="I am aware of the risks involved when investing in a project of this nature. There is always a chance an investment with this level of risk can lose all it's value, and I accept full responsiblity for my decision to invest in this project"
-                  sx={{ color: theme.palette.text.secondary, mb: 3 }}
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={dao}
-                      onChange={handleChecked}
-                      name="dao"
-                    />
-                  }
-                  label="I understand that the funds raised by this project will be controlled by the ErgoPad DAO, which has board members throughout the world. I am aware that this DAO does not fall within the jurisdiction of any one country, and accept the implications therein."
-                  sx={{ color: theme.palette.text.secondary, mb: 3 }}
-                />
-                <FormHelperText>
-                  {checkboxError && 'Please accept the terms before submitting'}
-                </FormHelperText>
-              </FormGroup>
-            </FormControl>
-
             <Button
               type="submit"
               fullWidth
