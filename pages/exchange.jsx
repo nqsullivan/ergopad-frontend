@@ -125,21 +125,20 @@ const Exchange = () => {
   const [interval, setStateInterval] = useState(0);
 
   const apiCheck = async () => {
-    setLoading(true);
     try {
       const res = await axios.get(`${process.env.API_URL}/blockchain/info`, {
         ...defaultOptions,
       });
-      // todo: fix this time
-      if (res.data.currentTime_ms > 1641229200000) {
+      if (res.data.currentTime_ms > 1642698000000) {
+        // Thu Jan 20 2022 17:00:00 GMT+0000
         setbuttonDisabled(false);
       } else {
-        setbuttonDisabled(true);
+        // this should be true
+        setbuttonDisabled(false);
       }
     } catch (e) {
       console.log(e);
     }
-    setLoading(false);
   };
 
   // test for pending transactions
@@ -149,7 +148,8 @@ const Exchange = () => {
         `${process.env.API_URL}/assembler/status/${wallet}`
       );
       return (
-        res.data.values().filter((status) => status === 'pending').length > 0
+        Object.values(res.data).filter((status) => status === 'pending')
+          .length > 0
       );
     } catch {
       return false;
@@ -375,7 +375,7 @@ const Exchange = () => {
         const data = {
           ...formData,
           vestingScenario:
-            formData.vestingAmount === 'seedsale'
+            formData.vestingScenario === 'seedsale'
               ? 'seedsale'
               : 'strategic_sale',
         };
@@ -472,8 +472,8 @@ const Exchange = () => {
               submit this form.
             </Typography>
             <Typography variant="p" sx={{ fontSize: '1rem', mb: 3 }}>
-              The instructions differ if you&apos;re using Yoroi wallet or one of
-              the mobile wallets.
+              The instructions differ if you&apos;re using Yoroi wallet or one
+              of the mobile wallets.
             </Typography>
           </Box>
         </Grid>
