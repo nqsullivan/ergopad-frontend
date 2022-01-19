@@ -646,13 +646,14 @@ const Purchase = () => {
                     <Button
                             type="submit"
                             fullWidth
-                            disabled={buttonDisabled}
-                            // disabled={true}
+                            // disabled={buttonDisabled}
+                            disabled={true}
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                     >
                         Submit
                     </Button>
+                    <Typography>Please come back on January 20th to make a pre-sale investment. </Typography>
                     {isLoading && (
                         <CircularProgress
                             size={24}
