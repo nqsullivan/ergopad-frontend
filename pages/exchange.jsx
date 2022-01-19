@@ -472,7 +472,7 @@ const Exchange = () => {
               submit this form.
             </Typography>
             <Typography variant="p" sx={{ fontSize: '1rem', mb: 3 }}>
-              The instructions differ if you&aposre using Yoroi wallet or one of
+              The instructions differ if you&apos;re using Yoroi wallet or one of
               the mobile wallets.
             </Typography>
           </Box>
