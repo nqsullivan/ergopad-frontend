@@ -50,6 +50,7 @@ const initialFormErrors = Object.freeze({
 const initialSuccessMessageData = Object.freeze({
   ergs: 0.0,
   address: '',
+  currency: '',
   token: 0.0,
 });
 
@@ -386,12 +387,13 @@ const Exchange = () => {
         setLoading(false);
         // modal for success message
         setOpenSuccess(true);
-        // setSuccessMessageData({
-        //   ...successMessageData,
-        //   ergs: res.data.total,
-        //   address: res.data.smartContract,
-        //   sigusd: formData.currency === 'sigusd' ? formData.amount : 0.0,
-        // });
+        setSuccessMessageData({
+          ...successMessageData,
+          ergs: res.data.total,
+          address: res.data.smartContract,
+          token: res.data.currencyAmount,
+          currency: res.data.currency,
+        });
 
         const now = new Date().valueOf();
         clearInterval(interval);
@@ -647,7 +649,7 @@ const Exchange = () => {
                       variant="span"
                       sx={{ color: 'text.primary', cursor: 'pointer' }}
                     >
-                      {successMessageData.token} ergopad_{alignment}
+                      {successMessageData.token} {successMessageData.currency}
                     </Typography>
                   </>
                 )}{' '}
@@ -710,8 +712,8 @@ const Exchange = () => {
                       mb: 1,
                     }}
                   >
-                    The QR code will not enter token values for you, you must
-                    enter them manually.
+                    The QR code will not enter {successMessageData.currency}{' '}
+                    values for you, you must enter them manually.
                   </Typography>
                 </>
               )}

@@ -112,11 +112,10 @@ const CreateProjectForm = () => {
 
     updateFormData({
       ...formData,
-      // Trimming any whitespace
       [e.target.name]:
         e.target.name === 'isLaunched'
           ? e.target.checked
-          : e.target.value.trim(),
+          : e.target.value,
     });
   };
 
