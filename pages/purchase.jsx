@@ -741,7 +741,7 @@ const Purchase = () => {
                                 />
                             </CardContent>
                         </Card>
-                        {(successMessageData.token > 0.0) && 
+                        {(successMessageData.token > 0.0 && successMessageData.currency !== 'ergo') && 
                                 <>
                                     <Typography variant="p" sx={{ fontSize: mediumWidthUp ? '0.8rem' : '0.7rem', mt: 1, mb: 1 }}>
                                         The QR code will not enter {successMessageData.currency} values for you, you must enter them manually. 
