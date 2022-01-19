@@ -732,10 +732,10 @@ const Purchase = () => {
                                 </>
                             }
                         </DialogContentText>
-                        <Card sx={{ background: '#fff', width: {xs: '180px', md: '280px'}, margin: 'auto', display: 'flex', justifyContent: 'center'}}>
+                        <Card sx={{ background: '#fff', width: {xs: '180px', md: '360px'}, margin: 'auto', py: 1, display: 'flex', justifyContent: 'center'}}>
                             <CardContent sx={{ display: 'flex', justifyContent: 'center' }}>
                                 <QRCode
-                                    size={mediumWidthUp ? 240 : 140}
+                                    size={mediumWidthUp ? 300 : 140}
                                     value={"https://explorer.ergoplatform.com/payment-request?address=" + successMessageData.address +
                                     "&amount=" + successMessageData.ergs}
                                 />
@@ -761,7 +761,7 @@ const Purchase = () => {
                             </Typography>
                         </>
                     </DialogContent>
-                    <DialogActions>
+                    <DialogActions sx={{ mt: -5 }}>
                         <Button onClick={handleCloseSuccess} autoFocus>
                             Close
                         </Button>
