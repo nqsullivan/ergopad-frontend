@@ -51,7 +51,8 @@ const initialCheckboxState = Object.freeze({
 const initialSuccessMessageData = Object.freeze({
     ergs: 0.0,
     address: '',
-    sigusd: 0.0
+    currency: '',
+    token: 0.0
 })
 
 function friendlyAddress(addr, tot = 13) {
@@ -459,15 +460,16 @@ const Purchase = () => {
 			axios.post(`${process.env.API_URL}/vesting/vest/`, { ...data })
             .then(res => {
                 console.log(res.data);
-                setLoading(false)
+                setLoading(false);
                 // modal for success message
-				setOpenSuccess(true)
+                setOpenSuccess(true);
                 setSuccessMessageData({
-                    ...successMessageData,
-                    ergs: res.data.total,
-                    address: res.data.smartContract,
-                    sigusd: (formData.currency === 'sigusd') ? formData.amount : 0.0
-                })
+                  ...successMessageData,
+                  ergs: res.data.total,
+                  address: res.data.smartContract,
+                  currency: res.data.currency,
+                  token: res.data.currencyAmount,
+                });
                 
                 const now = new Date().valueOf();
                 clearInterval(interval);
@@ -700,13 +702,13 @@ const Purchase = () => {
                             } variant="span" sx={{ color: 'text.primary', cursor: 'pointer' }}>
                                 {successMessageData.ergs} Erg
                             </Typography>
-                            {(successMessageData.sigusd > 0.0) && 
+                            {(successMessageData.token > 0.0) && 
                             <>{' '}and{' '}<Typography onClick={() => {
-                                navigator.clipboard.writeText(successMessageData.sigusd)
-                                copyToClipboard(successMessageData.sigusd)
+                                navigator.clipboard.writeText(successMessageData.token)
+                                copyToClipboard(successMessageData.token)
                             }
                             } variant="span" sx={{ color: 'text.primary', cursor: 'pointer' }}>
-                                 {successMessageData.sigusd} sigUSD
+                                 {successMessageData.token} {successMessageData.currency}
                             </Typography></>}
                             {' '}to{' '}
                             <Typography onClick={() => {
@@ -716,7 +718,7 @@ const Purchase = () => {
                             } variant="span" sx={{ color: 'text.primary', cursor: 'pointer' }}>
                                 {friendlyAddress(successMessageData.address)}
                             </Typography>
-                            {(successMessageData.sigusd > 0.0) && 
+                            {(successMessageData.token > 0.0) && 
                                 <>
                                     <Typography variant="p" sx={{ fontSize: mediumWidthUp ? '0.8rem' : '0.7rem', mt: 1, mb: 1 }}>
                                         Note: Yoroi users will not need to add 0.01 erg, it is already done by Yoroi. Other wallet users do need to include that amount with the sigUSD tokens they send.
@@ -733,10 +735,10 @@ const Purchase = () => {
                                 />
                             </CardContent>
                         </Card>
-                        {(successMessageData.sigusd > 0.0) && 
+                        {(successMessageData.token > 0.0) && 
                                 <>
                                     <Typography variant="p" sx={{ fontSize: mediumWidthUp ? '0.8rem' : '0.7rem', mt: 1, mb: 1 }}>
-                                        The QR code will not enter sigUSD values for you, you must enter them manually. 
+                                        The QR code will not enter {successMessageData.currency} values for you, you must enter them manually. 
                                     </Typography>
                                 </>
                             }
