@@ -71,6 +71,8 @@ const defaultOptions = {
 // config in assembler
 const WAIT_TIME = 10;
 
+const PRESALE_USD = 0.03;
+
 const Purchase = () => {
     const mediumWidthUp = useMediaQuery((theme) => theme.breakpoints.up('md'));
     // boolean object for each checkbox
@@ -112,22 +114,20 @@ const Purchase = () => {
     const [interval, setStateInterval] = useState(0);
 
     const apiCheck = () => {
-      setLoading(true);
       axios
         .get(`${process.env.API_URL}/blockchain/info`, { ...defaultOptions })
         .then((res) => {
           console.log(res.data);
-          // todo: change button enable time
-          if (res.data.currentTime_ms > 1641229200000 && !checkboxError) {
+          // Thu Jan 20 2022 17:00:00 GMT+0000
+          if (res.data.currentTime_ms > 1642698000000 && !checkboxError) {
             setbuttonDisabled(false);
           } else {
-            setbuttonDisabled(true);
+            // should be true
+            setbuttonDisabled(false);
           }
-          setLoading(false);
         })
         .catch((err) => {
           console.log(err);
-          setLoading(false);
         });
     };
 
@@ -244,7 +244,8 @@ const Purchase = () => {
           `${process.env.API_URL}/assembler/status/${wallet}`
         );
         return (
-          res.data.values().filter((status) => status === 'pending').length > 0
+        Object.values(res.data).filter((status) => status === 'pending')
+          .length > 0
         );
       } catch {
         return false;
@@ -352,6 +353,7 @@ const Purchase = () => {
         // hide reopen modal button on wallet change
         setModalClosed(false);
       };
+
       updateData();
     }, [wallet]);
 
@@ -438,83 +440,87 @@ const Purchase = () => {
       };
 
     const handleSubmit = (e) => {
-        e.preventDefault();
-        setLoading(true)
+      e.preventDefault();
+      setLoading(true);
 
-		const emptyCheck = Object.values(formData).every(v => (v != '') || (v != 0))
-		const errorCheck = Object.values(formErrors).every(v => v === false)
-		
-		if (errorCheck && emptyCheck) { 
-            console.log(formData)
-            // new request format
-            const data = {
-              wallet: formData.wallet,
-              vestingAmount: formData.amount,
-              vestingScenario:
-                formData.currency === 'sigusd'
-                  ? 'presale_sigusd'
-                  : 'presale_ergo',
-            };
-            console.log(data);
-            setModalClosed(false);
-			axios.post(`${process.env.API_URL}/vesting/vest/`, { ...data })
-            .then(res => {
-                console.log(res.data);
-                setLoading(false);
-                // modal for success message
-                setOpenSuccess(true);
-                setSuccessMessageData({
-                  ...successMessageData,
-                  ergs: res.data.total,
-                  address: res.data.smartContract,
-                  currency: res.data.currency,
-                  token: res.data.currencyAmount,
-                });
-                
-                const now = new Date().valueOf();
-                clearInterval(interval);
-                setStateInterval(setInterval(() => updateWaitCounter(now, 1000)));
+      const emptyCheck = Object.values(formData).every(
+        (v) => v != '' || v != 0
+      );
+      const errorCheck = Object.values(formErrors).every((v) => v === false);
 
-                checkWalletApproval()
-            })
-            .catch((err) => {
-                if (err.response?.status) {
-                    setErrorMessage('Error: ' + err.response?.status + ' ' + err.response?.data)
-                }
-                else {
-                    setErrorMessage('Error: Network error')
-                }
-                
-                setOpenError(true)
-                console.log(err)
-                setLoading(false)
-            }); 
-            // setLoading(false)
-		}
-		else {
-			let updateErrors = {}
-			Object.entries(formData).forEach(entry => {
-				const [key, value] = entry;
-				if (value == '') {
-                    if (Object.hasOwn(formErrors, key)){
-                        let newEntry = {[key]: true}
-                        updateErrors = {...updateErrors, ...newEntry};
-                    }
-				}
-			})
+      if (errorCheck && emptyCheck) {
+        console.log(formData);
+        // new request format
+        const data = {
+          wallet: formData.wallet,
+          vestingAmount:
+            formData.currency === 'sigusd'
+              ? Math.floor(formData.amount / PRESALE_USD)
+              : Math.floor((formData.amount * conversionRate) / PRESALE_USD),
+          vestingScenario:
+            formData.currency === 'sigusd' ? 'presale_sigusd' : 'presale_ergo',
+        };
+        console.log(data);
+        setModalClosed(false);
+        axios
+          .post(`${process.env.API_URL}/vesting/vest/`, { ...data })
+          .then((res) => {
+            console.log(res.data);
+            setLoading(false);
+            // modal for success message
+            setOpenSuccess(true);
+            setSuccessMessageData({
+              ...successMessageData,
+              ergs: res.data.total,
+              address: res.data.smartContract,
+              currency: res.data.currency,
+              token: res.data.currencyAmount,
+            });
 
-			setFormErrors({
-				...formErrors,
-				...updateErrors
-			})
+            const now = new Date().valueOf();
+            clearInterval(interval);
+            setStateInterval(setInterval(() => updateWaitCounter(now, 1000)));
 
-            // snackbar for error message
-			setErrorMessage('Please eliminate form errors and try again')
-			setOpenError(true)
+            checkWalletApproval();
+          })
+          .catch((err) => {
+            if (err.response?.status) {
+              setErrorMessage(
+                'Error: ' + err.response?.status + ' ' + err.response?.data
+              );
+            } else {
+              setErrorMessage('Error: Network error');
+            }
 
-            // turn off loading spinner for submit button
-			setLoading(false)
-		}
+            setOpenError(true);
+            console.log(err);
+            setLoading(false);
+          });
+        // setLoading(false)
+      } else {
+        let updateErrors = {};
+        Object.entries(formData).forEach((entry) => {
+          const [key, value] = entry;
+          if (value == '') {
+            if (Object.hasOwn(formErrors, key)) {
+              let newEntry = { [key]: true };
+              updateErrors = { ...updateErrors, ...newEntry };
+            }
+          }
+        });
+
+        setFormErrors({
+          ...formErrors,
+          ...updateErrors,
+        });
+
+        // snackbar for error message
+        setErrorMessage('Please eliminate form errors and try again');
+        setOpenError(true);
+
+        // turn off loading spinner for submit button
+        setLoading(false);
+      }
     };
 
   return (
@@ -702,7 +708,7 @@ const Purchase = () => {
                             } variant="span" sx={{ color: 'text.primary', cursor: 'pointer' }}>
                                 {successMessageData.ergs} Erg
                             </Typography>
-                            {(successMessageData.token > 0.0) && 
+                            {(successMessageData.token > 0.0 && successMessageData.currency !== 'ergo') && 
                             <>{' '}and{' '}<Typography onClick={() => {
                                 navigator.clipboard.writeText(successMessageData.token)
                                 copyToClipboard(successMessageData.token)
@@ -718,7 +724,7 @@ const Purchase = () => {
                             } variant="span" sx={{ color: 'text.primary', cursor: 'pointer' }}>
                                 {friendlyAddress(successMessageData.address)}
                             </Typography>
-                            {(successMessageData.token > 0.0) && 
+                            {(successMessageData.token > 0.0 && successMessageData.currency !== 'ergo') && 
                                 <>
                                     <Typography variant="p" sx={{ fontSize: mediumWidthUp ? '0.8rem' : '0.7rem', mt: 1, mb: 1 }}>
                                         Note: Yoroi users will not need to add 0.01 erg, it is already done by Yoroi. Other wallet users do need to include that amount with the sigUSD tokens they send.
