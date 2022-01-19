@@ -40,19 +40,22 @@ const Admin = () => {
   // open error snackbar
   const [openError, setOpenError] = useState(false);
   // change error message for error snackbar
-  const [errorMessage] = useState(
-    'Invalid crendentials. Please try again'
-  );
+  const [errorMessage] = useState('Invalid crendentials. Please try again');
   // show home page page when logged in
   const [showHome, setShowHome] = useState(false);
 
   useEffect(() => {
-    if (isLoading) {
-      setbuttonDisabled(true);
-    } else {
-      setbuttonDisabled(false);
-    }
+    setbuttonDisabled(isLoading);
   }, [isLoading]);
+
+  useEffect(() => {
+    setbuttonDisabled(
+      formData.email === '' ||
+        formData.password === '' ||
+        formErrors.email ||
+        formErrors.password
+    );
+  }, [formData, formErrors]);
 
   const handleChange = (e) => {
     if (
@@ -69,8 +72,6 @@ const Admin = () => {
         [e.target.name]: false,
       });
     }
-
-    setbuttonDisabled(formErrors.email || formErrors.password);
 
     updateFormData({
       ...formData,
