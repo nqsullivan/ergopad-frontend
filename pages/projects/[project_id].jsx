@@ -1,14 +1,18 @@
 import { useRouter } from 'next/router';
-import { Container, Typography, IconButton, Divider, Box } from '@mui/material';
+import { Container, Typography, IconButton, Divider, Box, Grid } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import PageTitle from '@components/PageTitle';
 import Link from '@components/MuiNextLink';
 import CenterTitle from '@components/CenterTitle';
 import RelatedLinks from '@components/RelatedLinks/RelatedLinks';
 import TelegramIcon from '@mui/icons-material/Telegram';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import PublicIcon from '@mui/icons-material/Public';
 import ShareIcon from '@mui/icons-material/Share';
 import theme from '@styles/theme';
 import CopyToClipboard from '@components/CopyToClipboard';
+import DiscordIcon from '@components/DiscordIcon';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -108,29 +112,89 @@ const Project = () => {
               <Typography variant="p">
                 Update team description for content in this section.
               </Typography>
-              {project.teamTelegramHandle ? (
-                <Link
-                  href={project.teamTelegramHandle}
-                  aria-label="Telegram"
-                  title="Telegram"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <IconButton aria-label="telegram">
-                    <TelegramIcon />
-                  </IconButton>
-                </Link>
-              ) : null}
-              <CopyToClipboard>
-                {({ copy }) => (
-                  <IconButton
-                    aria-label="share"
-                    onClick={() => copy(window.location)}
+              {/* socials go here */}
+              <Grid container item>
+                {project?.socials?.discord ? (
+                  <Link
+                    sx={{ display: 'flex', justifyContent: 'center' }}
+                    href={project.socials.discord}
+                    aria-label="discord"
+                    title="Discord"
+                    rel="noreferrer"
+                    target="_blank"
                   >
-                    <ShareIcon />
-                  </IconButton>
-                )}
-              </CopyToClipboard>
+                    <IconButton aria-label="discord">
+                      <DiscordIcon />
+                    </IconButton>
+                  </Link>
+                ) : null}
+                {project?.socials?.github ? (
+                  <Link
+                    sx={{ display: 'flex', justifyContent: 'center' }}
+                    href={project.socials.github}
+                    aria-label="github"
+                    title="GitHub"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <IconButton aria-label="github">
+                      <GitHubIcon />
+                    </IconButton>
+                  </Link>
+                ) : null}
+                {project?.socials?.telegram ? (
+                  <Link
+                    sx={{ display: 'flex', justifyContent: 'center' }}
+                    href={project.socials.telegram}
+                    aria-label="Telegram"
+                    title="Telegram"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <IconButton aria-label="telegram">
+                      <TelegramIcon />
+                    </IconButton>
+                  </Link>
+                ) : null}
+                {project?.socials?.twitter ? (
+                  <Link
+                    sx={{ display: 'flex', justifyContent: 'center' }}
+                    href={project.socials.twitter}
+                    aria-label="twitter"
+                    title="Twitter"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <IconButton aria-label="twitter">
+                      <TwitterIcon />
+                    </IconButton>
+                  </Link>
+                ) : null}
+                {project?.socials?.website ? (
+                  <Link
+                    sx={{ display: 'flex', justifyContent: 'center' }}
+                    href={project.socials.website}
+                    aria-label="website"
+                    title="Web"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <IconButton aria-label="website">
+                      <PublicIcon />
+                    </IconButton>
+                  </Link>
+                ) : null}
+                <CopyToClipboard>
+                  {({ copy }) => (
+                    <IconButton
+                      aria-label="share"
+                      onClick={() => copy(window.location)}
+                    >
+                      <ShareIcon />
+                    </IconButton>
+                  )}
+                </CopyToClipboard>
+              </Grid>
             </Container>
           )}
         </>
