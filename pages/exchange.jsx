@@ -134,7 +134,7 @@ const Exchange = () => {
         setbuttonDisabled(false);
       } else {
         // this should be true
-        setbuttonDisabled(false);
+        setbuttonDisabled(true);
       }
     } catch (e) {
       console.log(e);
@@ -248,9 +248,9 @@ const Exchange = () => {
   useEffect(() => {
     apiCheck();
     // update counter every 1 second or 1000ms
-    const now = new Date().valueOf();
-    clearInterval(interval);
-    setStateInterval(setInterval(() => updateWaitCounter(now), 1000));
+    // const now = new Date().valueOf();
+    // clearInterval(interval);
+    // setStateInterval(setInterval(() => updateWaitCounter(now), 1000));
   }, []);
 
   // when loading button is disabled
