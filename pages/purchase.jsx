@@ -663,7 +663,7 @@ const Purchase = () => {
                     >
                         Submit
                     </Button>
-                    {toEarly && <Typography>Please come back on January 20th to make a pre-sale investment.</Typography>}
+                    {toEarly && <Typography>Please come back on January 20th  after 17:00 UTC to make a pre-sale investment.</Typography>}
                     {isLoading && (
                         <CircularProgress
                             size={24}
