@@ -397,7 +397,7 @@ const Exchange = () => {
 
         const now = new Date().valueOf();
         clearInterval(interval);
-        setStateInterval(setInterval(() => updateWaitCounter(now, 1000)));
+        setStateInterval(setInterval(() => updateWaitCounter(now), 1000));
 
         checkWalletApproval();
       } catch (err) {

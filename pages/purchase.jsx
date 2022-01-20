@@ -483,7 +483,7 @@ const Purchase = () => {
 
             const now = new Date().valueOf();
             clearInterval(interval);
-            setStateInterval(setInterval(() => updateWaitCounter(now, 1000)));
+            setStateInterval(setInterval(() => updateWaitCounter(now), 1000));
 
             checkWalletApproval();
           })
@@ -663,7 +663,7 @@ const Purchase = () => {
                     >
                         Submit
                     </Button>
-                    {toEarly && <Typography>Please come back on January 20th  after 17:00 UTC to make a pre-sale investment.</Typography>}
+                    {toEarly && <Typography>Please come back on January 20th after 17:00 UTC to make a pre-sale investment.</Typography>}
                     {isLoading && (
                         <CircularProgress
                             size={24}
