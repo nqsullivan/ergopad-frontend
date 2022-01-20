@@ -112,6 +112,8 @@ const Purchase = () => {
     const [progress, setProgress] = useState(0.0);
     // interval
     const [interval, setStateInterval] = useState(0);
+    // to early
+    const [toEarly, setToEarly] = useState(true);
 
     const apiCheck = () => {
       axios
@@ -120,10 +122,12 @@ const Purchase = () => {
           console.log(res.data);
           // Thu Jan 20 2022 17:00:00 GMT+0000
           if (res.data.currentTime_ms > 1642698000000 && !checkboxError) {
+            setToEarly(false);
             setbuttonDisabled(false);
           } else {
             // should be true
-            setbuttonDisabled(false);
+            setToEarly(true);
+            setbuttonDisabled(true);
           }
         })
         .catch((err) => {
@@ -164,9 +168,9 @@ const Purchase = () => {
     useEffect(() => {
         updateConversionRate();
         // update counter every 1 second or 1000ms
-        const now = new Date().valueOf();
-        clearInterval(interval);
-        setStateInterval(setInterval(() => updateWaitCounter(now), 1000));
+        // const now = new Date().valueOf();
+        // clearInterval(interval);
+        // setStateInterval(setInterval(() => updateWaitCounter(now), 1000));
     }, [])
 
     // when loading button is disabled
@@ -652,14 +656,14 @@ const Purchase = () => {
                     <Button
                             type="submit"
                             fullWidth
-                            // disabled={buttonDisabled}
-                            disabled={true}
+                            disabled={buttonDisabled}
+                            // disabled={true}
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                     >
                         Submit
                     </Button>
-                    <Typography>Please come back on January 20th to make a pre-sale investment. </Typography>
+                    {toEarly && <Typography>Please come back on January 20th to make a pre-sale investment.</Typography>}
                     {isLoading && (
                         <CircularProgress
                             size={24}
