@@ -6,6 +6,7 @@ import CreateProjectForm from '@components/admin/CreateProjectForm';
 import EditProjectForm from '../../components/admin/EditProjectForm';
 import DeleteProjectForm from '../../components/admin/DeleteProjectForm';
 import EditUserForm from '../../components/admin/EditUserForm';
+import { useEffect, useState } from 'react';
 
 const AdminForm = () => {
   const JWT_TOKEN =
@@ -14,6 +15,7 @@ const AdminForm = () => {
       : null;
   const router = useRouter();
   const { admin_form_name } = router.query;
+  const [load, setLoad] = useState(false);
 
   const formMapper = {
     create_project: <CreateProjectForm />,
@@ -22,9 +24,13 @@ const AdminForm = () => {
     edit_user: <EditUserForm />,
   };
 
+  useEffect(() => {
+    setLoad(true);
+  }, []);
+
   return (
     <>
-      {JWT_TOKEN ? (
+      {JWT_TOKEN && load ? (
         <Grid
           container
           maxWidth="lg"

@@ -25,7 +25,13 @@ const initialFormData = Object.freeze({
   shortDescription: '',
   description: '',
   fundsRaised: 0,
-  teamTelegramHandle: '',
+  socials: {
+    telegram: '',
+    discord: '',
+    github: '',
+    twitter: '',
+    website: '',
+  },
   bannerImgUrl: '',
   isLaunched: false,
   team: [],
@@ -110,13 +116,21 @@ const CreateProjectForm = () => {
       }
     }
 
-    updateFormData({
-      ...formData,
-      [e.target.name]:
-        e.target.name === 'isLaunched'
-          ? e.target.checked
-          : e.target.value,
-    });
+    if (Object.keys(formData.socials).includes(e.target.name)) {
+      updateFormData({
+        ...formData,
+        socials: {
+          ...formData.socials,
+          [e.target.name]: e.target.value,
+        },
+      });
+    } else {
+      updateFormData({
+        ...formData,
+        [e.target.name]:
+          e.target.name === 'isLaunched' ? e.target.checked : e.target.value,
+      });
+    }
   };
 
   const handleImageUpload = (res) => {
@@ -269,17 +283,70 @@ const CreateProjectForm = () => {
             }
           />
         </Grid>
-        <Grid item xs={12} sx={{ mt: 1 }}>
-          <TextField
-            InputProps={{ disableUnderline: true }}
-            fullWidth
-            id="teamTelegramHandle"
-            label="Team Telegram Handle"
-            name="teamTelegramHandle"
-            variant="filled"
-            value={formData.teamTelegramHandle}
-            onChange={handleChange}
-          />
+        <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
+          Socials
+        </Typography>
+        <Grid container item xs={12} sx={{ mb: 1 }}>
+          <Grid item md={6} xs={12} sx={{ p: 0.5 }}>
+            <TextField
+              InputProps={{ disableUnderline: true }}
+              fullWidth
+              id="telegram"
+              label="Team Telegram Handle"
+              name="telegram"
+              variant="filled"
+              value={formData.socials.telegram}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item md={6} xs={12} sx={{ p: 0.5 }}>
+            <TextField
+              InputProps={{ disableUnderline: true }}
+              fullWidth
+              id="discord"
+              label="Discord"
+              name="discord"
+              variant="filled"
+              value={formData.socials.discord}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item md={6} xs={12} sx={{ p: 0.5 }}>
+            <TextField
+              InputProps={{ disableUnderline: true }}
+              fullWidth
+              id="github"
+              label="Github"
+              name="github"
+              variant="filled"
+              value={formData.socials.github}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item md={6} xs={12} sx={{ p: 0.5 }}>
+            <TextField
+              InputProps={{ disableUnderline: true }}
+              fullWidth
+              id="twitter"
+              label="Project Twitter Page"
+              name="twitter"
+              variant="filled"
+              value={formData.socials.twitter}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item md={6} xs={12} sx={{ p: 0.5 }}>
+            <TextField
+              InputProps={{ disableUnderline: true }}
+              fullWidth
+              id="website"
+              label="Website Url"
+              name="website"
+              variant="filled"
+              value={formData.socials.website}
+              onChange={handleChange}
+            />
+          </Grid>
         </Grid>
         <FormControlLabel
           control={
@@ -297,7 +364,7 @@ const CreateProjectForm = () => {
             type="submit"
             disabled={buttonDisabled}
             variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+            sx={{ mt: 1, mb: 1 }}
           >
             Submit
           </Button>
