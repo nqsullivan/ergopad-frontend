@@ -69,7 +69,7 @@ const defaultOptions = {
 
 // wait time in mins
 // config in assembler
-const WAIT_TIME = 10;
+const WAIT_TIME = 5;
 
 const PRESALE_USD = 0.03;
 
