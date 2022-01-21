@@ -91,7 +91,7 @@ const EditProjectForm = () => {
     };
 
     getTableData();
-  }, []);
+  }, [openSuccess]);
 
   // snackbar for error reporting
   const handleCloseError = (event, reason) => {

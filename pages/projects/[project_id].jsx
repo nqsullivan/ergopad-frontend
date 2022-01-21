@@ -1,5 +1,12 @@
 import { useRouter } from 'next/router';
-import { Container, Typography, IconButton, Divider, Box, Grid } from '@mui/material';
+import {
+  Container,
+  Typography,
+  IconButton,
+  Divider,
+  Box,
+  Grid,
+} from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import PageTitle from '@components/PageTitle';
 import Link from '@components/MuiNextLink';
@@ -65,6 +72,20 @@ const Project = () => {
     if (project_id) getProject();
   }, [project_id]);
 
+  const MultilineProjectDescription = ({ description }) => {
+    // double '\n' creates a new paragraph
+    const parsed = description.split('\n\n');
+    return (
+      <>
+        {parsed.map((paragraph, index) => (
+          <Typography variant="p" key={index}>
+            {paragraph}
+          </Typography>
+        ))}
+      </>
+    );
+  };
+
   return (
     <>
       {project ? (
@@ -101,11 +122,15 @@ const Project = () => {
               </Typography>
               <Divider sx={{ width: '100%', mb: '1.5rem' }} />
               <Typography variant="h4">Description</Typography>
-              <Typography variant="p">
-                {project.description
-                  ? project.description
-                  : 'Update project description for content in this section.'}
-              </Typography>
+              {project.description ? (
+                <MultilineProjectDescription
+                  description={project.description}
+                />
+              ) : (
+                <Typography variant="p">
+                  Update project description for content in this section.
+                </Typography>
+              )}
               <Divider sx={{ width: '100%', mb: '1.5rem' }} />
               <Typography variant="h4">Meet the team</Typography>
               {/* todo: Add rendering for team */}
