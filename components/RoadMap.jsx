@@ -43,22 +43,18 @@ const timelineItems = [
 	{
 		date: 'January 15, 2022',
 		title: 'Pre-Sale Whitelist',
-		body: 'Sign up to reserve access to the pre-sale, the final sale before tokens are release to decentralized exchanges'
+		body: 'Sign up to reserve access to the pre-sale, the final sale before tokens are released to decentralized exchanges. ',
+		passed: true
 	},
 	{
 		date: 'January 20, 2022',
 		title: 'Pre-Sale',
-		body: 'ErgoPad pre-sale contracts become available. Whitelisted users will have 48 hours to send Erg and secure their tokens.'
+		body: 'ErgoPad pre-sale contracts become available. '
 	},
 	{
-		date: 'January 26, 2022',
+		date: 'February 2, 2022',
 		title: 'ErgoPad IDO',
-		body: 'ErgoPad IDO where tokens will be available to trade, and the first vesting rounds are unlocked. '
-	},
-	{
-		date: 'Late January',
-		title: 'IDO Project promotions and pre-sale dates announced',
-		body: 'There will be some projects that will IDO shortly after the ErgoPad release so your staked tokens can be used for pool allocations. '
+		body: 'ErgoPad IDO where tokens will be available to trade on ErgoDex. '
 	}
 ]
 
