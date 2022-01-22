@@ -12,11 +12,15 @@ import RelatedLinks from '@components/RelatedLinks/RelatedLinks';
 import theme from '@styles/theme';
 import Search from '@components/Search';
 import TelegramIcon from '@mui/icons-material/Telegram';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import PublicIcon from '@mui/icons-material/Public';
 import ShareIcon from '@mui/icons-material/Share';
 import { useSearch } from '../../utils/SearchContext';
 import { useEffect, useState } from 'react';
 import CopyToClipboard from '@components/CopyToClipboard';
 import axios from 'axios';
+import DiscordIcon from '@components/DiscordIcon';
 
 const relatedLinkList = [
   {
@@ -109,10 +113,39 @@ const Projects = () => {
             </CardContent>
           </CardActionArea>
           <CardActions sx={{ justifyContent: 'right' }}>
-            {project.teamTelegramHandle ? (
+            {/* socials go here */}
+            {project?.socials?.discord ? (
               <Link
                 sx={{ display: 'flex', justifyContent: 'center' }}
-                href={project.teamTelegramHandle}
+                href={project.socials.discord}
+                aria-label="discord"
+                title="Discord"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <IconButton aria-label="discord">
+                  <DiscordIcon />
+                </IconButton>
+              </Link>
+            ) : null}
+            {project?.socials?.github ? (
+              <Link
+                sx={{ display: 'flex', justifyContent: 'center' }}
+                href={project.socials.github}
+                aria-label="github"
+                title="GitHub"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <IconButton aria-label="github">
+                  <GitHubIcon />
+                </IconButton>
+              </Link>
+            ) : null}
+            {project?.socials?.telegram ? (
+              <Link
+                sx={{ display: 'flex', justifyContent: 'center' }}
+                href={project.socials.telegram}
                 aria-label="Telegram"
                 title="Telegram"
                 rel="noreferrer"
@@ -120,6 +153,34 @@ const Projects = () => {
               >
                 <IconButton aria-label="telegram">
                   <TelegramIcon />
+                </IconButton>
+              </Link>
+            ) : null}
+            {project?.socials?.twitter ? (
+              <Link
+                sx={{ display: 'flex', justifyContent: 'center' }}
+                href={project.socials.twitter}
+                aria-label="twitter"
+                title="Twitter"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <IconButton aria-label="twitter">
+                  <TwitterIcon />
+                </IconButton>
+              </Link>
+            ) : null}
+            {project?.socials?.website ? (
+              <Link
+                sx={{ display: 'flex', justifyContent: 'center' }}
+                href={project.socials.website}
+                aria-label="website"
+                title="Web"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <IconButton aria-label="website">
+                  <PublicIcon />
                 </IconButton>
               </Link>
             ) : null}

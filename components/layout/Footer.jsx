@@ -150,26 +150,21 @@ const Footer = () => {
 					</List>
 				</Grid>
 				<Grid item xs={6} md={2}>
-					<Typography variant='inherit' sx={titleStyles}>RESOURCES</Typography>
+					<Typography variant='inherit' sx={titleStyles}>INVEST</Typography>
 					<List>
 						<ListItem disableGutters sx={listItemStyles}>
-							<Link activeClassName='active' href='https://ergoplatform.org/en/' sx={linkStyles} target="_blank" rel="noreferrer">
-								Official Website
+							<Link activeClassName='active' href='/whitelist' sx={linkStyles}>
+								Whitelist Sign-up
 							</Link>
 						</ListItem>
 						<ListItem disableGutters sx={listItemStyles}>
-							<Link activeClassName='active' href='https://ergodex.io/' sx={linkStyles} target="_blank" rel="noreferrer">
-								ErgoDex
+							<Link activeClassName='active' href='/purchase' sx={linkStyles}>
+								Purchase
 							</Link>
 						</ListItem>
 						<ListItem disableGutters sx={listItemStyles}>
-							<Link activeClassName='active' href='https://ergoplatform.org/en/blog/2021-04-26-the-ergo-manifesto/' sx={linkStyles} target="_blank" rel="noreferrer">
-								Ergo Manifesto
-							</Link>
-						</ListItem>
-						<ListItem disableGutters sx={listItemStyles}>
-							<Link activeClassName='active' href='https://github.com/ergoplatform/ergo-appkit' sx={linkStyles} target="_blank" rel="noreferrer">
-								AppKit
+							<Link activeClassName='active' href='/refund' sx={linkStyles}>
+								Refund
 							</Link>
 						</ListItem>
 					</List>
