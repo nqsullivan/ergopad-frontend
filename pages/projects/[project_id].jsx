@@ -22,6 +22,7 @@ import CopyToClipboard from '@components/CopyToClipboard';
 import DiscordIcon from '@components/DiscordIcon';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import Image from 'next/image'
 
 const relatedLinkList = [
   {
@@ -105,40 +106,36 @@ const Project = () => {
           )}
           {!isLoading && (
             <Container maxWidth="760px" sx={{ maxWidth: '760px', mx: 'auto' }}>
-              <img
-                src={project.bannerImgUrl}
-                alt={project.name}
-                height="50%"
-                width="100%"
-              />
-              <Box sx={{ mt: '-5rem' }}>
-                <PageTitle title={project.name} />
-              </Box>
-              {/* <Typography variant="h4">Summary:</Typography> */}
-              <Typography variant="h5">{project.shortDescription}</Typography>
-              <Typography variant="h4">
-                Funds raised:{' '}
-                {project.fundsRaised ? project.fundsRaised : 'N/A'}
-              </Typography>
-              <Divider sx={{ width: '100%', mb: '1.5rem' }} />
-              <Typography variant="h4">Description</Typography>
-              {project.description ? (
-                <MultilineProjectDescription
-                  description={project.description}
-                />
-              ) : (
-                <Typography variant="p">
-                  Update project description for content in this section.
-                </Typography>
+				<Box sx={{ mt: '6rem', mb: '3rem' }}>
+					<img
+						src={project.bannerImgUrl}
+						alt={project.name}
+						width="100%"
+					/>
+				</Box>
+
+				<Typography variant="h2" >{project.name}</Typography>
+				<Typography variant="p">{project.shortDescription}</Typography>
+
+				<Divider sx={{ width: '2rem', mb: '1.5rem' }} />
+              
+              
+              
+			  {project.description && (
+				<>
+					<Typography variant="h4" sx={{ mt: '2rem' }}>Description</Typography>
+					<MultilineProjectDescription
+						description={project.description}
+					/>
+				</>
               )}
-              <Divider sx={{ width: '100%', mb: '1.5rem' }} />
-              <Typography variant="h4">Meet the team</Typography>
-              {/* todo: Add rendering for team */}
+              {/* <Typography variant="h4">Meet the team</Typography>
+              {/* todo: Add rendering for team 
               <Typography variant="p">
                 Update team description for content in this section.
-              </Typography>
+              </Typography> */}
               {/* socials go here */}
-              <Grid container item>
+              <Grid container>
                 {project?.socials?.discord ? (
                   <Link
                     sx={{ display: 'flex', justifyContent: 'center' }}
@@ -230,7 +227,6 @@ const Project = () => {
           main={true}
         />
       )}
-      <RelatedLinks title="Learn More" subtitle="" links={relatedLinkList} />
     </>
   );
 };
