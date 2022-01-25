@@ -20,6 +20,8 @@ const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+const socials = ['telegram', 'discord', 'github', 'twitter', 'website'];
+
 const initialFormData = Object.freeze({
   name: '',
   shortDescription: '',
@@ -116,7 +118,7 @@ const CreateProjectForm = () => {
       }
     }
 
-    if (Object.keys(formData.socials).includes(e.target.name)) {
+    if (socials.includes(e.target.name)) {
       updateFormData({
         ...formData,
         socials: {
