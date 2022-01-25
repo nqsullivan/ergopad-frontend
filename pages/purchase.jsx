@@ -121,9 +121,10 @@ const Purchase = () => {
         .then((res) => {
           console.log(res.data);
           // Thu Jan 20 2022 17:00:00 GMT+0000
-          if (res.data.currentTime_ms > 1642698000000 && !checkboxError) {
+          if (res.data.currentTime_ms > 1642698000000) {
             setToEarly(false);
-            setbuttonDisabled(false);
+            if (!checkboxError)
+              setbuttonDisabled(false);
           } else {
             // should be true
             setToEarly(true);
@@ -167,6 +168,7 @@ const Purchase = () => {
     // when component is loaded initializing the conversion rate and counter
     useEffect(() => {
         updateConversionRate();
+        apiCheck();
         // update counter every 1 second or 1000ms
         // const now = new Date().valueOf();
         // clearInterval(interval);
@@ -532,7 +534,7 @@ const Purchase = () => {
         <Container maxWidth="lg" sx={{ px: {xs: 2, md: 3 } }}>
 		<PageTitle 
 			title="Purchase ErgoPad Tokens"
-			subtitle="If you are approved for strategic sale whitelist, you can purchase tokens here."
+			subtitle="If you are approved for presale sale whitelist, you can purchase tokens here."
 		/>
         </Container>
 
