@@ -8,10 +8,8 @@ import {
   Grid,
 } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-import PageTitle from '@components/PageTitle';
 import Link from '@components/MuiNextLink';
 import CenterTitle from '@components/CenterTitle';
-import RelatedLinks from '@components/RelatedLinks/RelatedLinks';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -22,7 +20,6 @@ import CopyToClipboard from '@components/CopyToClipboard';
 import DiscordIcon from '@components/DiscordIcon';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import Image from 'next/image';
 
 const relatedLinkList = [
   {
