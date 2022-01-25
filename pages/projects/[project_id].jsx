@@ -22,7 +22,7 @@ import CopyToClipboard from '@components/CopyToClipboard';
 import DiscordIcon from '@components/DiscordIcon';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import Image from 'next/image'
+import Image from 'next/image';
 
 const relatedLinkList = [
   {
@@ -106,28 +106,27 @@ const Project = () => {
           )}
           {!isLoading && (
             <Container maxWidth="760px" sx={{ maxWidth: '760px', mx: 'auto' }}>
-				<Box sx={{ mt: '6rem', mb: '3rem' }}>
-					<img
-						src={project.bannerImgUrl}
-						alt={project.name}
-						width="100%"
-					/>
-				</Box>
+              <Box sx={{ mt: '6rem', mb: '3rem' }}>
+                <img
+                  src={project.bannerImgUrl}
+                  alt={project.name}
+                  width="100%"
+                />
+              </Box>
+              <Typography variant="h2">{project.name}</Typography>
+              <Typography variant="p">{project.shortDescription}</Typography>
 
-				<Typography variant="h2" >{project.name}</Typography>
-				<Typography variant="p">{project.shortDescription}</Typography>
+              <Divider sx={{ width: '2rem', mb: '1.5rem' }} />
 
-				<Divider sx={{ width: '2rem', mb: '1.5rem' }} />
-              
-              
-              
-			  {project.description && (
-				<>
-					<Typography variant="h4" sx={{ mt: '2rem' }}>Description</Typography>
-					<MultilineProjectDescription
-						description={project.description}
-					/>
-				</>
+              {project.description && (
+                <>
+                  <Typography variant="h4" sx={{ mt: '2rem' }}>
+                    Description
+                  </Typography>
+                  <MultilineProjectDescription
+                    description={project.description}
+                  />
+                </>
               )}
               {/* <Typography variant="h4">Meet the team</Typography>
               {/* todo: Add rendering for team 
