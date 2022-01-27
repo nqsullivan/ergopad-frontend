@@ -551,8 +551,8 @@ const Exchange = () => {
             <Button
               type="submit"
               fullWidth
-              // disabled={buttonDisabled}
-              disabled={true}
+              disabled={buttonDisabled}
+              // disabled={true}
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
@@ -579,7 +579,6 @@ const Exchange = () => {
                 Re-Open Payment Modal
               </Button>
             )}
-            <Typography>We are updating the back-end to allow for more simlutaneous transactions. Please try again later. </Typography>
           </Box>
  
           <Snackbar
