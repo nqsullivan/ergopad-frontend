@@ -3,11 +3,8 @@ import { styled } from '@mui/system';
 import AssetModal from './AssetModal';
 import { useState } from 'react';
 
-const ERGO_ID = 'ergid';
 const SIGUSD_TOKEN_ID =
   '03faf2cb329f2e90d6d23b58d91bbb6c046aa143261cc21f52fbe2824bfcbf04';
-const SIGRSV_TOKEN_ID =
-  '003bd19d0187117f130b62e1bcab0939929ff5c7709f843c5c4dd158949285d0';
 
 const StyledAsset = styled('div')(({ theme }) => ({
   width: '100%',
@@ -73,7 +70,6 @@ const AssetItem = ({ asset, stableDenominator = 'USD', type }) => {
       <StyledAsset className="asset" onClick={() => setShowModal(true)}>
         <AssetImage />
         <AssetNameContainer>
-          {/* <Typography>{asset.token}</Typography> */}
           <Typography
             sx={{
               maxWidth: '180px',
@@ -89,9 +85,10 @@ const AssetItem = ({ asset, stableDenominator = 'USD', type }) => {
         {type != 'NFT' && (
           <AssetAmountContainer>
             <Typography>{asset.amount}</Typography>
-            {[ERGO_ID, SIGUSD_TOKEN_ID, SIGRSV_TOKEN_ID].includes(asset.id) ? (
+            {asset.amountUSD > 0 ? (
               <Typography variant="caption">
-                ${asset.id == SIGUSD_TOKEN_ID ? asset.amount : asset.amountUSD} {stableDenominator}
+                ${asset.id == SIGUSD_TOKEN_ID ? asset.amount : asset.amountUSD}{' '}
+                {stableDenominator}
               </Typography>
             ) : null}
           </AssetAmountContainer>
