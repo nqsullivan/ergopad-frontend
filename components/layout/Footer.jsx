@@ -163,6 +163,11 @@ const Footer = () => {
 							</Link>
 						</ListItem>
 						<ListItem disableGutters sx={listItemStyles}>
+							<Link activeClassName='active' href='/exchange' sx={linkStyles}>
+								Exchange
+							</Link>
+						</ListItem>
+						<ListItem disableGutters sx={listItemStyles}>
 							<Link activeClassName='active' href='/refund' sx={linkStyles}>
 								Refund
 							</Link>
