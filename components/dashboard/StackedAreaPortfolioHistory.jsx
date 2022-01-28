@@ -2,13 +2,23 @@ import {
   VictoryArea,
   VictoryAxis,
   VictoryChart,
+  VictoryContainer,
   VictoryLegend,
   VictoryStack,
 } from 'victory';
 
 const StackedAreaPortfolioHistory = (props) => {
   return (
-    <VictoryChart>
+    <VictoryChart
+      containerComponent={
+        <VictoryContainer
+          id="victory-stack-chart-container"
+          style={{
+            touchAction: 'auto',
+          }}
+        />
+      }
+    >
       <VictoryLegend
         gutter={20}
         orientation="horizontal"
