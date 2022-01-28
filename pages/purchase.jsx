@@ -658,14 +658,14 @@ const Purchase = () => {
                     <Button
                             type="submit"
                             fullWidth
-                            disabled={buttonDisabled}
-                            // disabled={true}
+                            // disabled={buttonDisabled}
+                            disabled={true}
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                     >
                         Submit
                     </Button>
-                    {toEarly && <Typography>Please come back on January 20th after 17:00 UTC to make a pre-sale investment.</Typography>}
+		    <Typography>Our servers are currently under maintenance. Please try again later. </Typography>
                     {isLoading && (
                         <CircularProgress
                             size={24}
