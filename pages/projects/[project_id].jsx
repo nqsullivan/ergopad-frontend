@@ -46,7 +46,17 @@ const Project = () => {
 
   const MultilineProjectDescription = ({ description }) => {
     return (
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{description}</ReactMarkdown>
+      <ReactMarkdown
+        components={{
+          h1: ({ node, ...props }) => <Typography variant="h4" {...props} />,
+          h2: ({ node, ...props }) => <Typography variant="h5" {...props} />,
+          h3: ({ node, ...props }) => <Typography variant="h6" {...props} />,
+          p: ({ node, ...props }) => <Typography variant="p" {...props} />,
+        }}
+        remarkPlugins={[remarkGfm]}
+      >
+        {description}
+      </ReactMarkdown>
     );
   };
 
