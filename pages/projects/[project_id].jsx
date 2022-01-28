@@ -7,6 +7,8 @@ import {
   Box,
   Grid,
 } from '@mui/material';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import CircularProgress from '@mui/material/CircularProgress';
 import Link from '@components/MuiNextLink';
 import CenterTitle from '@components/CenterTitle';
@@ -15,38 +17,10 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import PublicIcon from '@mui/icons-material/Public';
 import ShareIcon from '@mui/icons-material/Share';
-import theme from '@styles/theme';
 import CopyToClipboard from '@components/CopyToClipboard';
 import DiscordIcon from '@components/DiscordIcon';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-
-const relatedLinkList = [
-  {
-    id: 0,
-    title: 'Documentation',
-    caption: 'Read about how Ergopad Works',
-    icon: 'auto_stories',
-    href: 'https://github.com/ergo-pad/ergopad/blob/main/docs/README.md',
-    background: theme.palette.primary.main,
-  },
-  {
-    id: 1,
-    title: 'About',
-    caption: 'Learn more about who we are',
-    icon: 'emoji_people',
-    href: '/about',
-    background: theme.palette.secondary.main,
-  },
-  {
-    id: 2,
-    title: 'Apply for IDO',
-    caption: 'Submit your own project proposal',
-    icon: 'chat',
-    href: '/apply',
-    background: theme.palette.tertiary.main,
-  },
-];
 
 const Project = () => {
   const router = useRouter();
@@ -71,16 +45,8 @@ const Project = () => {
   }, [project_id]);
 
   const MultilineProjectDescription = ({ description }) => {
-    // double '\n' creates a new paragraph
-    const parsed = description.split('\n\n');
     return (
-      <>
-        {parsed.map((paragraph, index) => (
-          <Typography variant="p" key={index}>
-            {paragraph}
-          </Typography>
-        ))}
-      </>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{description}</ReactMarkdown>
     );
   };
 
