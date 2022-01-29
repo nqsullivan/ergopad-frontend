@@ -13,7 +13,7 @@ import StackedAreaPortfolioHistory from '../components/dashboard/StackedAreaPort
 const STEP_SIZE = 1;
 // step unit is hours
 // todo: (switch to weeks once we have enough data)
-const STEP_UNIT = 'h';
+const STEP_UNIT = 'd';
 
 // placeholder data
 const rawData2 = 
@@ -273,7 +273,7 @@ const Dashboard = () => {
 								</>
 							) : 
 							(<>
-							<StackedAreaPortfolioHistory data={historyData}/>
+								<StackedAreaPortfolioHistory data={historyData}/>
 							</>)
 						}
 					</Paper>
