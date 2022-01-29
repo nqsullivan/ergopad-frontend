@@ -131,7 +131,7 @@ const PaginatedTable = (props) => {
               <TableCell component="th" scope="row">
                 {row.id}
               </TableCell>
-              <TableCell>{row.name}</TableCell>
+              <TableCell>{row.name ? row.name : row.title}</TableCell>
             </TableRow>
           ))}
 
