@@ -102,6 +102,40 @@ const Sidenav = () => {
           </ListItem>
         </List>
       </Box>
+      <Box sx={{ mr: { md: 12, xs: 0 }, mt: { md: 0, xs: 4 } }}>
+        <Typography variant="h4" sx={{ fontWeight: '700', lineHeight: '1.2' }}>
+          Job Listings
+        </Typography>
+        <List>
+          <ListItem
+            button
+            sx={{ ...listItemSx }}
+            onClick={() => {
+              router.push('/admin/create_job');
+            }}
+          >
+            <ListItemText primary="Create Job Listings" />
+          </ListItem>
+          <ListItem
+            button
+            sx={{ ...listItemSx }}
+            onClick={() => {
+              router.push('/admin/edit_job');
+            }}
+          >
+            <ListItemText primary="Edit Job Listings" />
+          </ListItem>
+          <ListItem
+            button
+            sx={{ mb: 2, ...listItemSx }}
+            onClick={() => {
+              router.push('/admin/delete_job');
+            }}
+          >
+            <ListItemText primary="Delete Job Listings" />
+          </ListItem>
+        </List>
+      </Box>
     </Grid>
   );
 };

@@ -1,12 +1,15 @@
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { Grid } from '@mui/material';
 import Sidenav from '@components/admin/Sidenav';
 import CenterTitle from '@components/CenterTitle';
-import { useRouter } from 'next/router';
 import CreateProjectForm from '@components/admin/CreateProjectForm';
-import EditProjectForm from '../../components/admin/EditProjectForm';
-import DeleteProjectForm from '../../components/admin/DeleteProjectForm';
-import EditUserForm from '../../components/admin/EditUserForm';
-import { useEffect, useState } from 'react';
+import EditProjectForm from '@components/admin/EditProjectForm';
+import DeleteProjectForm from '@components/admin/DeleteProjectForm';
+import EditUserForm from '@components/admin/EditUserForm';
+import CreateJobForm from '@components/admin/CreateJobForm';
+import EditJobForm from '@components/admin/EditJobForm';
+import DeleteJobForm from '@components/admin/DeleteJobForm';
 
 const AdminForm = () => {
   const JWT_TOKEN =
@@ -22,6 +25,9 @@ const AdminForm = () => {
     edit_project: <EditProjectForm />,
     delete_project: <DeleteProjectForm />,
     edit_user: <EditUserForm />,
+    create_job: <CreateJobForm />,
+    edit_job: <EditJobForm />,
+    delete_job: <DeleteJobForm />,
   };
 
   useEffect(() => {
