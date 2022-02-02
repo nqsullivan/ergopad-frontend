@@ -56,7 +56,7 @@ const initialSuccessMessageData = Object.freeze({
 
 const initialValueAllowed = Object.freeze({
   seedsale: 0,
-  strategic: 0,
+  strategic_sale: 0,
 });
 
 function friendlyAddress(addr, tot = 13) {
@@ -85,8 +85,6 @@ const Exchange = () => {
   // responsive design
   const mediumWidthUp = useMediaQuery((theme) => theme.breakpoints.up('md'));
   // standard form stuff
-  // alignment for currency
-  const [alignment, setAlignment] = useState('seedsale');
   // submit button
   const [buttonDisabled, setbuttonDisabled] = useState(true);
   const [isLoading, setLoading] = useState(false);
@@ -110,7 +108,7 @@ const Exchange = () => {
   );
   // helper texts and messages
   const [approvalMessage, setApprovalMessage] = useState(
-    'Please enter an ergo address to see how much of seedsale/strategic token you hold.'
+    'Please enter an ergo address to see how much of seedsale/strategic_sale token you hold.'
   );
   const [valueAllowed, setValueAllowed] = useState(initialValueAllowed);
   const [valueHelper, setValueHelper] = useState('');
@@ -162,7 +160,7 @@ const Exchange = () => {
       if (pending) {
         setValueAllowed({
           seedsale: -1,
-          strategic: -1,
+          strategic_sale: -1,
         });
         setValueHelper(
           'Please wait(may take upto 10 mins) for pending transaction to time-out'
@@ -189,7 +187,7 @@ const Exchange = () => {
           .filter((token) => token.tokenId === ERGOPAD_SEEDSALE)
           .map((token) => token.amount / Math.pow(10, token.decimals))
           .reduce((a, c) => a + c, 0);
-        const strategic = tokens
+        const strategic_sale = tokens
           .filter((token) => token.tokenId === ERGOPAD_STRATEGIC)
           .map((token) => token.amount / Math.pow(10, token.decimals))
           .reduce((a, c) => a + c, 0);
@@ -197,7 +195,7 @@ const Exchange = () => {
         setValueAllowed({
           ...initialValueAllowed,
           seedsale,
-          strategic,
+          strategic_sale,
         });
         updateFormData({ ...formData, wallet: wallet, vestingAmount: 0 });
         setFormErrors({ ...formErrors, wallet: false, vestingAmount: false });
@@ -265,17 +263,19 @@ const Exchange = () => {
   };
 
   useEffect(() => {
-    if (valueAllowed[alignment] >= 0.0) {
-      const allowed = `${valueAllowed[alignment]} ergopad_${alignment}`;
+    if (valueAllowed[formData.vestingScenario] >= 0.0) {
+      const allowed = `${valueAllowed[formData.vestingScenario]} ${
+        formData.vestingScenario
+      }`;
       setApprovalMessage('This address has ' + allowed + '.');
-    } else if (valueAllowed[alignment] < 0.0 && wallet) {
+    } else if (valueAllowed[formData.vestingScenario] < 0.0 && wallet) {
       setApprovalMessage(
         'There is a pending transaction, either send the funds or wait(may take upto 10 mins) for it to time-out and refresh the page to try again.'
       );
     } else if (!wallet) {
       setApprovalMessage('Please enter your Ergo address.');
     }
-  }, [wallet, valueAllowed, alignment]);
+  }, [wallet, valueAllowed, formData.vestingScenario]);
 
   useEffect(() => {
     checkWalletApproval();
@@ -311,7 +311,6 @@ const Exchange = () => {
 
   const handleCurrencyChange = (e, newAlignment) => {
     if (newAlignment !== null) {
-      setAlignment(newAlignment);
       updateFormData({
         ...formData,
         vestingAmount: 0,
@@ -340,7 +339,7 @@ const Exchange = () => {
 
     if (e.target.name == 'vestingAmount') {
       const amount = Number(e.target.value);
-      if (amount > 0.0 && amount <= valueAllowed[alignment]) {
+      if (amount > 0.0 && amount <= valueAllowed[formData.vestingScenario]) {
         setFormErrors({
           ...formErrors,
           vestingAmount: false,
@@ -374,10 +373,6 @@ const Exchange = () => {
       try {
         const data = {
           ...formData,
-          vestingScenario:
-            formData.vestingScenario === 'seedsale'
-              ? 'seedsale'
-              : 'strategic_sale',
         };
         setModalClosed(false);
         const res = await axios.post(`${process.env.API_URL}/vesting/vest/`, {
@@ -459,7 +454,7 @@ const Exchange = () => {
             </Typography>
             <Typography variant="p" sx={{ fontSize: '1rem', mb: 3 }}>
               This form will generate a transaction to lock your
-              ergopad_strategic or ergopad_seedsale tokens into their
+              strategic_sale or seedsale tokens into their
               appropriate vesting contracts. Once sent, your ergopad tokens will
               be automatically deposited into your wallet once per month,
               starting January 26th.
@@ -491,11 +486,7 @@ const Exchange = () => {
               required
               fullWidth
               id="vestingAmount"
-              label={`Enter the ${
-                alignment === 'seedsale'
-                  ? 'ergopad_seedsale'
-                  : 'ergopad_strategic'
-              } value you are sending`}
+              label={`Enter the ${formData.vestingScenario} value you are sending`}
               name="vestingAmount"
               variant="filled"
               sx={{ mb: 3 }}
@@ -509,13 +500,13 @@ const Exchange = () => {
             </Typography>
             <ToggleButtonGroup
               color="primary"
-              value={alignment}
+              value={formData.vestingScenario}
               exclusive
               onChange={handleCurrencyChange}
               sx={{ mb: 3, mt: 0 }}
             >
               <ToggleButton value="seedsale">Seedsale</ToggleButton>
-              <ToggleButton value="strategic">Strategic</ToggleButton>
+              <ToggleButton value="strategic_sale">Strategic</ToggleButton>
             </ToggleButtonGroup>
             <FormControl
               variant="filled"
@@ -580,7 +571,7 @@ const Exchange = () => {
               </Button>
             )}
           </Box>
- 
+
           <Snackbar
             open={openError}
             autoHideDuration={4500}
