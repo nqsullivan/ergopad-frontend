@@ -128,46 +128,58 @@ const Dashboard = () => {
 				let newAudNftList = [];
 				let newAssetList = [];
 
+				/**
+				 * Collect promises from ergoplatform and resolve them asynchronously
+				 */
+				const assetListPromises = []
+				const indexMapper = {}
 				for (let i = 0; i < initialAssetList.length; i++) {
 					if (initialAssetList[i].id != 'ergid') {
-						const res2 = await axios
+						const promise = axios
 						.get(`https://api.ergoplatform.com/api/v0/assets/${initialAssetList[i].id}/issuingBox`, { ...defaultOptions })
 						.catch((err) => {
 							console.log('ERROR FETCHING: ', err);
 						});
-						if (res2?.data) {
-							let data2 = res2?.data;
-							let tokenObject = {
-								name: data2[0].assets[0].name,
-								ch: data2[0].creationHeight,
-								description: toUtf8String(data2[0].additionalRegisters.R5).substr(2),
-								r7: data2[0].additionalRegisters.R7,
-								r9: data2[0].additionalRegisters?.R9 ? resolveIpfs(toUtf8String(data2[0].additionalRegisters?.R9).substr(2)) : undefined,
-								r5: toUtf8String(data2[0].additionalRegisters.R5).substr(2),
-								ext: toUtf8String(data2[0].additionalRegisters.R9).substr(2).slice(-4),
-								token: initialAssetList[i].token,
-								id: initialAssetList[i].id,
-								amount: initialAssetList[i].amount,
-								amountUSD: initialAssetList[i].amountUSD ? initialAssetList[i].amountUSD : ''
-							}
-							
-							// if audio NFT
-							if (tokenObject.ext == '.mp3' || tokenObject.ext == '.ogg' || tokenObject.ext == '.wma' || tokenObject.ext == '.wav' || tokenObject.ext == '.aac' || tokenObject.ext == 'aiff' || tokenObject.r7 == '0e020102'){
-								newAudNftList[newAudNftList.length] = tokenObject;
-							}
-							// if image NFT
-							else if (tokenObject.ext == '.png' || tokenObject.ext == '.gif' || tokenObject.ext == '.jpg' || tokenObject.ext == 'jpeg' || tokenObject.ext == '.bmp' || tokenObject.ext == '.svg' || tokenObject.ext == '.raf' || tokenObject.ext == '.nef' || tokenObject.r7 == '0e020101' || tokenObject.r7 == '0e0430313031' ) {
-								newImgNftList[newImgNftList.length] = tokenObject;
-							}
-							else {
-								newAssetList[newAssetList.length] = tokenObject;
-							}
-						}
+						indexMapper[initialAssetList[i].id] =  i;
+						assetListPromises.push(promise)
 					}
 					else {
 						newAssetList[newAssetList.length] = initialAssetList[i];
 					}
 				}
+
+				// resolve the promises
+				const resolvedAssetList = await Promise.all(assetListPromises);
+				resolvedAssetList.forEach(res => {
+					if (res?.data) {
+						let data = res?.data;
+						const i = indexMapper[data[0].assets[0].tokenId]
+						let tokenObject = {
+							name: data[0].assets[0].name,
+							ch: data[0].creationHeight,
+							description: toUtf8String(data[0].additionalRegisters.R5).substr(2),
+							r7: data[0].additionalRegisters.R7,
+							r9: data[0].additionalRegisters?.R9 ? resolveIpfs(toUtf8String(data[0].additionalRegisters?.R9).substr(2)) : undefined,
+							r5: toUtf8String(data[0].additionalRegisters.R5).substr(2),
+							ext: toUtf8String(data[0].additionalRegisters.R9).substr(2).slice(-4),
+							token: initialAssetList[i].token,
+							id: initialAssetList[i].id,
+							amount: initialAssetList[i].amount,
+							amountUSD: initialAssetList[i].amountUSD ? initialAssetList[i].amountUSD : ''
+						}
+						
+						// if audio NFT
+						if (tokenObject.ext == '.mp3' || tokenObject.ext == '.ogg' || tokenObject.ext == '.wma' || tokenObject.ext == '.wav' || tokenObject.ext == '.aac' || tokenObject.ext == 'aiff' || tokenObject.r7 == '0e020102'){
+							newAudNftList[newAudNftList.length] = tokenObject;
+						}
+						// if image NFT
+						else if (tokenObject.ext == '.png' || tokenObject.ext == '.gif' || tokenObject.ext == '.jpg' || tokenObject.ext == 'jpeg' || tokenObject.ext == '.bmp' || tokenObject.ext == '.svg' || tokenObject.ext == '.raf' || tokenObject.ext == '.nef' || tokenObject.r7 == '0e020101' || tokenObject.r7 == '0e0430313031' ) {
+							newImgNftList[newImgNftList.length] = tokenObject;
+						} else {
+							newAssetList[newAssetList.length] = tokenObject;
+						}
+					}
+				})
 
 				try {
 					const res3 = await axios.get(
