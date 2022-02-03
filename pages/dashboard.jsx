@@ -128,6 +128,9 @@ const Dashboard = () => {
 				let newAudNftList = [];
 				let newAssetList = [];
 
+				/**
+				 * Collect promises from ergoplatform and resolve them asynchronously
+				 */
 				const assetListPromises = []
 				const indexMapper = {}
 				for (let i = 0; i < initialAssetList.length; i++) {
@@ -172,8 +175,7 @@ const Dashboard = () => {
 						// if image NFT
 						else if (tokenObject.ext == '.png' || tokenObject.ext == '.gif' || tokenObject.ext == '.jpg' || tokenObject.ext == 'jpeg' || tokenObject.ext == '.bmp' || tokenObject.ext == '.svg' || tokenObject.ext == '.raf' || tokenObject.ext == '.nef' || tokenObject.r7 == '0e020101' || tokenObject.r7 == '0e0430313031' ) {
 							newImgNftList[newImgNftList.length] = tokenObject;
-						}
-						else {
+						} else {
 							newAssetList[newAssetList.length] = tokenObject;
 						}
 					}
