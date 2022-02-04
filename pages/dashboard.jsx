@@ -1,12 +1,12 @@
 import AssetList from '@components/dashboard/AssetList';
 import { Grid, Typography, CircularProgress, Container, Paper } from '@mui/material';
 import React, { useState, useEffect, } from 'react';
-import { VictoryContainer, VictoryPie } from 'victory';
 import axios from 'axios';
 import { useWallet } from 'utils/WalletContext'
 import CenterTitle from '@components/CenterTitle'
 import VestingTable from '@components/dashboard/VestingTable';
-import StackedAreaPortfolioHistory from '../components/dashboard/StackedAreaPortfolioHistory';
+import StackedAreaPortfolioHistory from '@components/dashboard/StackedAreaPortfolioHistory';
+import PieChart from '@components/dashboard/PieChart';
 
 // CONFIG for portfolio history
 // step size
@@ -251,27 +251,9 @@ const Dashboard = () => {
 									<CircularProgress color="inherit" />
 								</>
 							) : 
-							(
-								<>
-									<VictoryPie
-										id='victory-pie-chart'
-										innerRadius={100}
-										padAngle={2}
-										data={holdingData}
-										colorScale='cool'
-										style={{ labels: { fill: 'white' } }}
-										containerComponent={
-										<VictoryContainer
-											id='victory-pie-chart-container'
-											style={{
-											touchAction: 'auto',
-											}}
-										/>
-										}
-										animate={{ easing: 'exp' }}
-									/>
-								</>
-							)
+							(<>
+								<PieChart holdingData={holdingData}/>
+							</>)
 						}
 					</Paper>
 				</Grid>
