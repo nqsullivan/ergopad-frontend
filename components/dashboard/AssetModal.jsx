@@ -9,7 +9,6 @@ import {
 } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-import Image from 'next/image'
 
 const style = {
   position: 'absolute',
@@ -53,6 +52,15 @@ const parseDescription = (description) => {
   }
 };
 
+const getAveragePrice = (amount, amountUSD) => {
+  try {
+    const val = amountUSD / amount;
+    return Math.round(val * 100) / 100;
+  } catch {
+    return 0;
+  }
+};
+
 const AssetModal = ({ open, handleClose, asset }) => {
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up('md'));
@@ -85,27 +93,29 @@ const AssetModal = ({ open, handleClose, asset }) => {
           <pre>
             <strong>Amount:</strong> {asset?.amount}
           </pre>
+          {asset?.amountUSD > 0 && (
+            <pre>
+              <strong>Average Price:</strong> $
+              {getAveragePrice(asset?.amount, asset?.amountUSD)} USD
+            </pre>
+          )}
           <Accordion>
             <AccordionSummary>
               <strong>Expand for Description</strong>
             </AccordionSummary>
             <AccordionDetails sx={{ overflowWrap: 'break-word' }}>
-              
               {Object.keys(metadata)
                 .filter((key) => !key.match(/^[0-9]+$/))
                 .map((key) => (
                   <>
-                  
-                  <Typography sx={{ fontSize: '0.9rem', mb: 1 }}>
-                    <strong>
-                      {key.charAt(0).toUpperCase() + key.slice(1)}:
-                    </strong>{' '}
-                    {metadata[key]}
-                  </Typography>
-                  
+                    <Typography sx={{ fontSize: '0.9rem', mb: 1 }}>
+                      <strong>
+                        {key.charAt(0).toUpperCase() + key.slice(1)}:
+                      </strong>{' '}
+                      {metadata[key]}
+                    </Typography>
                   </>
                 ))}
-                
             </AccordionDetails>
           </Accordion>
         </Typography>

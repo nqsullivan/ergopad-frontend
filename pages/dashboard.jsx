@@ -10,8 +10,7 @@ import StackedAreaPortfolioHistory from '../components/dashboard/StackedAreaPort
 
 // CONFIG for portfolio history
 // step size
-const STEP_SIZE = 1;
-// step unit is hours
+const STEP_SIZE = 2;
 // todo: (switch to weeks once we have enough data)
 const STEP_UNIT = 'd';
 
