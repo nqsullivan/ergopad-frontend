@@ -55,7 +55,7 @@ const parseDescription = (description) => {
 const getAveragePrice = (amount, amountUSD) => {
   try {
     const val = amountUSD / amount;
-    return Math.round(val * 100) / 100;
+    return Math.round(val * 10000) / 10000;
   } catch {
     return 0;
   }
