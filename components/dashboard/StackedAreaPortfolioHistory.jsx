@@ -7,6 +7,16 @@ import {
   VictoryStack,
 } from 'victory';
 
+const toValueText = (value) => {
+  if (value < 1000) {
+    return `$${Math.round(value * 100) / 100}`;
+  } else if (value < 1000000) {
+    return `$${Math.round(value / 100) / 10}k`;
+  } else {
+    return `$${Math.round(value / 100000) / 10}m`;
+  }
+};
+
 const StackedAreaPortfolioHistory = (props) => {
   return (
     <VictoryChart
@@ -56,8 +66,7 @@ const StackedAreaPortfolioHistory = (props) => {
       <VictoryAxis
         dependentAxis
         tickFormat={(value) => {
-          const valueTh = value / 1000;
-          const formatted = '$' + Math.floor(valueTh * 100) / 100 + 'k';
+          const formatted = toValueText(value);
           return formatted;
         }}
         style={{
