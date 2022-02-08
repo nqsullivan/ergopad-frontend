@@ -319,9 +319,9 @@ const Staking = () => {
 									<TableCell sx={{ fontWeight: '800' }}>
 										Amount
 									</TableCell>
-									<TableCell sx={{ fontWeight: '800' }}>
+									{/* <TableCell sx={{ fontWeight: '800' }}>
 										Whitelist Requirements
-									</TableCell>
+									</TableCell> */}
 									<TableCell sx={{ fontWeight: '800' }}>
 										Allocation Weight
 									</TableCell>
@@ -338,9 +338,9 @@ const Staking = () => {
 											<TableCell>
 												{tier.value}
 											</TableCell>
-											<TableCell>
+											{/* <TableCell>
 												{tier.requirements}
-											</TableCell>
+											</TableCell> */}
 											<TableCell>
 												{tier.weight}
 											</TableCell>
@@ -369,14 +369,14 @@ const Staking = () => {
 											{tier.value}
 										</TableCell>
 									</TableRow>
-									<TableRow>
+									{/* <TableRow>
 										<TableCell sx={{ color: theme.palette.text.secondary, border: 'none', p: 1 }}>
 											{stakingHeading.requirements}
 										</TableCell>
 										<TableCell sx={{ border: 'none', p: 1 }}>
 											{tier.requirements}
 										</TableCell>
-									</TableRow>
+									</TableRow> */}
 									<TableRow>
 										<TableCell sx={{ color: theme.palette.text.secondary, border: 'none', p: 1, pb: 2 }}>
 											{stakingHeading.weight}

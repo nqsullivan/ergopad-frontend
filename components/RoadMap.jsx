@@ -49,12 +49,14 @@ const timelineItems = [
 	{
 		date: 'January 20, 2022',
 		title: 'Pre-Sale',
-		body: 'ErgoPad pre-sale contracts become available. '
+		body: 'ErgoPad pre-sale contracts become available. ',
+		passed: true
 	},
 	{
 		date: 'February 2, 2022',
 		title: 'ErgoPad IDO',
-		body: 'ErgoPad IDO where tokens will be available to trade on ErgoDex. '
+		body: 'ErgoPad IDO where tokens will be available to trade on ErgoDex. ',
+		passed: true
 	}
 ]
 

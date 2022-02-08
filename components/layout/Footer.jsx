@@ -152,7 +152,7 @@ const Footer = () => {
 				<Grid item xs={6} md={2}>
 					<Typography variant='inherit' sx={titleStyles}>INVEST</Typography>
 					<List>
-						<ListItem disableGutters sx={listItemStyles}>
+						{/* <ListItem disableGutters sx={listItemStyles}>
 							<Link activeClassName='active' href='/whitelist' sx={linkStyles}>
 								Whitelist Sign-up
 							</Link>
@@ -161,7 +161,7 @@ const Footer = () => {
 							<Link activeClassName='active' href='/purchase' sx={linkStyles}>
 								Purchase
 							</Link>
-						</ListItem>
+						</ListItem> */}
 						<ListItem disableGutters sx={listItemStyles}>
 							<Link activeClassName='active' href='/exchange' sx={linkStyles}>
 								Exchange
