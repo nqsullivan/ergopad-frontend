@@ -16,11 +16,11 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import PublicIcon from '@mui/icons-material/Public';
 import ShareIcon from '@mui/icons-material/Share';
+import DiscordIcon from '@components/DiscordIcon';
 import { useSearch } from '../../utils/SearchContext';
 import { useEffect, useState } from 'react';
 import CopyToClipboard from '@components/CopyToClipboard';
 import axios from 'axios';
-import DiscordIcon from '@components/DiscordIcon';
 
 const relatedLinkList = [
   {

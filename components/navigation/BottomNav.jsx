@@ -19,13 +19,11 @@ import MuiNextLink from '@components/MuiNextLink';
 
 const drawerLinks = [
   { title: 'About', path: '/about' },
-  { title: 'Roadmap', path: '/#roadmap' },
   { title: 'Projects', path: '/projects' },
   { title: 'Apply for IDO', path: '/apply' },
   { title: 'Documentation', path: 'https://github.com/ergo-pad/ergopad/blob/dev/docs/README.md' },
   { title: 'Tutorials', path: '/guides' },
   { title: 'FAQ', path: '/faq' },
-  
 ];
 
 const bottomNavLinks = [

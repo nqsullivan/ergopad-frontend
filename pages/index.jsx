@@ -1,65 +1,41 @@
-import Features from '@components/Features';
-import Hero from '@components/Hero';
-import { Container, Divider, Box } from '@mui/material';
-import RoadMap from '@components/RoadMap';
-import CenterTitle from '@components/CenterTitle'
 import { useEffect } from 'react';
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/router';
+import Features from '@components/landing/Features';
+import Hero from '@components/landing/Hero';
+import { Container, Divider } from '@mui/material';
+import Dashboard from '@components/landing/Dashboard';
+import Projects from '@components/landing/Projects';
 
 const Homepage = () => {
-  
-  const router = useRouter()
-
-  let id = router.asPath.match(/#([a-z0-9]+)/gi )
+  const router = useRouter();
+  let id = router.asPath.match(/#([a-z0-9]+)/gi);
 
   useEffect(() => {
-
-  
-			if (id) {
-				let element = document.querySelector(id);
-        
-				// console.log({ element });
-
-				if (element) {
-					element.scrollIntoView({
-						behavior: "smooth",
-						block: "start",
-						inline: "nearest"
-					});
-
-				}
-        
-
-			}
-      else window.scrollTo({top: 0, left: 0, behavior: 'smooth'})
-
-	}, [id]);
+    if (id) {
+      let element = document.querySelector(id);
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest',
+        });
+      }
+    } else window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, [id]);
 
   return (
     <>
-      <Container maxWidth='lg'>
+      <Container maxWidth="lg">
         <Hero
-          title='Welcome to ErgoPad'
-          subtitle='We are a token launch platform for Ergo giving you an opportunity to get in on the ground floor with Ergo token IDOs. We help projects navigate Ergoscript to build safe apps for you to invest in.'
+          title="Welcome to ErgoPad"
+          subtitle="We are a token launch platform for Ergo giving you an opportunity to get in on the ground floor with Ergo token IDOs. We help projects navigate Ergoscript to build safe apps for you to invest in."
         />
-
         <Divider sx={{ mb: 10 }} />
-
         <Features />
-
-
-        <Box id="roadmap"></Box>
         <Divider sx={{ mb: 10 }} />
-
-        <CenterTitle
-          title="Roadmap"
-          subtitle="ErgoPad's tentative launch schedule"
-          sx={{ mt: '5rem' }}
-
-        />
-        
-        <RoadMap />
-        
+        <Dashboard />
+        <Divider sx={{ mb: 10 }} />
+        <Projects />
       </Container>
     </>
   );

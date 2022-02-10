@@ -67,11 +67,6 @@ const Footer = () => {
 							</Link>
 						</ListItem>
 						<ListItem disableGutters sx={listItemStyles}>
-							<Link activeClassName='active' href='/#roadmap' sx={linkStyles}>
-								Roadmap
-							</Link>
-						</ListItem> 
-						<ListItem disableGutters sx={listItemStyles}>
 							<Link activeClassName='active' href='/projects' sx={linkStyles}>
 								Projects
 							</Link>
@@ -110,6 +105,11 @@ const Footer = () => {
 						<ListItem disableGutters sx={listItemStyles}>
 							<Link activeClassName='active' href='/apply' sx={linkStyles}>
 								Apply
+							</Link>
+						</ListItem>
+						<ListItem disableGutters sx={listItemStyles}>
+							<Link activeClassName='active' href='/careers' sx={linkStyles}>
+								Careers
 							</Link>
 						</ListItem>
 					</List>
