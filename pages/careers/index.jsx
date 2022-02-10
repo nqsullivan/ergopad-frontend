@@ -117,7 +117,7 @@ const Careers = () => {
       <Container sx={{ mb: '3rem' }}>
         <CenterTitle
           title="Join us."
-          subtitle="Placeholder subtitle text"
+          subtitle="We are always looking for smart people to join our team"
           main={true}
         />
         <Box sx={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
