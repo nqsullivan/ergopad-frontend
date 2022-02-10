@@ -112,6 +112,7 @@ const Projects = () => {
             sx={{
               color: '#fff',
               fontSize: '1rem',
+              mb: 6,
               py: '0.6rem',
               px: '1.6rem',
               textTransform: 'none',

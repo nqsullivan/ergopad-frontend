@@ -107,11 +107,11 @@ const Footer = () => {
 								Apply
 							</Link>
 						</ListItem>
-						<ListItem disableGutters sx={listItemStyles}>
+						{/* <ListItem disableGutters sx={listItemStyles}>
 							<Link activeClassName='active' href='/careers' sx={linkStyles}>
 								Careers
 							</Link>
-						</ListItem>
+						</ListItem> */}
 					</List>
 				</Grid>
 				<Grid item xs={6} md={2}>
