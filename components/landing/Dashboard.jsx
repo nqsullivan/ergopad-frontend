@@ -4,6 +4,9 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  List,
+  ListItem,
+  Box
 } from '@mui/material';
 import theme from '@styles/theme';
 import Image from 'next/image';
@@ -30,18 +33,23 @@ const Dashboard = () => {
         <Grid item xs={12} md={6} sx={{ mb: 10 }}>
           <Typography variant="h2">Dashboard</Typography>
           <Typography variant="p">
-            In sit amet mauris in metus accumsan cursus. Etiam ut aliquet ante,
-            vitae consectetur metus. Aliquam erat volutpat. Aliquam semper nunc
-            sit amet pulvinar commodo. Sed ultrices sem quis tincidunt
-            fermentum. Quisque fermentum efficitur risus, ac condimentum sem
-            elementum ac. Nulla dui odio, rhoncus quis ex eu, auctor ultricies
-            sem. Vestibulum venenatis hendrerit felis ac laoreet. Aliquam mattis
-            ultrices augue eget dictum. Etiam sollicitudin, mi vel malesuada
-            interdum, neque nisl tempus mauris, lobortis tempus orci purus sit
-            amet mauris. Integer molestie at purus eget luctus. Cras sapien
-            libero, vehicula quis pretium quis, gravida non nibh. Vivamus
-            fringilla finibus convallis.
+            The Ergopad Dashboard lets you keep track of all your Ergo assets, and displays all your staked and vested tokens, even when they're locked in smart contracts and not in your wallet. 
           </Typography>
+          <Typography variant="p">
+            Other features include: 
+          </Typography>
+          <List sx={{ mt: -4, pt: 0, ml: 6, mb: 3, listStyleType: 'disc', color: theme.palette.text.secondary, fontSize: '1.125rem' }}>
+            <ListItem  sx={{ display: 'list-item' }}>
+              Summarized portfolio holdings, including historic chart data. 
+            </ListItem>
+            <ListItem  sx={{ display: 'list-item' }}>
+              List of all held assets, including NFTs, with the ability to zoom in on any asset for more details.
+            </ListItem>
+            <ListItem  sx={{ display: 'list-item' }}>
+              Price data pulled from various sources, such as Ergodex and Ergo Oracles, summarized in a visual way.
+            </ListItem>
+          </List>
+          
           <Button
             onClick={() => router.push('/dashboard')}
             variant="contained"
@@ -59,10 +67,12 @@ const Dashboard = () => {
               '&:active': {
                 backgroundColor: theme.palette.secondary.active,
               },
+              
             }}
           >
             Explore dashboard
           </Button>
+          
         </Grid>
       </Grid>
     </>

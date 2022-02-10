@@ -10,7 +10,7 @@ import {
   useTheme,
 } from '@mui/material';
 
-const annoucements = [
+const announcements = [
   {
     id: 1,
     title: 'Darkpool',
@@ -21,7 +21,7 @@ const annoucements = [
   },
   {
     id: 2,
-    title: 'Testing face for Nautilus Wallet',
+    title: 'Testing phase for Nautilus Wallet',
     shortDescription:
       'Great news! We’re pleased to announce that we were invited to the testing phase for Nautilus Wallet beta. Our Developers have successfully integrated Yoroi Wallet and Nautilus Wallet to the ergopad dAPP.',
     bannerImgUrl:
@@ -29,7 +29,7 @@ const annoucements = [
   },
 ];
 
-const Annoucements = () => {
+const Announcements = () => {
   const mtheme = useTheme();
   const matches = useMediaQuery(mtheme.breakpoints.up('md'));
   const annoucementCard = (annoucement) => {
@@ -81,14 +81,14 @@ const Annoucements = () => {
             maxWidth: '768px',
           }}
         >
-          <Typography variant="h2">Annoucements</Typography>
+          <Typography variant="h2">Announcements</Typography>
         </Box>
       </Box>
       <Grid container spacing={3} alignItems="stretch" sx={{ mb: 6, mt: 1 }}>
-        {annoucements?.map((annoucement) => annoucementCard(annoucement))}
+        {announcements?.map((annoucement) => annoucementCard(annoucement))}
       </Grid>
     </>
   );
 };
 
-export default Annoucements;
+export default Announcements;

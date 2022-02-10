@@ -85,14 +85,14 @@ const Hero = ({ title, subtitle }) => {
           </Box>
         </Grid>
         <Grid item xs={12} md={7} sx={{ pb: { xs: 4, md: 16 } }}>
-          {/* <Image
+           <Image
             src="/ergo-illustration.png"
             alt="ErgoPad Illustration"
             layout="responsive"
             width="600"
             height="600"
             priority={true}
-          /> */}
+          /> 
         </Grid>
       </Grid>
     </>
