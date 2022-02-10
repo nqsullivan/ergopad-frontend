@@ -10,11 +10,10 @@ import Image from 'next/image'
 
 export const navLinks = [
   { title: `About`, path: `/about` },
-  { title: 'Road Map', path: '/#roadmap'},
+  { title: `Dashboard`, path: `/dashboard` },
   { title: `Projects`, path: `/projects` },
   { title: `Token`, path: `/token` },
   { title: `Staking`, path: `/staking` },
-  { title: `Dashboard`, path: `/dashboard` },
 ];
 
 function ElevationScroll(props) {

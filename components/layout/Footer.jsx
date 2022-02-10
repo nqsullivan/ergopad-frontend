@@ -67,11 +67,6 @@ const Footer = () => {
 							</Link>
 						</ListItem>
 						<ListItem disableGutters sx={listItemStyles}>
-							<Link activeClassName='active' href='/#roadmap' sx={linkStyles}>
-								Roadmap
-							</Link>
-						</ListItem> 
-						<ListItem disableGutters sx={listItemStyles}>
 							<Link activeClassName='active' href='/projects' sx={linkStyles}>
 								Projects
 							</Link>
@@ -112,6 +107,11 @@ const Footer = () => {
 								Apply
 							</Link>
 						</ListItem>
+						{/* <ListItem disableGutters sx={listItemStyles}>
+							<Link activeClassName='active' href='/careers' sx={linkStyles}>
+								Careers
+							</Link>
+						</ListItem> */}
 					</List>
 				</Grid>
 				<Grid item xs={6} md={2}>

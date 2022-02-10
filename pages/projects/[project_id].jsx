@@ -79,7 +79,7 @@ const Project = () => {
           )}
           {!isLoading && (
             <Container maxWidth="760px" sx={{ maxWidth: '760px', mx: 'auto' }}>
-              <Box sx={{ mt: '6rem', mb: '3rem' }}>
+              <Box sx={{ mt: '3rem', mb: '3rem' }}>
                 <img
                   src={project.bannerImgUrl}
                   alt={project.name}
