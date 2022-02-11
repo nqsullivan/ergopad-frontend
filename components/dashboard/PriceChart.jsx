@@ -4,6 +4,8 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import Link from '@components/MuiNextLink';
 import {
@@ -62,6 +64,8 @@ const initHistoryData = {
 };
 
 const PriceChart = () => {
+  const mtheme = useTheme();
+  const matches = useMediaQuery(mtheme.breakpoints.up('md'));
   const [rawData, setRawData] = useState(initHistoryData);
   const [stepUnit, setStepUnit] = useState('1h');
   const [pair, setPair] = useState('ergopad_sigusd');
@@ -105,7 +109,7 @@ const PriceChart = () => {
       <Typography variant="h4">$ERGOPAD</Typography>
       <Grid>
         <Grid container>
-          <Grid item md={6}>
+          <Grid item md={6} xs={12}>
             <ToggleButtonGroup
               color="info"
               value={pair}
@@ -120,7 +124,11 @@ const PriceChart = () => {
           <Grid
             item
             md={6}
-            sx={{ display: 'flex', justifyContent: 'flex-end' }}
+            xs={12}
+            sx={{
+              display: 'flex',
+              justifyContent: matches ? 'flex-end' : 'flex-start',
+            }}
           >
             <ToggleButtonGroup
               color="info"
@@ -138,7 +146,7 @@ const PriceChart = () => {
           </Grid>
         </Grid>
         <VictoryChart
-          height={150}
+          height={matches ? 150 : 250}
           padding={{ top: 5, bottom: 30, right: 30, left: 40 }}
           domainPadding={{ y: 15 }}
           containerComponent={
