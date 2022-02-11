@@ -91,6 +91,9 @@ const PriceChart = () => {
       y: dataPoint.price,
     };
   });
+  const lastPrice = priceData.length
+    ? Math.round(priceData[0].y * 10000) / 10000
+    : 1;
 
   const handleStepChange = (e, newAlignment) => {
     if (newAlignment !== null) {
@@ -106,7 +109,10 @@ const PriceChart = () => {
 
   return (
     <>
-      <Typography variant="h4">$ERGOPAD</Typography>
+      <Typography variant="h4">
+        $ERGOPAD: {lastPrice}
+        {pairBaseCurrencyMapper[pair]}
+      </Typography>
       <Grid>
         <Grid container>
           <Grid item md={6} xs={12}>
