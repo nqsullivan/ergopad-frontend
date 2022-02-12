@@ -9,7 +9,12 @@ import {
   DialogTitle,
   FormHelperText,
   Grid,
+  CircularProgress,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
+import PaginatedTable from '@components/PaginatedTable';
 import { useWallet } from 'utils/WalletContext';
 import { useAddWallet } from 'utils/AddWalletContext';
 import { Address } from 'utils/Address';
@@ -23,8 +28,10 @@ export const AddWallet = () => {
   /**
    * dapp state
    */
+  const [loading, setLoading] = useState(false);
   const [dAppConnected, setDAppConnected] = useState(false);
   const [dAppError, setDAppError] = useState(false);
+  const [dAppAddresses, setDAppAddresses] = useState([]);
 
   useEffect(() => {
     if (localStorage.getItem('wallet_address')) {
@@ -69,12 +76,15 @@ export const AddWallet = () => {
    * dapp connector
    */
   const dAppConnect = async () => {
+    setLoading(true);
     try {
       if (await window.ergo_check_read_access()) {
-        dAppLoad();
+        await dAppLoad();
+        setLoading(false);
         return;
       } else if (await window.ergo_request_read_access()) {
-        dAppLoad();
+        await dAppLoad();
+        setLoading(false);
         return;
       }
       setDAppError(true);
@@ -82,6 +92,7 @@ export const AddWallet = () => {
       setDAppError(true);
       console.log(e);
     }
+    setLoading(false);
   };
 
   const dAppLoad = async () => {
@@ -104,6 +115,29 @@ export const AddWallet = () => {
     }
   };
 
+  const changeWalletAddress = (address) => {
+    setWallet(address);
+    setWalletInput(address);
+    localStorage.setItem('wallet_address', address);
+  };
+
+  const loadAddresses = async () => {
+    setLoading(true);
+    try {
+      const address_used = await ergo.get_used_addresses(); // eslint-disable-line
+      const address_unused = await ergo.get_unused_addresses(); // eslint-disable-line
+      const addresses = [...address_used, ...address_unused].map(
+        (address, index) => {
+          return { id: index, name: address };
+        }
+      );
+      setDAppAddresses(addresses);
+    } catch (e) {
+      console.log(e);
+    }
+    setLoading(false);
+  };
+
   return (
     <>
       <Dialog open={addWalletOpen} onClose={handleClose}>
@@ -112,10 +146,13 @@ export const AddWallet = () => {
           <DialogContentText>
             Enter your Ergo wallet public key. This will be used to interact
             with smart contracts and display assets on the dashboard. Your
-            public key will never be stored on our server.
+            public key will never be stored on our server. If you are using a
+            dapp wallet please make sure only one wallet is enabled. Enabling
+            multiple wallet extensions will cause undefined behaviour.
           </DialogContentText>
           <Grid sx={{ py: 2 }}>
             <Button
+              disabled={loading}
               onClick={dAppConnect}
               sx={{
                 color: '#fff',
@@ -136,10 +173,31 @@ export const AddWallet = () => {
               {dAppConnected
                 ? 'dApp Connected'
                 : 'Connect with Yoroi or Nautilus'}
+              {loading && (
+                <CircularProgress
+                  sx={{ ml: 2, color: 'white' }}
+                  size={'1.2rem'}
+                />
+              )}
             </Button>
             <FormHelperText error={true}>
               {dAppError ? 'Failed to connect to wallet. Please retry.' : ''}
             </FormHelperText>
+            {dAppConnected && (
+              <Accordion onClick={loadAddresses} sx={{ mt: 1 }}>
+                <AccordionSummary>
+                  <strong>Change Address</strong>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <PaginatedTable
+                    rows={dAppAddresses}
+                    onClick={(index) =>
+                      changeWalletAddress(dAppAddresses[index].name)
+                    }
+                  />
+                </AccordionDetails>
+              </Accordion>
+            )}
           </Grid>
           <TextField
             disabled={dAppConnected}
