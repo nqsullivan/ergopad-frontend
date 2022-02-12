@@ -238,14 +238,12 @@ const Dashboard = () => {
 			main="true"
 		/>
 		<Container maxWidth='lg' sx={{ mx: 'auto' }}>
-			<Grid container spacing={3} alignItems="stretch">
+			<Grid container spacing={3} alignItems="stretch" sx={{ pt: 4 }}>
 				<Grid item xs={12} md={12}>
 					<Paper sx={paperStyle}>
 						<PriceChart />
 					</Paper>
 				</Grid>
-			</Grid>
-			<Grid container spacing={3} alignItems="stretch" sx={{ pt: 4 }}>
 				<Grid item xs={12} md={6}>
 					<Paper sx={paperStyle}>
 					<Typography variant='h4'>Wallet Holdings</Typography>
