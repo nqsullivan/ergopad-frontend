@@ -7,12 +7,12 @@ import CenterTitle from '@components/CenterTitle'
 import VestingTable from '@components/dashboard/VestingTable';
 import StackedAreaPortfolioHistory from '@components/dashboard/StackedAreaPortfolioHistory';
 import PieChart from '@components/dashboard/PieChart';
+import PriceChart from '@components/dashboard/PriceChart';
 
 // CONFIG for portfolio history
 // step size
-const STEP_SIZE = 2;
-// todo: (switch to weeks once we have enough data)
-const STEP_UNIT = 'd';
+const STEP_SIZE = 1;
+const STEP_UNIT = 'w';
 
 // placeholder data
 const rawData2 = 
@@ -238,11 +238,14 @@ const Dashboard = () => {
 			main="true"
 		/>
 		<Container maxWidth='lg' sx={{ mx: 'auto' }}>
-		<Typography variant="p" sx={{ textAlign: 'center', fontSize: '0.9rem' }}>
-			* Please note, some dashboard functionality is not completed yet. 
-		</Typography>
+			<Grid container spacing={3} alignItems="stretch">
+				<Grid item xs={12} md={12}>
+					<Paper sx={paperStyle}>
+						<PriceChart />
+					</Paper>
+				</Grid>
+			</Grid>
 			<Grid container spacing={3} alignItems="stretch" sx={{ pt: 4 }}>
-
 				<Grid item xs={12} md={6}>
 					<Paper sx={paperStyle}>
 					<Typography variant='h4'>Wallet Holdings</Typography>
