@@ -20,6 +20,8 @@ const toValueText = (value) => {
 const StackedAreaPortfolioHistory = (props) => {
   return (
     <VictoryChart
+      padding={{ top: 10, bottom: 60, left: 40, right: 40 }}
+      domainPadding={{ y: 20 }}
       containerComponent={
         <VictoryContainer
           id="victory-stack-chart-container"
