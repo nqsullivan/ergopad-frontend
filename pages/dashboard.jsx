@@ -7,7 +7,7 @@ import CenterTitle from '@components/CenterTitle'
 import VestingTable from '@components/dashboard/VestingTable';
 import StackedAreaPortfolioHistory from '@components/dashboard/StackedAreaPortfolioHistory';
 import PieChart from '@components/dashboard/PieChart';
-import PriceChart from '../components/dashboard/PriceChart';
+import PriceChart from '@components/dashboard/PriceChart';
 
 // CONFIG for portfolio history
 // step size
