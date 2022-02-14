@@ -20,6 +20,17 @@ import { useAddWallet } from 'utils/AddWalletContext';
 import { Address } from 'utils/Address';
 import theme from '@styles/theme';
 
+/**
+ * Note on es-lint disable line:
+ *
+ * Ergo dApp injector uses global variables injected from the browser,
+ * es-lint will complain if we reference un defined varaibles.
+ *
+ * Injected variables:
+ * - ergo
+ * - window.ergo_check_read_access
+ * - window.ergo_request_read_access
+ */
 export const AddWallet = () => {
   const [walletInput, setWalletInput] = useState('');
   const { addWalletOpen, setAddWalletOpen } = useAddWallet();
@@ -27,6 +38,11 @@ export const AddWallet = () => {
 
   /**
    * dapp state
+   *
+   * loading: yoroi is slow so need to show a loader for yoroi
+   * dAppConnected: true if permission granted (persisted in local storage)
+   * dAppError: show error message
+   * dAppAddresses: list available addresses from wallet
    */
   const [loading, setLoading] = useState(false);
   const [dAppConnected, setDAppConnected] = useState(false);
@@ -44,32 +60,40 @@ export const AddWallet = () => {
   }, []);
 
   const handleClose = () => {
+    // reset unsaved changes
     setAddWalletOpen(false);
     setWalletInput(wallet);
     setDAppError(false);
-  };
-
-  const handleWalletFormChange = (e) => {
-    setWalletInput(e.target.value);
   };
 
   const handleSubmitWallet = () => {
     // add read only wallet
     setAddWalletOpen(false);
     setWallet(walletInput);
+    // clear dApp state
     setDAppError(false);
     setDAppConnected(false);
+    setDAppAddresses([]);
+    // update persisted storage
     localStorage.removeItem('dapp_connected');
     localStorage.setItem('wallet_address', walletInput);
   };
 
   const clearWallet = () => {
+    // clear state and local storage
     setWalletInput('');
     setWallet('');
+    // clear dApp state
     setDAppError(false);
     setDAppConnected(false);
+    setDAppAddresses([]);
+    // update persisted storage
     localStorage.removeItem('wallet_address');
     localStorage.removeItem('dapp_connected');
+  };
+
+  const handleWalletFormChange = (e) => {
+    setWalletInput(e.target.value);
   };
 
   /**
@@ -100,17 +124,22 @@ export const AddWallet = () => {
       const address_used = await ergo.get_used_addresses(); // eslint-disable-line
       const address_unused = await ergo.get_unused_addresses(); // eslint-disable-line
       const addresses = [...address_used, ...address_unused];
-      // use the first used address if available or the first unused one if not
-      const address = addresses[0];
+      // use the first used address if available or the first unused one if not as default
+      const address = addresses.length ? addresses[0] : '';
       setWallet(address);
       setWalletInput(address);
+      // update dApp state
       setDAppConnected(true);
       setDAppError(false);
+      // update local storage
       localStorage.setItem('wallet_address', address);
       localStorage.setItem('dapp_connected', true);
     } catch (e) {
       console.log(e);
+      // update dApp state
       setDAppConnected(false);
+      setDAppError(true);
+      // update local storage
       localStorage.removeItem('dapp_connected');
     }
   };
@@ -184,8 +213,8 @@ export const AddWallet = () => {
               {dAppError ? 'Failed to connect to wallet. Please retry.' : ''}
             </FormHelperText>
             {dAppConnected && (
-              <Accordion onClick={loadAddresses} sx={{ mt: 1 }}>
-                <AccordionSummary>
+              <Accordion sx={{ mt: 1 }}>
+                <AccordionSummary onClick={loadAddresses}>
                   <strong>Change Address</strong>
                 </AccordionSummary>
                 <AccordionDetails>
