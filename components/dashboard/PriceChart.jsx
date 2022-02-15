@@ -121,7 +121,7 @@ const PriceChart = () => {
               value={pair}
               exclusive
               onChange={handlePairChange}
-              sx={{ mb: 3, mt: 0 }}
+              sx={{ mb: 2, mt: 0 }}
             >
               <ToggleButton value="ergopad_sigusd">SigUSD</ToggleButton>
               <ToggleButton value="ergopad_erg">Erg</ToggleButton>
@@ -141,7 +141,7 @@ const PriceChart = () => {
               value={stepUnit}
               exclusive
               onChange={handleStepChange}
-              sx={{ mb: 3, mt: 0 }}
+              sx={{ mb: 2, mt: 0 }}
             >
               <ToggleButton value="1h">1 hour</ToggleButton>
               <ToggleButton value="4h">4 hours</ToggleButton>
@@ -153,8 +153,8 @@ const PriceChart = () => {
         </Grid>
         <VictoryChart
           height={matches ? 150 : 250}
-          padding={{ top: 5, bottom: 30, right: 30, left: 40 }}
-          domainPadding={{ y: 15 }}
+          padding={{ top: 10, bottom: 30, right: 30, left: 40 }}
+          domainPadding={{ y: 20 }}
           containerComponent={
             <VictoryVoronoiContainer
               id="victory-stack-chart-container"
@@ -212,7 +212,7 @@ const PriceChart = () => {
             title="Trade"
             rel="noreferrer"
             target="_blank"
-            sx={{ mb: 3, mx: 3 }}
+            sx={{ mb: 1, mx: 3 }}
           >
             <Button
               variant="contained"
