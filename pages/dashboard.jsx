@@ -250,25 +250,27 @@ const Dashboard = () => {
       setLoading(false);
     }
 
-    const getVestedTokenData = async (address) => {
+    const getVestedTokenData = async (addresses) => {
       const defaultOptions = {
         headers: {
           'Content-Type': 'application/json',
         },
       };
-      try {
-        const res = await axios.get(
-          `${process.env.API_URL}/vesting/vested/${address}`,
-          { ...defaultOptions }
-        );
-        if (res.data.status === 'success') {
-          setVestedTokens(res.data.vested);
-        } else {
-          setVestedTokens([]);
-        }
-      } catch (e) {
-        console.log(e);
-      }
+
+      const vestedPromises = addresses.map((address) =>
+        axios
+          .get(`${process.env.API_URL}/vesting/vested/${address}`, {
+            ...defaultOptions,
+          })
+          .catch((e) => {
+            console.log('ERROR FETCHING', e);
+          })
+      );
+      const resolvedVested = await Promise.all(vestedPromises);
+      const vested = resolvedVested
+        .map((res) => (res?.data?.status === 'success' ? res.data.vested : []))
+        .filter((vested) => vested.length);
+      setVestedTokens(reduceVested(vested));
     };
 
     const walletAddresses = [wallet, ...dAppWallet.addresses].filter(
@@ -276,7 +278,7 @@ const Dashboard = () => {
     );
     if (walletAddresses.length) {
       getWalletData(walletAddresses);
-      getVestedTokenData(walletAddresses[0]);
+      getVestedTokenData(walletAddresses);
     } else {
       noAssetSetup();
     }
@@ -518,6 +520,47 @@ const reduceBalances = (balances) => {
   const tokens = Object.values(tokenMap);
   ret.balance.ERG.tokens = tokens;
   return ret;
+};
+
+const reduceVested = (vestedData) => {
+  const vestedArray = JSON.parse(JSON.stringify(vestedData));
+  if (vestedArray.length === 0) {
+    return [];
+  }
+
+  const addOutstanding = (a, b) => {
+    const outMap = {};
+    a.outstanding.forEach((pt) => {
+      outMap[pt.date] = pt;
+    });
+    b.outstanding.forEach((pt) => {
+      if (outMap[pt.date]) {
+        outMap[pt.date].amount += pt.amount;
+      } else {
+        outMap[pt.date] = pt;
+      }
+    });
+    const compute = Object.values(outMap);
+    compute.sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+    const ret = JSON.parse(JSON.stringify(a));
+    ret.totalVested += b.totalVested;
+    ret.outstanding = compute;
+    return ret;
+  };
+
+  const vestedMap = {};
+  vestedArray.forEach((vestedList) => {
+    vestedList.forEach((vested) => {
+      const tokenId = vested.tokenId;
+      if (vestedMap[tokenId]) {
+        vestedMap[tokenId] = addOutstanding(vestedMap[tokenId], vested);
+      } else {
+        vestedMap[tokenId] = vested;
+      }
+    });
+  });
+  const vested = Object.values(vestedMap);
+  return vested;
 };
 
 export default Dashboard;

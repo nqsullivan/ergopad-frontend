@@ -39,6 +39,7 @@ export const AddWallet = () => {
   const [walletInput, setWalletInput] = useState('');
   const { addWalletOpen, setAddWalletOpen } = useAddWallet();
   const { wallet, setWallet, dAppWallet, setDAppWallet } = useWallet();
+  const [init, setInit] = useState(false);
 
   /**
    * dapp state
@@ -69,22 +70,25 @@ export const AddWallet = () => {
         addresses: JSON.parse(localStorage.getItem(WALLET_ADDRESS_LIST)),
       });
     }
+    setInit(true);
   }, []);
 
   /**
    * update persist storage
    */
   useEffect(() => {
-    localStorage.setItem(DAPP_CONNECTED, dAppWallet.connected);
-    localStorage.setItem(
-      WALLET_ADDRESS_LIST,
-      JSON.stringify(dAppWallet.addresses)
-    );
-  }, [dAppWallet]);
+    if (init) {
+      localStorage.setItem(DAPP_CONNECTED, dAppWallet.connected);
+      localStorage.setItem(
+        WALLET_ADDRESS_LIST,
+        JSON.stringify(dAppWallet.addresses)
+      );
+    }
+  }, [dAppWallet, init]);
 
   useEffect(() => {
-    localStorage.setItem(WALLET_ADDRESS, wallet);
-  }, [wallet]);
+    if (init) localStorage.setItem(WALLET_ADDRESS, wallet);
+  }, [wallet, init]);
 
   const handleClose = () => {
     // reset unsaved changes
