@@ -20,6 +20,10 @@ import { useAddWallet } from 'utils/AddWalletContext';
 import { Address } from 'utils/Address';
 import theme from '@styles/theme';
 
+const WALLET_ADDRESS = 'wallet_address';
+const WALLET_ADDRESS_LIST = 'wallet_address_list';
+const DAPP_CONNECTED = 'dapp_connected';
+
 /**
  * Note on es-lint disable line:
  *
@@ -34,7 +38,7 @@ import theme from '@styles/theme';
 export const AddWallet = () => {
   const [walletInput, setWalletInput] = useState('');
   const { addWalletOpen, setAddWalletOpen } = useAddWallet();
-  const { wallet, setWallet } = useWallet();
+  const { wallet, setWallet, dAppWallet, setDAppWallet } = useWallet();
 
   /**
    * dapp state
@@ -42,22 +46,45 @@ export const AddWallet = () => {
    * loading: yoroi is slow so need to show a loader for yoroi
    * dAppConnected: true if permission granted (persisted in local storage)
    * dAppError: show error message
-   * dAppAddresses: list available addresses from wallet
+   * dAppAddressTableData: list available addresses from wallet
    */
   const [loading, setLoading] = useState(false);
-  const [dAppConnected, setDAppConnected] = useState(false);
   const [dAppError, setDAppError] = useState(false);
-  const [dAppAddresses, setDAppAddresses] = useState([]);
+  const [dAppAddressTableData, setdAppAddressTableData] = useState([]); // table data
 
   useEffect(() => {
-    if (localStorage.getItem('wallet_address')) {
-      setWallet(localStorage.getItem('wallet_address'));
-      setWalletInput(localStorage.getItem('wallet_address'));
+    // load primary address
+    if (localStorage.getItem(WALLET_ADDRESS)) {
+      setWallet(localStorage.getItem(WALLET_ADDRESS));
+      setWalletInput(localStorage.getItem(WALLET_ADDRESS));
     }
-    if (localStorage.getItem('dapp_connected')) {
-      setDAppConnected(localStorage.getItem('dapp_connected'));
+    // load dApp state
+    if (
+      localStorage.getItem(DAPP_CONNECTED) &&
+      localStorage.getItem(WALLET_ADDRESS_LIST)
+    ) {
+      setDAppWallet({
+        connected:
+          localStorage.getItem(DAPP_CONNECTED) === 'true' ? true : false,
+        addresses: JSON.parse(localStorage.getItem(WALLET_ADDRESS_LIST)),
+      });
     }
   }, []);
+
+  /**
+   * update persist storage
+   */
+  useEffect(() => {
+    localStorage.setItem(DAPP_CONNECTED, dAppWallet.connected);
+    localStorage.setItem(
+      WALLET_ADDRESS_LIST,
+      JSON.stringify(dAppWallet.addresses)
+    );
+  }, [dAppWallet]);
+
+  useEffect(() => {
+    localStorage.setItem(WALLET_ADDRESS, wallet);
+  }, [wallet]);
 
   const handleClose = () => {
     // reset unsaved changes
@@ -72,11 +99,10 @@ export const AddWallet = () => {
     setWallet(walletInput);
     // clear dApp state
     setDAppError(false);
-    setDAppConnected(false);
-    setDAppAddresses([]);
-    // update persisted storage
-    localStorage.removeItem('dapp_connected');
-    localStorage.setItem('wallet_address', walletInput);
+    setDAppWallet({
+      connected: false,
+      addresses: [],
+    });
   };
 
   const clearWallet = () => {
@@ -85,11 +111,10 @@ export const AddWallet = () => {
     setWallet('');
     // clear dApp state
     setDAppError(false);
-    setDAppConnected(false);
-    setDAppAddresses([]);
-    // update persisted storage
-    localStorage.removeItem('wallet_address');
-    localStorage.removeItem('dapp_connected');
+    setDAppWallet({
+      connected: false,
+      addresses: [],
+    });
   };
 
   const handleWalletFormChange = (e) => {
@@ -129,25 +154,25 @@ export const AddWallet = () => {
       setWallet(address);
       setWalletInput(address);
       // update dApp state
-      setDAppConnected(true);
+      setDAppWallet({
+        connected: true,
+        addresses: addresses,
+      });
       setDAppError(false);
-      // update local storage
-      localStorage.setItem('wallet_address', address);
-      localStorage.setItem('dapp_connected', true);
     } catch (e) {
       console.log(e);
       // update dApp state
-      setDAppConnected(false);
+      setDAppWallet({
+        connected: false,
+        addresses: [],
+      });
       setDAppError(true);
-      // update local storage
-      localStorage.removeItem('dapp_connected');
     }
   };
 
   const changeWalletAddress = (address) => {
     setWallet(address);
     setWalletInput(address);
-    localStorage.setItem('wallet_address', address);
   };
 
   const loadAddresses = async () => {
@@ -155,12 +180,15 @@ export const AddWallet = () => {
     try {
       const address_used = await ergo.get_used_addresses(); // eslint-disable-line
       const address_unused = await ergo.get_unused_addresses(); // eslint-disable-line
-      const addresses = [...address_used, ...address_unused].map(
-        (address, index) => {
-          return { id: index, name: address };
-        }
-      );
-      setDAppAddresses(addresses);
+      const addresses = [...address_used, ...address_unused];
+      const addressData = addresses.map((address, index) => {
+        return { id: index, name: address };
+      });
+      setDAppWallet({
+        ...dAppWallet,
+        addresses: addresses,
+      });
+      setdAppAddressTableData(addressData);
     } catch (e) {
       console.log(e);
     }
@@ -199,7 +227,7 @@ export const AddWallet = () => {
                 },
               }}
             >
-              {dAppConnected
+              {dAppWallet.connected
                 ? 'dApp Connected'
                 : 'Connect with Yoroi or Nautilus'}
               {loading && (
@@ -212,16 +240,16 @@ export const AddWallet = () => {
             <FormHelperText error={true}>
               {dAppError ? 'Failed to connect to wallet. Please retry.' : ''}
             </FormHelperText>
-            {dAppConnected && (
+            {dAppWallet.connected && (
               <Accordion sx={{ mt: 1 }}>
                 <AccordionSummary onClick={loadAddresses}>
                   <strong>Change Address</strong>
                 </AccordionSummary>
                 <AccordionDetails>
                   <PaginatedTable
-                    rows={dAppAddresses}
+                    rows={dAppAddressTableData}
                     onClick={(index) =>
-                      changeWalletAddress(dAppAddresses[index].name)
+                      changeWalletAddress(dAppAddressTableData[index].name)
                     }
                   />
                 </AccordionDetails>
@@ -229,7 +257,7 @@ export const AddWallet = () => {
             )}
           </Grid>
           <TextField
-            disabled={dAppConnected}
+            disabled={dAppWallet.connected}
             autoFocus
             margin="dense"
             id="name"
@@ -250,7 +278,7 @@ export const AddWallet = () => {
           <Button onClick={handleClose}>Close Window</Button>
           <Button
             onClick={handleSubmitWallet}
-            disabled={!isAddressValid(walletInput) || dAppConnected}
+            disabled={!isAddressValid(walletInput) || dAppWallet.connected}
           >
             Connect Read Only Wallet
           </Button>
