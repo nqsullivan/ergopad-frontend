@@ -1,9 +1,15 @@
 import AssetList from '@components/dashboard/AssetList';
-import { Grid, Typography, CircularProgress, Container, Paper } from '@mui/material';
-import React, { useState, useEffect, } from 'react';
+import {
+  Grid,
+  Typography,
+  CircularProgress,
+  Container,
+  Paper,
+} from '@mui/material';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useWallet } from 'utils/WalletContext'
-import CenterTitle from '@components/CenterTitle'
+import { useWallet } from 'utils/WalletContext';
+import CenterTitle from '@components/CenterTitle';
 import VestingTable from '@components/dashboard/VestingTable';
 import StackedAreaPortfolioHistory from '@components/dashboard/StackedAreaPortfolioHistory';
 import PieChart from '@components/dashboard/PieChart';
@@ -15,27 +21,26 @@ const STEP_SIZE = 1;
 const STEP_UNIT = 'w';
 
 // placeholder data
-const rawData2 = 
-{
-  "address": "No assets",
-  "balance": {
-    "ERG": {
-      "blockchain": "ergo",
-      "balance": 0,
-      "unconfirmed": 0,
-      "tokens": [
+const rawData2 = {
+  address: 'No assets',
+  balance: {
+    ERG: {
+      blockchain: 'ergo',
+      balance: 0,
+      unconfirmed: 0,
+      tokens: [
         {
-          "tokenId": "abcdefg",
-          "amount": 1,
-          "decimals": 0,
-          "name": "No assets",
-          "price": 1
+          tokenId: 'abcdefg',
+          amount: 1,
+          decimals: 0,
+          name: 'No assets',
+          price: 1,
         },
       ],
-      "price": 1
-    }
-  }
-}; 
+      price: 1,
+    },
+  },
+};
 
 const initHistoryData = [
   {
@@ -68,257 +73,310 @@ const defaultHoldingData = wantedHoldingData.map((item) => {
 defaultHoldingData[defaultHoldingData.length - 1].y = portfolioValue;
 
 const paperStyle = {
-	p: 3,
-	borderRadius: 2,
-	height: '100%'
-}
+  p: 3,
+  borderRadius: 2,
+  height: '100%',
+};
 
 const Dashboard = () => {
-	const { wallet } = useWallet()
-	const [vestedTokens, setVestedTokens] = useState([]);
-	const [holdingData, setHoldingData] = useState(defaultHoldingData);
-	const [historyData, setHistoryData] = useState(initHistoryData);
-	const [assetList, setAssetList] = useState(assetListArray(rawData2));
-	const [imgNftList, setImgNftList] = useState([]);
-	const [audNftList, setAudNftList] = useState([]);
-	const [loading, setLoading] = useState(false);
+  const { wallet, dAppWallet } = useWallet();
+  const [vestedTokens, setVestedTokens] = useState([]);
+  const [holdingData, setHoldingData] = useState(defaultHoldingData);
+  const [historyData, setHistoryData] = useState(initHistoryData);
+  const [assetList, setAssetList] = useState(assetListArray(rawData2));
+  const [imgNftList, setImgNftList] = useState([]);
+  const [audNftList, setAudNftList] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-	useEffect(() => {
-		setHoldingData(wantedHoldingData); // Setting the data that we want to display
-	}, []);
+  useEffect(() => {
+    setHoldingData(wantedHoldingData); // Setting the data that we want to display
+  }, []);
 
-	const noAssetSetup = (() => {
-		const noAssetList = [
-			{
-				id : 0,
-				name : 'No assets'
-			}
-		]
-		setAssetList(noAssetList);
-		setAudNftList(noAssetList);
-		setImgNftList(noAssetList);
-		const noAssetArray = tokenDataArray(rawData2);
-		setHoldingData(noAssetArray);
-		setHistoryData(initHistoryData);
-	});
+  const noAssetSetup = () => {
+    const noAssetList = [
+      {
+        id: 0,
+        name: 'No assets',
+      },
+    ];
+    setAssetList(noAssetList);
+    setAudNftList(noAssetList);
+    setImgNftList(noAssetList);
+    const noAssetArray = tokenDataArray(rawData2);
+    setHoldingData(noAssetArray);
+    setHistoryData(initHistoryData);
+  };
 
-	useEffect(() => {
-		async function getWalletData(address) {
-			const defaultOptions = {
-				headers: {
-					'Content-Type': 'application/json',
-					// Authorization: auth?.accessToken ? `Bearer ${auth.accessToken}` : '',
-				},
-			};
-	
-			setLoading(true);
-			const res = await axios
-				.get(`${process.env.API_URL}/asset/balance/${address}`, { ...defaultOptions })
-				.catch((err) => {
-					console.log('ERROR FETCHING: ', err);
-				});
+  useEffect(() => {
+    async function getWalletData(address) {
+      const defaultOptions = {
+        headers: {
+          'Content-Type': 'application/json',
+          // Authorization: auth?.accessToken ? `Bearer ${auth.accessToken}` : '',
+        },
+      };
 
-			if (res?.data) {
-				let victoryData = tokenDataArray(res.data);
-				// create list of assets 
-				let initialAssetList = assetListArray(res.data);
-	
-				let newImgNftList = [];
-				let newAudNftList = [];
-				let newAssetList = [];
+      setLoading(true);
+      const res = await axios
+        .get(`${process.env.API_URL}/asset/balance/${address}`, {
+          ...defaultOptions,
+        })
+        .catch((err) => {
+          console.log('ERROR FETCHING: ', err);
+        });
 
-				/**
-				 * Collect promises from ergoplatform and resolve them asynchronously
-				 */
-				const assetListPromises = []
-				const indexMapper = {}
-				for (let i = 0; i < initialAssetList.length; i++) {
-					if (initialAssetList[i].id != 'ergid') {
-						const promise = axios
-						.get(`https://api.ergoplatform.com/api/v0/assets/${initialAssetList[i].id}/issuingBox`, { ...defaultOptions })
-						.catch((err) => {
-							console.log('ERROR FETCHING: ', err);
-						});
-						indexMapper[initialAssetList[i].id] =  i;
-						assetListPromises.push(promise)
-					}
-					else {
-						newAssetList[newAssetList.length] = initialAssetList[i];
-					}
-				}
+      if (res?.data) {
+        const victoryData = tokenDataArray(res.data);
+        // create list of assets
+        const initialAssetList = assetListArray(res.data);
 
-				// resolve the promises
-				const resolvedAssetList = await Promise.all(assetListPromises);
-				resolvedAssetList.forEach(res => {
-					if (res?.data) {
-						let data = res?.data;
-						const i = indexMapper[data[0].assets[0].tokenId]
-						let tokenObject = {
-							name: data[0].assets[0].name,
-							ch: data[0].creationHeight,
-							description: toUtf8String(data[0].additionalRegisters.R5).substr(2),
-							r7: data[0].additionalRegisters.R7,
-							r9: data[0].additionalRegisters?.R9 ? resolveIpfs(toUtf8String(data[0].additionalRegisters?.R9).substr(2)) : undefined,
-							r5: toUtf8String(data[0].additionalRegisters.R5).substr(2),
-							ext: toUtf8String(data[0].additionalRegisters.R9).substr(2).slice(-4),
-							token: initialAssetList[i].token,
-							id: initialAssetList[i].id,
-							amount: initialAssetList[i].amount,
-							amountUSD: initialAssetList[i].amountUSD ? initialAssetList[i].amountUSD : ''
-						}
-						
-						// if audio NFT
-						if (tokenObject.ext == '.mp3' || tokenObject.ext == '.ogg' || tokenObject.ext == '.wma' || tokenObject.ext == '.wav' || tokenObject.ext == '.aac' || tokenObject.ext == 'aiff' || tokenObject.r7 == '0e020102'){
-							newAudNftList[newAudNftList.length] = tokenObject;
-						}
-						// if image NFT
-						else if (tokenObject.ext == '.png' || tokenObject.ext == '.gif' || tokenObject.ext == '.jpg' || tokenObject.ext == 'jpeg' || tokenObject.ext == '.bmp' || tokenObject.ext == '.svg' || tokenObject.ext == '.raf' || tokenObject.ext == '.nef' || tokenObject.r7 == '0e020101' || tokenObject.r7 == '0e0430313031' ) {
-							newImgNftList[newImgNftList.length] = tokenObject;
-						} else {
-							newAssetList[newAssetList.length] = tokenObject;
-						}
-					}
-				})
+        const newImgNftList = [];
+        const newAudNftList = [];
+        const newAssetList = [];
 
-				try {
-					const res3 = await axios.get(
-						`${process.env.API_URL}/asset/price/history/all?stepSize=${STEP_SIZE}&stepUnit=${STEP_UNIT}&limit=6`,
-						{ ...defaultOptions }
-					);
-					const priceHistory = res3.data;
-					const amountData = historyDataArray(res.data); 
-					const orderingData = historyDataOrdering(res.data);
-					const totals = calculateHistoricTotal(priceHistory, amountData, orderingData);
-					setHistoryData(totals);
-				} catch (e) {
-					console.log("Error: building history", e);
-				}
+        /**
+         * Collect promises from ergoplatform and resolve them asynchronously
+         */
+        const assetListPromises = [];
+        const indexMapper = {};
+        for (let i = 0; i < initialAssetList.length; i++) {
+          if (initialAssetList[i].id != 'ergid') {
+            const promise = axios
+              .get(
+                `https://api.ergoplatform.com/api/v0/assets/${initialAssetList[i].id}/issuingBox`,
+                { ...defaultOptions }
+              )
+              .catch((err) => {
+                console.log('ERROR FETCHING: ', err);
+              });
+            indexMapper[initialAssetList[i].id] = i;
+            assetListPromises.push(promise);
+          } else {
+            newAssetList[newAssetList.length] = initialAssetList[i];
+          }
+        }
 
-				setHoldingData(victoryData);
-				setAssetList(newAssetList);
-				setAudNftList(newAudNftList);
-				setImgNftList(newImgNftList);
-			}
+        // resolve the promises
+        const resolvedAssetList = await Promise.all(assetListPromises);
+        resolvedAssetList.forEach((res) => {
+          if (res?.data) {
+            const data = res?.data;
+            const i = indexMapper[data[0].assets[0].tokenId];
+            const tokenObject = {
+              name: data[0].assets[0].name,
+              ch: data[0].creationHeight,
+              description: toUtf8String(data[0].additionalRegisters.R5).substr(
+                2
+              ),
+              r7: data[0].additionalRegisters.R7,
+              r9: data[0].additionalRegisters?.R9
+                ? resolveIpfs(
+                    toUtf8String(data[0].additionalRegisters?.R9).substr(2)
+                  )
+                : undefined,
+              r5: toUtf8String(data[0].additionalRegisters.R5).substr(2),
+              ext: toUtf8String(data[0].additionalRegisters.R9)
+                .substr(2)
+                .slice(-4),
+              token: initialAssetList[i].token,
+              id: initialAssetList[i].id,
+              amount: initialAssetList[i].amount,
+              amountUSD: initialAssetList[i].amountUSD
+                ? initialAssetList[i].amountUSD
+                : '',
+            };
 
-			setLoading(false)
-		}
+            // if audio NFT
+            if (
+              tokenObject.ext == '.mp3' ||
+              tokenObject.ext == '.ogg' ||
+              tokenObject.ext == '.wma' ||
+              tokenObject.ext == '.wav' ||
+              tokenObject.ext == '.aac' ||
+              tokenObject.ext == 'aiff' ||
+              tokenObject.r7 == '0e020102'
+            ) {
+              newAudNftList[newAudNftList.length] = tokenObject;
+            }
+            // if image NFT
+            else if (
+              tokenObject.ext == '.png' ||
+              tokenObject.ext == '.gif' ||
+              tokenObject.ext == '.jpg' ||
+              tokenObject.ext == 'jpeg' ||
+              tokenObject.ext == '.bmp' ||
+              tokenObject.ext == '.svg' ||
+              tokenObject.ext == '.raf' ||
+              tokenObject.ext == '.nef' ||
+              tokenObject.r7 == '0e020101' ||
+              tokenObject.r7 == '0e0430313031'
+            ) {
+              newImgNftList[newImgNftList.length] = tokenObject;
+            } else {
+              newAssetList[newAssetList.length] = tokenObject;
+            }
+          }
+        });
 
-		const getVestedTokenData = async (address) => {
-			const defaultOptions = {
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			};
-			try {
-				const res = await axios.get(`${process.env.API_URL}/vesting/vested/${address}`, { ...defaultOptions })
-				if (res.data.status === 'success') {
-					setVestedTokens(res.data.vested);
-				} else {
-					setVestedTokens([]);
-				}
-			} catch (e) {
-				console.log(e);
-			}
-		}
+        try {
+          const res3 = await axios.get(
+            `${process.env.API_URL}/asset/price/history/all?stepSize=${STEP_SIZE}&stepUnit=${STEP_UNIT}&limit=6`,
+            { ...defaultOptions }
+          );
+          const priceHistory = res3.data;
+          const amountData = historyDataArray(res.data);
+          const orderingData = historyDataOrdering(res.data);
+          const totals = calculateHistoricTotal(
+            priceHistory,
+            amountData,
+            orderingData
+          );
+          setHistoryData(totals);
+        } catch (e) {
+          console.log('Error: building history', e);
+        }
 
-		if (wallet && wallet != '') {
-			getWalletData(wallet);
-			getVestedTokenData(wallet);
-		}
-		else {
-			noAssetSetup()
-		}
-	}, [wallet])
+        setHoldingData(victoryData);
+        setAssetList(newAssetList);
+        setAudNftList(newAudNftList);
+        setImgNftList(newImgNftList);
+      }
 
-	return (
-		<>
-		<CenterTitle 
-			title="Dashboard"
-			subtitle="Connect wallet above to see all your ergo assets"
-			main="true"
-		/>
-		<Container maxWidth='lg' sx={{ mx: 'auto' }}>
-			<Grid container spacing={3} alignItems="stretch" sx={{ pt: 4 }}>
-				<Grid item xs={12} md={12}>
-					<Paper sx={paperStyle}>
-						<PriceChart />
-					</Paper>
-				</Grid>
-				<Grid item xs={12} md={6}>
-					<Paper sx={paperStyle}>
-					<Typography variant='h4'>Wallet Holdings</Typography>
-						{loading ? (
-								<>
-									<CircularProgress color="inherit" />
-								</>
-							) : 
-							(<>
-								<PieChart holdingData={holdingData}/>
-							</>)
-						}
-					</Paper>
-				</Grid>
-				<Grid item xs={12} md={6}>
-					<Paper sx={paperStyle}>
-					<Typography variant='h4'>Portfolio History</Typography>
-						{loading ? (
-								<>
-									<CircularProgress color="inherit" />
-								</>
-							) : 
-							(<>
-								<StackedAreaPortfolioHistory data={historyData}/>
-							</>)
-						}
-					</Paper>
-				</Grid>
-				{loading ? (<></>) : 
-				(<>
-				<Grid item xs={12} md={4}>
-					<Paper sx={paperStyle}>
-						<AssetList assets={assetList} title='Assets' />
-					</Paper>
-				</Grid>
-				<Grid item xs={12} md={4}>
-					<Paper sx={paperStyle}>
-						<AssetList assets={imgNftList} title='Image NFTs' type='NFT' />
-					</Paper>
-				</Grid>
-				<Grid item xs={12} md={4}>
-					<Paper sx={paperStyle}>
-						<AssetList assets={audNftList} title='Audio NFTs' type='NFT' />
-					</Paper>
-				</Grid>
-				</>)}
-				<Grid item xs={12}>
-					<Paper sx={paperStyle}>
-							<Typography variant="h4" sx={{ fontWeight: '700' }}>
-								Tokens Locked in Vesting Contracts
-							</Typography>
-							<VestingTable vestedObject={vestedTokens} />
-					</Paper>
-				</Grid>
-			</Grid>
-		</Container>
-		</>
-	);
+      setLoading(false);
+    }
+
+    const getVestedTokenData = async (address) => {
+      const defaultOptions = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+      try {
+        const res = await axios.get(
+          `${process.env.API_URL}/vesting/vested/${address}`,
+          { ...defaultOptions }
+        );
+        if (res.data.status === 'success') {
+          setVestedTokens(res.data.vested);
+        } else {
+          setVestedTokens([]);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    const walletAddresses = [wallet, ...dAppWallet.addresses].filter(
+      (x, i, a) => a.indexOf(x) == i && x
+    );
+    if (walletAddresses.length) {
+      getWalletData(walletAddresses[0]);
+      getVestedTokenData(walletAddresses[0]);
+    } else {
+      noAssetSetup();
+    }
+  }, [wallet, dAppWallet.addresses]);
+
+  return (
+    <>
+      <CenterTitle
+        title="Dashboard"
+        subtitle="Connect wallet above to see all your ergo assets"
+        main="true"
+      />
+      <Container maxWidth="lg" sx={{ mx: 'auto' }}>
+        <Grid container spacing={3} alignItems="stretch" sx={{ pt: 4 }}>
+          <Grid item xs={12} md={12}>
+            <Paper sx={paperStyle}>
+              <PriceChart />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper sx={paperStyle}>
+              <Typography variant="h4">Wallet Holdings</Typography>
+              {loading ? (
+                <>
+                  <CircularProgress color="inherit" />
+                </>
+              ) : (
+                <>
+                  <PieChart holdingData={holdingData} />
+                </>
+              )}
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper sx={paperStyle}>
+              <Typography variant="h4">Portfolio History</Typography>
+              {loading ? (
+                <>
+                  <CircularProgress color="inherit" />
+                </>
+              ) : (
+                <>
+                  <StackedAreaPortfolioHistory data={historyData} />
+                </>
+              )}
+            </Paper>
+          </Grid>
+          {loading ? (
+            <></>
+          ) : (
+            <>
+              <Grid item xs={12} md={4}>
+                <Paper sx={paperStyle}>
+                  <AssetList assets={assetList} title="Assets" />
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Paper sx={paperStyle}>
+                  <AssetList
+                    assets={imgNftList}
+                    title="Image NFTs"
+                    type="NFT"
+                  />
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Paper sx={paperStyle}>
+                  <AssetList
+                    assets={audNftList}
+                    title="Audio NFTs"
+                    type="NFT"
+                  />
+                </Paper>
+              </Grid>
+            </>
+          )}
+          <Grid item xs={12}>
+            <Paper sx={paperStyle}>
+              <Typography variant="h4" sx={{ fontWeight: '700' }}>
+                Tokens Locked in Vesting Contracts
+              </Typography>
+              <VestingTable vestedObject={vestedTokens} />
+            </Paper>
+          </Grid>
+        </Grid>
+      </Container>
+    </>
+  );
 };
 
 function tokenDataArray(data) {
-  let tokenObject = data.balance.ERG.tokens;
+  const tokenObject = data.balance.ERG.tokens;
   const keys = Object.keys(tokenObject);
   const res = [];
   for (let i = 0; i < keys.length; i++) {
-    let token = tokenObject[keys[i]];
-    let obj = {
+    const token = tokenObject[keys[i]];
+    const obj = {
       x: token.name,
-      y: token.price * (token.amount * Math.pow(10, -token.decimals))
+      y: token.price * (token.amount * Math.pow(10, -token.decimals)),
     };
     if (token.price > 0) res.push(obj);
   }
   const ergoValue = {
     x: 'Ergo',
-    y: data.balance.ERG.price * data.balance.ERG.balance
+    y: data.balance.ERG.price * data.balance.ERG.balance,
   };
   if (ergoValue.y > 0) res.unshift(ergoValue);
   return res;
@@ -355,19 +413,21 @@ const historyDataArray = (data) => {
 };
 
 function assetListArray(data) {
-  let tokenObject = data.balance.ERG.tokens;
-  let keys = Object.keys(tokenObject);
-  let res = [];
+  const tokenObject = data.balance.ERG.tokens;
+  const keys = Object.keys(tokenObject);
+  const res = [];
   for (let i = 0; i < keys.length; i++) {
-    let token = tokenObject[keys[i]];
-    let amount = +parseFloat((token.amount * Math.pow(10, -token.decimals)).toFixed(2))
-    let price = (token.price * amount).toFixed(2)
-    let obj = {
-      token: token.name ? token.name.substring(0,3).toUpperCase() : '',
+    const token = tokenObject[keys[i]];
+    const amount = +parseFloat(
+      (token.amount * Math.pow(10, -token.decimals)).toFixed(2)
+    );
+    const price = (token.price * amount).toFixed(2);
+    const obj = {
+      token: token.name ? token.name.substring(0, 3).toUpperCase() : '',
       name: token.name ? token.name : '',
       id: token.tokenId,
       amount: amount,
-      amountUSD: price
+      amountUSD: price,
     };
     res.push(obj);
   }
@@ -382,14 +442,14 @@ function assetListArray(data) {
   return res;
 }
 
-function sumTotals(data){
-  let value = data.map((item) => item.y).reduce((a, b) => a + b);
-  return value; 
+function sumTotals(data) {
+  const value = data.map((item) => item.y).reduce((a, b) => a + b);
+  return value;
 }
 
 function toUtf8String(hex) {
-  if(!hex){
-    hex = ''
+  if (!hex) {
+    hex = '';
   }
   var str = '';
   for (var i = 0; i < hex.length; i += 2) {
@@ -399,9 +459,9 @@ function toUtf8String(hex) {
 }
 
 function resolveIpfs(url) {
-  const ipfsPrefix = 'ipfs://'
-  if (!url.startsWith(ipfsPrefix)) return url
-  else return url.replace(ipfsPrefix, `https://cloudflare-ipfs.com/ipfs/`)
+  const ipfsPrefix = 'ipfs://';
+  if (!url.startsWith(ipfsPrefix)) return url;
+  else return url.replace(ipfsPrefix, `https://cloudflare-ipfs.com/ipfs/`);
 }
 
 const calculateHistoricTotal = (priceHistory, amountData, orderingData) => {
@@ -420,7 +480,10 @@ const calculateHistoricTotal = (priceHistory, amountData, orderingData) => {
         }),
       };
     });
-  ret.sort((a, b) => orderingData[a.token.toLowerCase()] - orderingData[b.token.toLowerCase()]);
+  ret.sort(
+    (a, b) =>
+      orderingData[a.token.toLowerCase()] - orderingData[b.token.toLowerCase()]
+  );
   return ret;
 };
 
