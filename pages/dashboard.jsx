@@ -108,7 +108,7 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    async function getWalletData(address) {
+    async function getWalletData(addresses) {
       const defaultOptions = {
         headers: {
           'Content-Type': 'application/json',
@@ -117,18 +117,23 @@ const Dashboard = () => {
       };
 
       setLoading(true);
-      const res = await axios
-        .get(`${process.env.API_URL}/asset/balance/${address}`, {
-          ...defaultOptions,
-        })
-        .catch((err) => {
-          console.log('ERROR FETCHING: ', err);
-        });
+      const balancePromises = addresses.map((address) =>
+        axios
+          .get(`${process.env.API_URL}/asset/balance/${address}`, {
+            ...defaultOptions,
+          })
+          .catch((err) => {
+            console.log('ERROR FETCHING: ', err);
+          })
+      );
+      const resolvedBalances = await Promise.all(balancePromises);
+      const balances = resolvedBalances.map((res) => res?.data);
+      const balance = reduceBalances(balances);
 
-      if (res?.data) {
-        const victoryData = tokenDataArray(res.data);
+      if (balance) {
+        const victoryData = tokenDataArray(balance);
         // create list of assets
-        const initialAssetList = assetListArray(res.data);
+        const initialAssetList = assetListArray(balance);
 
         const newImgNftList = [];
         const newAudNftList = [];
@@ -219,13 +224,13 @@ const Dashboard = () => {
         });
 
         try {
-          const res3 = await axios.get(
+          const res = await axios.get(
             `${process.env.API_URL}/asset/price/history/all?stepSize=${STEP_SIZE}&stepUnit=${STEP_UNIT}&limit=6`,
             { ...defaultOptions }
           );
-          const priceHistory = res3.data;
-          const amountData = historyDataArray(res.data);
-          const orderingData = historyDataOrdering(res.data);
+          const priceHistory = res.data;
+          const amountData = historyDataArray(balance);
+          const orderingData = historyDataOrdering(balance);
           const totals = calculateHistoricTotal(
             priceHistory,
             amountData,
@@ -270,7 +275,7 @@ const Dashboard = () => {
       (x, i, a) => a.indexOf(x) == i && x
     );
     if (walletAddresses.length) {
-      getWalletData(walletAddresses[0]);
+      getWalletData(walletAddresses);
       getVestedTokenData(walletAddresses[0]);
     } else {
       noAssetSetup();
@@ -484,6 +489,34 @@ const calculateHistoricTotal = (priceHistory, amountData, orderingData) => {
     (a, b) =>
       orderingData[a.token.toLowerCase()] - orderingData[b.token.toLowerCase()]
   );
+  return ret;
+};
+
+const reduceBalances = (balances) => {
+  if (balances.length === 0) {
+    return null;
+  }
+  // deep copy
+  const ret = JSON.parse(JSON.stringify(balances[0]));
+  // aggregate
+  const ergo = balances
+    .map((balance) => balance.balance.ERG.balance)
+    .reduce((a, c) => a + c, 0);
+  ret.balance.ERG.balance = ergo;
+  // aggregate tokens
+  const tokenMap = {};
+  balances.forEach((balance) => {
+    const tokens = balance.balance.ERG.tokens;
+    tokens.forEach((token) => {
+      if (tokenMap[token.tokenId]) {
+        tokenMap[token.tokenId].amount += token.amount;
+      } else {
+        tokenMap[token.tokenId] = token;
+      }
+    });
+  });
+  const tokens = Object.values(tokenMap);
+  ret.balance.ERG.tokens = tokens;
   return ret;
 };
 
