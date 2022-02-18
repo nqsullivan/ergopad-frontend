@@ -11,6 +11,7 @@ import axios from 'axios';
 import { useWallet } from 'utils/WalletContext';
 import CenterTitle from '@components/CenterTitle';
 import VestingTable from '@components/dashboard/VestingTable';
+import StakingTable from '@components/dashboard/StakingTable';
 import StackedAreaPortfolioHistory from '@components/dashboard/StackedAreaPortfolioHistory';
 import PieChart from '@components/dashboard/PieChart';
 import PriceChart from '@components/dashboard/PriceChart';
@@ -59,6 +60,11 @@ const initHistoryData = [
   },
 ];
 
+const initStakedData = {
+  totalStaked: 0,
+  addresses: {},
+};
+
 const wantedHoldingData = tokenDataArray(rawData2);
 
 const portfolioValue = sumTotals(wantedHoldingData);
@@ -81,12 +87,15 @@ const paperStyle = {
 const Dashboard = () => {
   const { wallet, dAppWallet } = useWallet();
   const [vestedTokens, setVestedTokens] = useState([]);
+  const [stakedTokens, setStakedTokens] = useState(initStakedData);
   const [holdingData, setHoldingData] = useState(defaultHoldingData);
   const [historyData, setHistoryData] = useState(initHistoryData);
   const [assetList, setAssetList] = useState(assetListArray(rawData2));
   const [imgNftList, setImgNftList] = useState([]);
   const [audNftList, setAudNftList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingVestingTable, setLoadingVestingTable] = useState(false);
+  const [loadingStakingTable, setLoadingStakingTable] = useState(false);
 
   useEffect(() => {
     setHoldingData(wantedHoldingData); // Setting the data that we want to display
@@ -251,6 +260,7 @@ const Dashboard = () => {
     }
 
     const getVestedTokenData = async (addresses) => {
+      setLoadingVestingTable(true);
       const defaultOptions = {
         headers: {
           'Content-Type': 'application/json',
@@ -271,6 +281,30 @@ const Dashboard = () => {
         .map((res) => (res?.data?.status === 'success' ? res.data.vested : []))
         .filter((vested) => vested.length);
       setVestedTokens(reduceVested(vested));
+      setLoadingVestingTable(false);
+    };
+
+    const getStakedTokenData = async (addresses) => {
+      setLoadingStakingTable(true);
+      try {
+        const defaultOptions = {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        };
+        const request = {
+          addresses: addresses,
+        };
+        const res = await axios.post(
+          `${process.env.API_URL}/staking/staked/`,
+          request,
+          { ...defaultOptions }
+        );
+        setStakedTokens(res.data);
+      } catch (e) {
+        console.log('ERROR FETCHING', e);
+      }
+      setLoadingStakingTable(false);
     };
 
     const walletAddresses = [wallet, ...dAppWallet.addresses].filter(
@@ -279,6 +313,7 @@ const Dashboard = () => {
     if (walletAddresses.length) {
       getWalletData(walletAddresses);
       getVestedTokenData(walletAddresses);
+      getStakedTokenData(walletAddresses);
     } else {
       noAssetSetup();
     }
@@ -360,7 +395,23 @@ const Dashboard = () => {
               <Typography variant="h4" sx={{ fontWeight: '700' }}>
                 Tokens Locked in Vesting Contracts
               </Typography>
-              <VestingTable vestedObject={vestedTokens} />
+              {loadingVestingTable ? (
+                <CircularProgress color="inherit" />
+              ) : (
+                <VestingTable vestedObject={vestedTokens} />
+              )}
+            </Paper>
+          </Grid>
+          <Grid item xs={12}>
+            <Paper sx={paperStyle}>
+              <Typography variant="h4" sx={{ fontWeight: '700' }}>
+                Tokens Locked in Staking Contracts
+              </Typography>
+              {loadingStakingTable ? (
+                <CircularProgress color="inherit" />
+              ) : (
+                <StakingTable data={stakedTokens} />
+              )}
             </Paper>
           </Grid>
         </Grid>
