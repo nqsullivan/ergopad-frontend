@@ -16,7 +16,7 @@ const vestedHeading = {
 }
 
 const VestingTable = ({ vestedObject }) => {
-    const checkSmall = useMediaQuery((theme) => theme.breakpoints.up('sm'));
+    const checkSmall = useMediaQuery((theme) => theme.breakpoints.up('md'));
 
     if (vestedObject.length === 0) {
         return <>
