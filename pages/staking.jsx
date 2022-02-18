@@ -6,16 +6,32 @@ import {
   Button,
   Paper,
   Checkbox,
+  Modal,
+  FormControl,
+  InputLabel,
+  FilledInput,
+  FormHelperText,
+  TextField,
+  CircularProgress,
 } from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 import CenterTitle from '@components/CenterTitle';
-import theme from '../styles/theme';
+import theme from '@styles/theme';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import MuiNextLink from '@components/MuiNextLink';
+import { useWallet } from 'utils/WalletContext';
+import { forwardRef, useEffect, useState } from 'react';
+import axios from 'axios';
+
+const Alert = forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const stakingItem = (item) => {
   const extraStyles = {
@@ -37,7 +53,6 @@ const stakingItem = (item) => {
           <Typography variant="h5" sx={{ fontWeight: '700', my: 1 }}>
             {item.title}
           </Typography>
-
           <Typography variant="h4" sx={{ fontWeight: '800', my: 1 }}>
             {item.value}
           </Typography>
@@ -79,6 +94,18 @@ const gridBox = {
   width: '100%',
   minWidth: '240px',
   maxWidth: '380px',
+};
+
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '40vw',
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
 };
 
 const unstakeFees = [
@@ -150,8 +177,120 @@ const stakingTiers = [
   },
 ];
 
+const initStakingForm = Object.freeze({
+  wallet: '',
+  tokenAmount: 0,
+});
+
+const initStakingFormErrors = Object.freeze({
+  wallet: false,
+  tokenAmount: false,
+});
+
+const defaultOptions = {
+  headers: {
+    'Content-Type': 'application/json',
+  },
+};
+
 const Staking = () => {
-  const checkSmall = useMediaQuery((theme) => theme.breakpoints.up('sm'));
+  const checkSmall = useMediaQuery((theme) => theme.breakpoints.up('md'));
+  // wallet
+  const { wallet, dAppWallet } = useWallet();
+  // stake modal
+  const [openModal, setOpenModal] = useState(false);
+  const [stakingForm, setStakingForm] = useState(initStakingForm);
+  const [stakingFormErrors, setStakingFormErrors] = useState(
+    initStakingFormErrors
+  );
+  const [stakeLoading, setStakeLoading] = useState(false);
+  // error snackbar
+  const [openError, setOpenError] = useState(false);
+  const [errorMessage] = useState('Something went wrong');
+  // success snackbar
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+  const [successMessageSnackbar] = useState('Form submitted');
+  const [checkBox, setCheckBox] = useState(false);
+  const stakeButtonEnabled = checkBox && true; // use other conditions to enable this
+
+  useEffect(() => {
+    setStakingForm({ ...initStakingForm, wallet: wallet });
+  }, [wallet]);
+
+  useEffect(() => {
+    setStakingFormErrors({
+      ...initStakingFormErrors,
+      wallet: !dAppWallet.connected,
+    });
+  }, [dAppWallet.connected]);
+
+  const stake = async (e) => {
+    e.preventDefault();
+    setStakeLoading(true);
+    try {
+      const tokenAmount = Math.round(stakingForm.tokenAmount * 100);
+      const utxos = (await ergo.get_utxos()).map((box) => box.boxId); // eslint-disable-line
+      const request = {
+        wallet: stakingForm.wallet,
+        amount: tokenAmount / 100,
+        utxos: utxos,
+        txFormat: 'eip-12',
+      };
+      const res = await axios.post(
+        `${process.env.API_URL}/staking/stake/`,
+        request,
+        { ...defaultOptions }
+      );
+      const unsignedtx = res.data;
+      const signedtx = await ergo.sign_tx(unsignedtx); // eslint-disable-line
+      await ergo.submit_tx(signedtx); // eslint-disable-line
+      setOpenSuccessSnackbar(true);
+    } catch (e) {
+      console.log(e);
+      setOpenError(true);
+    }
+    setStakeLoading(false);
+  };
+
+  // snackbar for error reporting
+  const handleCloseError = (e, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenError(false);
+  };
+
+  const handleCloseSuccessSnackbar = (e, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSuccessSnackbar(false);
+  };
+
+  const handleStakingFormChange = (e) => {
+    if (e.target.name === 'stakingAmount') {
+      const amount = Number(e.target.value);
+      if (amount > 0.0) {
+        setStakingFormErrors({
+          ...stakingFormErrors,
+          tokenAmount: false,
+        });
+        setStakingForm({
+          ...stakingForm,
+          tokenAmount: e.target.value,
+        });
+      } else {
+        setStakingFormErrors({
+          ...stakingFormErrors,
+          tokenAmount: true,
+        });
+        setStakingForm({
+          ...stakingForm,
+          tokenAmount: e.target.value,
+        });
+      }
+    }
+  };
 
   return (
     <>
@@ -162,7 +301,6 @@ const Staking = () => {
           main={true}
         />
       </Container>
-
       <Container maxWidth="lg" sx={{}}>
         <Grid
           container
@@ -175,7 +313,6 @@ const Staking = () => {
             return stakingItem(item);
           })}
         </Grid>
-
         <Grid
           container
           spacing={3}
@@ -204,7 +341,7 @@ const Staking = () => {
               unstake, use the withdrawal button and follow the instructions. As
               with staking, please get the exact values correct when you make
               the transaction. You must cover the transaction fees to initiate
-              the withdrawal contract. Luckily, this is not Eth, and the fees
+              the withdrawal contract. Luckily, this is not ETH, and the fees
               are very low.
             </Typography>
             <Typography variant="p">
@@ -221,18 +358,21 @@ const Staking = () => {
               You&apos;ll be able to check your allocation on this website and
               interact with the sales contract.
             </Typography>
-
             <Typography variant="p" sx={{ textAlign: 'center' }}>
-              <Checkbox color="primary" /> I have read and agree to the staking{' '}
+              <Checkbox
+                color="primary"
+                checked={checkBox}
+                onChange={(e, checked) => setCheckBox(checked)}
+              />{' '}
+              I have read and agree to the staking{' '}
               <MuiNextLink href="/terms">Terms and Conditions</MuiNextLink>
             </Typography>
-
             <Box
               sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
             >
               <Button
                 variant="contained"
-                disabled
+                disabled={!stakeButtonEnabled}
                 sx={{
                   color: '#fff',
                   fontSize: '1rem',
@@ -248,6 +388,7 @@ const Staking = () => {
                     background: theme.palette.tertiary.active,
                   },
                 }}
+                onClick={() => setOpenModal(true)}
               >
                 Stake Now
               </Button>
@@ -328,7 +469,6 @@ const Staking = () => {
                     </TableCell>
                   </TableRow>
                 </TableHead>
-
                 <TableBody>
                   {unstakeFees.map((fee) => {
                     return (
@@ -351,7 +491,6 @@ const Staking = () => {
           </Grid>
         </Grid>
       </Container>
-
       <Container maxWidth="lg" sx={{ mt: 6 }}>
         <Paper sx={{ p: { xs: 2, sm: 4 }, borderRadius: 3 }}>
           <Typography variant="h5" sx={{ fontWeight: '700' }}>
@@ -371,7 +510,6 @@ const Staking = () => {
                   </TableCell>
                 </TableRow>
               </TableHead>
-
               <TableBody>
                 {stakingTiers.map((tier) => {
                   return (
@@ -458,6 +596,127 @@ const Staking = () => {
           )}
         </Paper>
       </Container>
+      <Modal
+        keepMounted
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={checkSmall ? modalStyle : { ...modalStyle, width: '85vw' }}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Stake tokens
+          </Typography>
+          <Typography variant="p" sx={{ fontSize: '1rem', mb: 2 }}>
+            Once you click submit you will be prompted by your wallet to approve
+            the transaction. Make sure you verify token amounts before approving
+            it.
+          </Typography>
+          <Box component="form" noValidate onSubmit={stake}>
+            <TextField
+              InputProps={{ disableUnderline: true }}
+              required
+              fullWidth
+              id="stakingAmount"
+              label={`Enter the token amount you are staking`}
+              name="stakingAmount"
+              variant="filled"
+              sx={{ mb: 2 }}
+              onChange={handleStakingFormChange}
+              value={stakingForm.tokenAmount}
+              error={stakingFormErrors.tokenAmount}
+              helperText={
+                stakingFormErrors.tokenAmount && 'Enter a valid token amount'
+              }
+            />
+            <FormControl
+              variant="filled"
+              fullWidth
+              required
+              name="wallet"
+              error={stakingFormErrors.wallet}
+            >
+              <InputLabel
+                htmlFor="ergoAddress"
+                sx={{ '&.Mui-focused': { color: 'text.secondary' } }}
+              >
+                Primary Ergo Wallet Address
+              </InputLabel>
+              <FilledInput
+                id="ergoAddress"
+                value={stakingForm.wallet}
+                disabled
+                disableUnderline={true}
+                name="wallet"
+                type="ergoAddress"
+                sx={{
+                  width: '100%',
+                  border: '1px solid rgba(82,82,90,1)',
+                  borderRadius: '4px',
+                }}
+              />
+              <FormHelperText>
+                {stakingFormErrors.wallet &&
+                  'Please connect with yoroi or nautilus to proceed'}
+              </FormHelperText>
+            </FormControl>
+            <Button
+              variant="contained"
+              sx={{
+                color: '#fff',
+                fontSize: '1rem',
+                mt: 2,
+                py: '0.6rem',
+                px: '1.2rem',
+                textTransform: 'none',
+                background: theme.palette.tertiary.main,
+                '&:hover': {
+                  background: theme.palette.tertiary.hover,
+                  boxShadow: 'none',
+                },
+                '&:active': {
+                  background: theme.palette.tertiary.active,
+                },
+              }}
+              type="submit"
+            >
+              Submit
+              {stakeLoading && (
+                <CircularProgress
+                  sx={{ ml: 2, color: 'white' }}
+                  size={'1.2rem'}
+                />
+              )}
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+      <Snackbar
+        open={openError}
+        autoHideDuration={4500}
+        onClose={handleCloseError}
+      >
+        <Alert
+          onClose={handleCloseError}
+          severity="error"
+          sx={{ width: '100%' }}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={openSuccessSnackbar}
+        autoHideDuration={4500}
+        onClose={handleCloseSuccessSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSuccessSnackbar}
+          severity="success"
+          sx={{ width: '100%' }}
+        >
+          {successMessageSnackbar}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

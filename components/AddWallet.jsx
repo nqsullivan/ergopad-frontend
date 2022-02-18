@@ -72,7 +72,7 @@ export const AddWallet = () => {
     }
     // refresh connection
     try {
-      if (localStorage.getItem(DAPP_CONNECTED)) {
+      if (localStorage.getItem(DAPP_CONNECTED) === 'true') {
         window.ergo_check_read_access().then((res) => {
           if (!res) window.ergo_request_read_access();
         });
