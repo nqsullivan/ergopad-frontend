@@ -185,7 +185,9 @@ const StakingTable = ({ data }) => {
                         {stake.penaltyPct}
                       </TableCell>
                       <TableCell sx={{ color: theme.palette.text.secondary }}>
-                        {new Date(stake.penaltyEndTime).toDateString()}
+                        {new Date(stake.penaltyEndTime)
+                          .toISOString()
+                          .slice(0, 10)}
                       </TableCell>
                     </TableRow>
                   );
@@ -237,7 +239,9 @@ const StakingTable = ({ data }) => {
                         {stakedHeading.penaltyEndTime}
                       </TableCell>
                       <TableCell sx={{ border: 'none', p: 1 }}>
-                        {new Date(stake.penaltyEndTime).toDateString()}
+                        {new Date(stake.penaltyEndTime)
+                          .toISOString()
+                          .slice(0, 10)}
                       </TableCell>
                     </TableRow>
                   </>
