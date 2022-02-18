@@ -5,26 +5,7 @@ const AddWalletContext = createContext();
 
 // Template Provider
 const AddWalletProvider = ({ children }) => {
-  const [addWalletOpen, setAddWalletOpenRaw] = useState(false);
-
-  const setAddWalletOpen = (newState) => {
-    /**
-     * wrapper for setAddWalletOpen to refresh dApp connection
-     */
-    setAddWalletOpenRaw(newState);
-    if (newState) {
-      try {
-        // refresh connection
-        if (localStorage.getItem('dapp_connected')) {
-          window.ergo_check_read_access().then((res) => {
-            if (!res) window.ergo_request_read_access();
-          });
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    }
-  };
+  const [addWalletOpen, setAddWalletOpen] = useState(false);
 
   // Context values passed to consumer
   const value = {

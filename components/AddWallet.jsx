@@ -70,6 +70,16 @@ export const AddWallet = () => {
         addresses: JSON.parse(localStorage.getItem(WALLET_ADDRESS_LIST)),
       });
     }
+    // refresh connection
+    try {
+      if (localStorage.getItem(DAPP_CONNECTED)) {
+        window.ergo_check_read_access().then((res) => {
+          if (!res) window.ergo_request_read_access();
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
     setInit(true);
   }, []);
 
