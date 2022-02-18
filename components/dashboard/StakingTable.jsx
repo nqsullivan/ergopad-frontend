@@ -81,8 +81,14 @@ const stakedHeading = {
 //   },
 // });
 
+const friendlyAddress = (addr, tot = 15) => {
+  if (addr === undefined || addr.slice === undefined) return '';
+  if (addr.length < 30) return addr;
+  return addr.slice(0, tot) + '...' + addr.slice(-tot);
+};
+
 const StakingTable = ({ data }) => {
-  const checkSmall = useMediaQuery((theme) => theme.breakpoints.up('sm'));
+  const checkSmall = useMediaQuery((theme) => theme.breakpoints.up('md'));
   const stakeObject = { ...data };
 
   if (stakeObject.totalStaked === 0) {
@@ -130,7 +136,7 @@ const StakingTable = ({ data }) => {
               color="text.secondary"
               sx={{ textTransform: 'capitalize', fontWeight: '400' }}
             >
-              {address}
+              {checkSmall ? address : friendlyAddress(address)}
             </Typography>
           </Typography>
           <Typography
