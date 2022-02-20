@@ -48,7 +48,13 @@ const Projects = () => {
         >
           <CardActionArea
             onClick={() => {
-              router.push('/projects/' + project.id.toString(10));
+              router.push(
+                '/projects/' +
+                  project.name
+                    .toLowerCase()
+                    .replaceAll(' ', '')
+                    .replaceAll(/[^a-zA-Z0-9]/g, '')
+              );
             }}
           >
             <CardContent>

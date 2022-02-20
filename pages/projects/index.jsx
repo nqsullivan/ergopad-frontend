@@ -195,7 +195,14 @@ const Projects = () => {
                 <IconButton
                   aria-label="share"
                   onClick={() =>
-                    copy(window.location + '/' + project.id.toString(10))
+                    copy(
+                      window.location +
+                        '/' +
+                        project.name
+                          .toLowerCase()
+                          .replaceAll(' ', '')
+                          .replaceAll(/[^a-zA-Z0-9]/g, '')
+                    )
                   }
                 >
                   <ShareIcon />
