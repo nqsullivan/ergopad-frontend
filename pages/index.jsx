@@ -5,7 +5,7 @@ import Hero from '@components/landing/Hero';
 import { Container, Divider } from '@mui/material';
 import Dashboard from '@components/landing/Dashboard';
 import Projects from '@components/landing/Projects';
-import Announcements from '@components/landing/Announcements';
+// import Announcements from '@components/landing/Announcements';
 
 const Homepage = () => {
   const router = useRouter();
@@ -37,8 +37,8 @@ const Homepage = () => {
         <Dashboard />
         <Divider sx={{ mb: 10 }} />
         <Projects />
-        <Divider sx={{ mb: 10 }} />
-        <Announcements />
+        {/* <Divider sx={{ mb: 10 }} />
+        <Announcements /> */}
       </Container>
     </>
   );
