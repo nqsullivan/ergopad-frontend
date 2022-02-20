@@ -150,7 +150,7 @@ const Footer = () => {
 					</List>
 				</Grid>
 				<Grid item xs={6} md={2}>
-					<Typography variant='inherit' sx={titleStyles}>INVEST</Typography>
+					<Typography variant='inherit' sx={titleStyles}>DAPP</Typography>
 					<List>
 						<ListItem disableGutters sx={listItemStyles}>
 							<Link activeClassName='active' href='/whitelist' sx={linkStyles}>
