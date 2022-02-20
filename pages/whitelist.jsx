@@ -458,7 +458,7 @@ const Whitelist = () => {
                       name="dao"
                     />
                   }
-                  label="I understand that the funds raised by this project will be controlled by the ErgoPad DAO, which has board members throughout the world. I am aware that this DAO does not fall within the jurisdiction of any one country, and accept the implications therein."
+                  label="I understand that the funds raised by this project will be controlled by the Paideia DAO, which has board members throughout the world. I am aware that this DAO does not fall within the jurisdiction of any one country, and accept the implications therein."
                   sx={{ color: theme.palette.text.secondary, mb: 3 }}
                 />
                 <FormHelperText>
