@@ -35,18 +35,16 @@ export const StakingItem = (item, md) => {
   };
 
   return (
-    <>
-      <Grid item md={md} xs={12} sx={{ maxWidth: '380px' }}>
-        <Box sx={extraStyles}>
-          <Typography variant="h5" sx={{ fontWeight: '700', my: 1 }}>
-            {item.title}
-          </Typography>
-          <Typography variant="h4" sx={{ fontWeight: '800', my: 1 }}>
-            {item.value}
-          </Typography>
-        </Box>
-      </Grid>
-    </>
+    <Grid item md={md} xs={12} sx={{ maxWidth: '380px' }} key={item.title}>
+      <Box sx={extraStyles}>
+        <Typography variant="h5" sx={{ fontWeight: '700', my: 1 }}>
+          {item.title}
+        </Typography>
+        <Typography variant="h4" sx={{ fontWeight: '800', my: 1 }}>
+          {item.value}
+        </Typography>
+      </Box>
+    </Grid>
   );
 };
 
@@ -56,16 +54,17 @@ const StakingSummary = () => {
     const getStatus = async () => {
       try {
         const res = await axios.get(`${process.env.API_URL}/staking/status/`);
-        stakingItems[0].value = res.data['Staking boxes']
+        const newState = JSON.parse(JSON.stringify(stakingItems));
+        newState[0].value = res.data['Staking boxes']
           ? res.data['Staking boxes']
           : '-';
-        stakingItems[1].value = res.data['Total amount staked']
+        newState[1].value = res.data['Total amount staked']
           ? res.data['Total amount staked']
           : '-';
-        stakingItems[2].value = res.data['APY']
+        newState[2].value = res.data['APY']
           ? Math.round(res.data['APY'] * 100) / 100
           : '-';
-        setStatus(stakingItems);
+        setStatus(newState);
       } catch (e) {
         console.log('ERROR FECTHING:', e);
       }

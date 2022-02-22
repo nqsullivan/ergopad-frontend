@@ -8,6 +8,7 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import theme from '@styles/theme';
+import { Fragment } from 'react';
 
 const stakingHeading = {
   tier: 'Tier',
@@ -96,7 +97,7 @@ const StakingTiers = () => {
         <Table sx={{ p: 0 }}>
           {stakingTiers.map((tier) => {
             return (
-              <>
+              <Fragment key={tier.tier}>
                 <TableRow sx={{ borderTop: `1px solid #444` }}>
                   <TableCell
                     sx={{
@@ -141,7 +142,7 @@ const StakingTiers = () => {
                     {tier.weight}
                   </TableCell>
                 </TableRow>
-              </>
+              </Fragment>
             );
           })}
         </Table>

@@ -10,6 +10,7 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import theme from '@styles/theme';
+import { Fragment } from 'react';
 
 const stakedHeading = {
   boxId: 'Box Id',
@@ -230,7 +231,7 @@ const UnstakingTable = ({ data, unstake }) => {
             <Table sx={{ p: 0 }}>
               {stakeObject.addresses[address].stakeBoxes.map((stake) => {
                 return (
-                  <>
+                  <Fragment key={stake.boxId}>
                     <TableRow sx={{ borderTop: `1px solid #444` }}>
                       <TableCell
                         sx={{
@@ -276,7 +277,7 @@ const UnstakingTable = ({ data, unstake }) => {
                           .slice(0, 10)}
                       </TableCell>
                     </TableRow>
-                  </>
+                  </Fragment>
                 );
               })}
             </Table>

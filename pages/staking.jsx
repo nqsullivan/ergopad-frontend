@@ -111,7 +111,7 @@ const Staking = () => {
   const [unstakePenalty, setUnstakePenalty] = useState(-1);
   // error snackbar
   const [openError, setOpenError] = useState(false);
-  const [errorMessage] = useState('Something went wrong');
+  const [errorMessage, setErrorMessage] = useState('Something went wrong');
   // success snackbar
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
   const [successMessageSnackbar, setSuccessMessageSnackbar] =
@@ -139,7 +139,9 @@ const Staking = () => {
       setUnstakeTableLoading(false);
     };
 
-    getStaked();
+    if (wallet !== '') {
+      getStaked();
+    }
   }, [wallet]);
 
   useEffect(() => {
@@ -187,7 +189,13 @@ const Staking = () => {
       setSuccessMessageSnackbar('Transaction Submitted: ' + ok);
       setOpenSuccessSnackbar(true);
     } catch (e) {
-      console.log(e);
+      if (e.response) {
+        setErrorMessage(
+          'Error: ' + e.response.status + ' - ' + e.response.data
+        );
+      } else {
+        setErrorMessage('Error: Failed to build transaction');
+      }
       setOpenError(true);
     }
     setStakeLoading(false);
@@ -226,12 +234,6 @@ const Staking = () => {
         request,
         { ...defaultOptions }
       );
-      // const res = {
-      //   data: {
-      //     penalty: 5,
-      //     unsignedTX: {},
-      //   },
-      // };
       const penalty = res.data.penalty;
       setUnstakePenalty(penalty);
       const unsignedtx = res.data.unsignedTX;
@@ -240,10 +242,16 @@ const Staking = () => {
       setSuccessMessageSnackbar('Transaction Submitted: ' + ok);
       setOpenSuccessSnackbar(true);
     } catch (e) {
-      console.log(e);
+      if (e.response) {
+        setErrorMessage(
+          'Error: ' + e.response.status + ' - ' + e.response.data
+        );
+      } else {
+        setErrorMessage('Error: Failed to build transaction');
+      }
+      initUnstake();
       setOpenError(true);
     }
-    initUnstake();
     setUnstakeModalLoading(false);
   };
 
@@ -340,7 +348,7 @@ const Staking = () => {
               click on the Stake button. There, enter the number of tokens
               you&apos;d like to stake, and the dApp will generate a contract
               for you to send the tokens to. Send the exact number of tokens
-              (and Erg to cover fees) that is given. If you make a mistake and
+              (and ERG to cover fees) that is given. If you make a mistake and
               the contract doesn&apos;t work, it will refund you. If you send
               too much but the contract goes through, the leftover amount can be
               skimmed from the network by bots. Please follow the instructions
