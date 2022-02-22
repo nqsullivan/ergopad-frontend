@@ -17,7 +17,7 @@ const gridBox = {
   maxWidth: '380px',
 };
 
-const StakingRewardsBox = () => {
+const StakingRewardsBox = (props) => {
   return (
     <>
       <Box
@@ -35,12 +35,12 @@ const StakingRewardsBox = () => {
         <Box sx={gridBox}>
           <Typography>ErgoPad Staked</Typography>
           <Typography variant="h3" sx={{ mb: 3 }}>
-            -
+            {props.totalStaked ? props.totalStaked : '-'}
           </Typography>
-          <Typography>Rewards</Typography>
+          {/* <Typography>Rewards</Typography>
           <Typography variant="h3" sx={{ mb: 3 }}>
             -
-          </Typography>
+          </Typography> */}
           <Box
             sx={{
               width: '100%',

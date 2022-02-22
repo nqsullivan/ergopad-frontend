@@ -114,7 +114,8 @@ const Staking = () => {
   const [errorMessage] = useState('Something went wrong');
   // success snackbar
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
-  const [successMessageSnackbar] = useState('Form submitted');
+  const [successMessageSnackbar, setSuccessMessageSnackbar] =
+    useState('Form submitted');
   const [checkBox, setCheckBox] = useState(false);
   const stakeButtonEnabled = checkBox && true; // use other conditions to enable this
 
@@ -165,9 +166,9 @@ const Staking = () => {
       // prettier-ignore
       const tokens = await ergo.get_utxos(tokenAmount.toString(), STAKE_TOKEN_ID); // eslint-disable-line
       // prettier-ignore
-      const fees = await ergo.get_utxos('3000000'); // eslint-disable-line
+      const fees = await ergo.get_utxos('4000000'); // eslint-disable-line
       const utxos = Array.from(
-        new Set([...tokens, ...fees].map((x) => x.boxId))
+        new Set([...fees, ...tokens].map((x) => x.boxId))
       );
       const request = {
         wallet: stakingForm.wallet,
@@ -182,7 +183,8 @@ const Staking = () => {
       );
       const unsignedtx = res.data;
       const signedtx = await ergo.sign_tx(unsignedtx); // eslint-disable-line
-      await ergo.submit_tx(signedtx); // eslint-disable-line
+      const ok = await ergo.submit_tx(signedtx); // eslint-disable-line
+      setSuccessMessageSnackbar('Transaction Submitted: ' + ok);
       setOpenSuccessSnackbar(true);
     } catch (e) {
       console.log(e);
@@ -209,7 +211,7 @@ const Staking = () => {
       // prettier-ignore
       const tokens = await ergo.get_utxos('1', stakeKey); // eslint-disable-line
       // prettier-ignore
-      const fees = await ergo.get_utxos('2000000'); // eslint-disable-line
+      const fees = await ergo.get_utxos('3000000'); // eslint-disable-line
       const utxos = Array.from(
         new Set([...tokens, ...fees].map((x) => x.boxId))
       );
@@ -234,7 +236,8 @@ const Staking = () => {
       setUnstakePenalty(penalty);
       const unsignedtx = res.data.unsignedTX;
       const signedtx = await ergo.sign_tx(unsignedtx); // eslint-disable-line
-      await ergo.submit_tx(signedtx); // eslint-disable-line
+      const ok = await ergo.submit_tx(signedtx); // eslint-disable-line
+      setSuccessMessageSnackbar('Transaction Submitted: ' + ok);
       setOpenSuccessSnackbar(true);
     } catch (e) {
       console.log(e);
@@ -403,7 +406,7 @@ const Staking = () => {
             </Box>
           </Grid>
           <Grid item xs={12} md={4}>
-            <StakingRewardsBox />
+            <StakingRewardsBox totalStaked={stakedData.totalStaked} />
             <UnstakingFeesTable />
           </Grid>
         </Grid>
@@ -555,16 +558,14 @@ const Staking = () => {
                 title: 'Staked in Box',
                 value: unstakeModalData.stakeAmount,
                 background: theme.palette.background.default,
-                md: 6,
               },
               {
                 title: 'Penalty',
                 value: unstakePenalty === -1 ? '-' : unstakePenalty,
                 background: theme.palette.background.default,
-                md: 6,
               },
             ].map((item) => {
-              return StakingItem(item);
+              return StakingItem(item, 6);
             })}
           </Grid>
           <Box component="form" noValidate onSubmit={unstake}>
@@ -636,7 +637,7 @@ const Staking = () => {
       </Snackbar>
       <Snackbar
         open={openSuccessSnackbar}
-        autoHideDuration={4500}
+        autoHideDuration={10000}
         onClose={handleCloseSuccessSnackbar}
       >
         <Alert

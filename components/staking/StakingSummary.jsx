@@ -1,28 +1,27 @@
 import { Box, Grid, Typography } from '@mui/material';
 import theme from '@styles/theme';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const stakingItems = [
   {
     title: 'Number of Stakers',
     value: '-',
     background: theme.palette.primary.main,
-    md: 4,
   },
   {
     title: 'ErgoPad Tokens Staked',
     value: '-',
     background: theme.palette.secondary.main,
-    md: 4,
   },
   {
     title: 'Current APY',
     value: '-',
     background: theme.palette.tertiary.main,
-    md: 4,
   },
 ];
 
-export const StakingItem = (item) => {
+export const StakingItem = (item, md) => {
   const extraStyles = {
     background: item.background,
     display: 'flex',
@@ -37,7 +36,7 @@ export const StakingItem = (item) => {
 
   return (
     <>
-      <Grid item md={item.md} xs={12} sx={{ maxWidth: '380px' }}>
+      <Grid item md={md} xs={12} sx={{ maxWidth: '380px' }}>
         <Box sx={extraStyles}>
           <Typography variant="h5" sx={{ fontWeight: '700', my: 1 }}>
             {item.title}
@@ -52,6 +51,28 @@ export const StakingItem = (item) => {
 };
 
 const StakingSummary = () => {
+  const [status, setStatus] = useState(stakingItems);
+  useEffect(() => {
+    const getStatus = async () => {
+      try {
+        const res = await axios.get(`${process.env.API_URL}/staking/status/`);
+        stakingItems[0].value = res.data['Staking boxes']
+          ? res.data['Staking boxes']
+          : '-';
+        stakingItems[1].value = res.data['Total amount staked']
+          ? res.data['Total amount staked']
+          : '-';
+        stakingItems[2].value = res.data['APY']
+          ? Math.round(res.data['APY'] * 100) / 100
+          : '-';
+        setStatus(stakingItems);
+      } catch (e) {
+        console.log('ERROR FECTHING:', e);
+      }
+    };
+    getStatus();
+  }, []);
+
   return (
     <>
       <Grid
@@ -61,8 +82,8 @@ const StakingSummary = () => {
         justifyContent="center"
         sx={{ flexGrow: 1, mb: 3 }}
       >
-        {stakingItems.map((item) => {
-          return StakingItem(item);
+        {status.map((item) => {
+          return StakingItem(item, 4);
         })}
       </Grid>
     </>
