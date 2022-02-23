@@ -360,7 +360,7 @@ const Whitelist = () => {
           </Typography>
           <Typography variant="p" sx={{ fontSize: '1rem', mb: 3 }}>
             Sign up to have your address scanned for the ergopad staker round
-            for Paideia. The snapshot will take place (date TBD) at (time TBD),
+            for Paideia. The snapshot will take place March 5th at 15:00 UTC,
             and allocation will be determined by your staking tier at that time.
           </Typography>
           <Typography variant="p" sx={{ fontSize: '1rem', mb: 3 }}>
