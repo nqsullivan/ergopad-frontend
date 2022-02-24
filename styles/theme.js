@@ -105,7 +105,7 @@ let theme = createTheme({
           borderColor: themeSetup.dark.dividerColor
         }
       }
-    }
+    },
   },
 });
 
