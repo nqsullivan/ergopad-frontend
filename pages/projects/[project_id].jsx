@@ -7,7 +7,7 @@ import {
   Box,
   Grid,
   List,
-  ListItem
+  ListItem,
 } from '@mui/material';
 import MuiNextLink from '@components/MuiNextLink';
 import ReactMarkdown from 'react-markdown';
@@ -31,14 +31,14 @@ const MarkdownList = styled(List)({
   listStyle: 'disc',
   listStylePosition: 'inside',
   padding: 0,
-  marginBottom: '2rem'
-})
+  marginBottom: '2rem',
+});
 
 const MarkdownListItem = styled(ListItem)({
-  display: 'list-item', 
+  display: 'list-item',
   color: theme.palette.text.secondary,
   paddingTop: 0,
-})
+});
 
 const Project = () => {
   const router = useRouter();
@@ -68,11 +68,17 @@ const Project = () => {
         components={{
           h1: ({ node, ...props }) => <Typography variant="h4" {...props} />,
           h2: ({ node, ...props }) => <Typography variant="h5" {...props} />,
-          h3: ({ node, ...props }) => <Typography variant="h6" sx={{ marginBottom: '0.2rem' }} {...props} />,
+          h3: ({ node, ...props }) => (
+            <Typography
+              variant="h6"
+              sx={{ marginBottom: '0.2rem' }}
+              {...props}
+            />
+          ),
           p: ({ node, ...props }) => <Typography variant="p" {...props} />,
-          ul: ({ node, ...props }) => <MarkdownList>{props.children}</MarkdownList>,
-          li: ({ node, ...props }) => <MarkdownListItem>{props.children}</MarkdownListItem>,
-          a: ({ node, ...props }) => <MuiNextLink href={props.children}>{props.children}</MuiNextLink>
+          ul: ({ node, ...props }) => <MarkdownList {...props} />,
+          li: ({ node, ...props }) => <MarkdownListItem {...props} />,
+          a: ({ node, ...props }) => <MuiNextLink {...props} />,
         }}
         remarkPlugins={[remarkGfm]}
       >
