@@ -6,7 +6,10 @@ import {
   Divider,
   Box,
   Grid,
+  List,
+  ListItem
 } from '@mui/material';
+import MuiNextLink from '@components/MuiNextLink';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -21,6 +24,21 @@ import CopyToClipboard from '@components/CopyToClipboard';
 import DiscordIcon from '@components/DiscordIcon';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { styled } from '@mui/system';
+import theme from '../../styles/theme';
+
+const MarkdownList = styled(List)({
+  listStyle: 'disc',
+  listStylePosition: 'inside',
+  padding: 0,
+  marginBottom: '2rem'
+})
+
+const MarkdownListItem = styled(ListItem)({
+  display: 'list-item', 
+  color: theme.palette.text.secondary,
+  paddingTop: 0,
+})
 
 const Project = () => {
   const router = useRouter();
@@ -50,8 +68,11 @@ const Project = () => {
         components={{
           h1: ({ node, ...props }) => <Typography variant="h4" {...props} />,
           h2: ({ node, ...props }) => <Typography variant="h5" {...props} />,
-          h3: ({ node, ...props }) => <Typography variant="h6" {...props} />,
+          h3: ({ node, ...props }) => <Typography variant="h6" sx={{ marginBottom: '0.2rem' }} {...props} />,
           p: ({ node, ...props }) => <Typography variant="p" {...props} />,
+          ul: ({ node, ...props }) => <MarkdownList>{props.children}</MarkdownList>,
+          li: ({ node, ...props }) => <MarkdownListItem>{props.children}</MarkdownListItem>,
+          a: ({ node, ...props }) => <MuiNextLink href={props.children}>{props.children}</MuiNextLink>
         }}
         remarkPlugins={[remarkGfm]}
       >
