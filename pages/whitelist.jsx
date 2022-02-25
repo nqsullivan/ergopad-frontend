@@ -237,7 +237,7 @@ const Whitelist = () => {
         .catch((err) => {
           // snackbar for error message
           setErrorMessage(
-            'Error: ' + err.response.status + ' - ' + err.response.data.message
+            'Error: ' + err.response.status + ' - ' + err.response.data
           );
           setOpenError(true);
           setLoading(false);
