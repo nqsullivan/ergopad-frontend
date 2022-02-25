@@ -214,7 +214,8 @@ const UnstakingTable = ({ data, unstake }) => {
                               unstake(
                                 stake.boxId,
                                 stake.stakeKeyId,
-                                stake.stakeAmount
+                                stake.stakeAmount,
+                                stake.penaltyPct
                               )
                             }
                           >
