@@ -1,4 +1,4 @@
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Grid, Typography, CircularProgress } from '@mui/material';
 import theme from '@styles/theme';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -21,7 +21,7 @@ const stakingItems = [
   },
 ];
 
-export const StakingItem = (item, md) => {
+export const StakingItem = (item, md, loading = false) => {
   const extraStyles = {
     background: item.background,
     display: 'flex',
@@ -41,7 +41,7 @@ export const StakingItem = (item, md) => {
           {item.title}
         </Typography>
         <Typography variant="h4" sx={{ fontWeight: '800', my: 1 }}>
-          {item.value}
+          {loading ? <CircularProgress sx={{ color: '#fff' }} /> : item.value}
         </Typography>
       </Box>
     </Grid>
@@ -50,8 +50,10 @@ export const StakingItem = (item, md) => {
 
 const StakingSummary = () => {
   const [status, setStatus] = useState(stakingItems);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const getStatus = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(`${process.env.API_URL}/staking/status/`);
         const newState = JSON.parse(JSON.stringify(stakingItems));
@@ -68,6 +70,7 @@ const StakingSummary = () => {
       } catch (e) {
         console.log('ERROR FECTHING:', e);
       }
+      setLoading(false);
     };
     getStatus();
   }, []);
@@ -82,7 +85,7 @@ const StakingSummary = () => {
         sx={{ flexGrow: 1, mb: 3 }}
       >
         {status.map((item) => {
-          return StakingItem(item, 4);
+          return StakingItem(item, 4, loading);
         })}
       </Grid>
     </>

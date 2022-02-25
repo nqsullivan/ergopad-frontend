@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import theme from '@styles/theme';
 
 const gridBox = {
@@ -35,7 +35,13 @@ const StakingRewardsBox = (props) => {
         <Box sx={gridBox}>
           <Typography>ErgoPad Staked</Typography>
           <Typography variant="h3" sx={{ mb: 3 }}>
-            {props.totalStaked ? props.totalStaked : '-'}
+            {props.loading ? (
+              <CircularProgress sx={{ mt: 2, color: '#fff' }} />
+            ) : props.totalStaked ? (
+              props.totalStaked
+            ) : (
+              '-'
+            )}
           </Typography>
           {/* <Typography>Rewards</Typography>
           <Typography variant="h3" sx={{ mb: 3 }}>
