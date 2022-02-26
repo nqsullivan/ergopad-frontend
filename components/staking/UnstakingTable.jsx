@@ -230,7 +230,7 @@ const UnstakingTable = ({ data, unstake }) => {
             </Table>
           ) : (
             <Table sx={{ p: 0 }}>
-              {stakeObject.addresses[address].stakeBoxes.map((stake) => {
+              {stakeObject.addresses[address].stakeBoxes.map((stake, index) => {
                 return (
                   <Fragment key={stake.boxId}>
                     <TableRow sx={{ borderTop: `1px solid #444` }}>
@@ -276,6 +276,42 @@ const UnstakingTable = ({ data, unstake }) => {
                         {new Date(stake.penaltyEndTime)
                           .toISOString()
                           .slice(0, 10)}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell
+                        sx={{
+                          border: 'none',
+                          p: 0,
+                          pb:
+                            index ===
+                            stakeObject.addresses[address].stakeBoxes.length - 1
+                              ? 0
+                              : 1,
+                        }}
+                      >
+                        <a>
+                          <Button
+                            sx={{
+                              color: '#fff',
+                              textTransform: 'none',
+                              '&:hover': {
+                                background: 'transparent',
+                                boxShadow: 'none',
+                              },
+                            }}
+                            onClick={() =>
+                              unstake(
+                                stake.boxId,
+                                stake.stakeKeyId,
+                                stake.stakeAmount,
+                                stake.penaltyPct
+                              )
+                            }
+                          >
+                            Unstake
+                          </Button>
+                        </a>
                       </TableCell>
                     </TableRow>
                   </Fragment>

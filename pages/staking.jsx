@@ -93,6 +93,7 @@ const Staking = () => {
   // wallet
   const { wallet, dAppWallet } = useWallet();
   // stake modal
+  const [tokenBalance, setTokenBalance] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [stakingForm, setStakingForm] = useState(initStakingForm);
   const [stakingFormErrors, setStakingFormErrors] = useState(
@@ -143,10 +144,22 @@ const Staking = () => {
       setUnstakeTableLoading(false);
     };
 
+    const getTokenBalance = async () => {
+      try {
+        if (dAppWallet.connected) {
+          const balance = await ergo.get_balance(STAKE_TOKEN_ID); // eslint-disable-line
+          setTokenBalance(balance);
+        }
+      } catch (e) {
+        console.log('ERROR: ', e);
+      }
+    };
+
     if (wallet !== '') {
       getStaked();
+      getTokenBalance();
     }
-  }, [wallet]);
+  }, [wallet, dAppWallet.connected]);
 
   useEffect(() => {
     // reset staking Form on wallet change
@@ -281,7 +294,7 @@ const Staking = () => {
   const handleStakingFormChange = (e) => {
     if (e.target.name === 'stakingAmount') {
       const amount = Number(e.target.value);
-      if (amount > 0.0) {
+      if (amount > 0.0 && amount <= tokenBalance) {
         setStakingFormErrors({
           ...stakingFormErrors,
           tokenAmount: false,
@@ -490,23 +503,52 @@ const Staking = () => {
                 before approving it.
               </Typography>
               <Box component="form" noValidate onSubmit={stake}>
-                <TextField
-                  InputProps={{ disableUnderline: true }}
-                  required
-                  fullWidth
-                  id="stakingAmount"
-                  label={`Enter the token amount you are staking`}
-                  name="stakingAmount"
-                  variant="filled"
-                  sx={{ mb: 2 }}
-                  onChange={handleStakingFormChange}
-                  value={stakingForm.tokenAmount}
-                  error={stakingFormErrors.tokenAmount}
-                  helperText={
-                    stakingFormErrors.tokenAmount &&
-                    'Enter a valid token amount'
-                  }
-                />
+                {dAppWallet.connected && (
+                  <Typography color="text.secondary" sx={{ mb: 1 }}>
+                    You have {tokenBalance} ergopad tokens.
+                  </Typography>
+                )}
+                <Grid
+                  container
+                  spacing={3}
+                  alignItems="stretch"
+                  justifyContent="center"
+                  sx={{ flexGrow: 1 }}
+                >
+                  <Grid item md={10} xs={9}>
+                    <TextField
+                      InputProps={{ disableUnderline: true }}
+                      required
+                      fullWidth
+                      id="stakingAmount"
+                      label={`Enter the token amount you are staking`}
+                      name="stakingAmount"
+                      variant="filled"
+                      sx={{ mb: 2 }}
+                      onChange={handleStakingFormChange}
+                      value={stakingForm.tokenAmount}
+                      error={stakingFormErrors.tokenAmount}
+                      helperText={
+                        stakingFormErrors.tokenAmount &&
+                        'Enter a valid token amount'
+                      }
+                    />
+                  </Grid>
+                  <Grid item md={2} xs={3}>
+                    <Button
+                      onClick={() => {
+                        handleStakingFormChange({
+                          target: {
+                            name: 'stakingAmount',
+                            value: tokenBalance,
+                          },
+                        });
+                      }}
+                    >
+                      Max Amount
+                    </Button>
+                  </Grid>
+                </Grid>
                 <FormControl
                   variant="filled"
                   fullWidth
@@ -626,7 +668,7 @@ const Staking = () => {
                   justifyContent="center"
                   sx={{ flexGrow: 1 }}
                 >
-                  <Grid item md={10}>
+                  <Grid item md={10} xs={9}>
                     <TextField
                       InputProps={{ disableUnderline: true }}
                       required
@@ -645,7 +687,7 @@ const Staking = () => {
                       }
                     />
                   </Grid>
-                  <Grid item md={2}>
+                  <Grid item md={2} xs={3}>
                     <Button
                       onClick={() => {
                         handleUnstakingFormChange({
