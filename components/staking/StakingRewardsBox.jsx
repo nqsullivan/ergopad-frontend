@@ -54,28 +54,32 @@ const StakingRewardsBox = (props) => {
               justifyContent: 'center',
             }}
           >
-            <a href="#withdraw">
-              <Button
-                variant="contained"
-                sx={{
-                  color: '#fff',
-                  fontSize: '1rem',
-                  py: '0.6rem',
-                  px: '1.2rem',
-                  textTransform: 'none',
-                  background: theme.palette.secondary.main,
-                  '&:hover': {
-                    background: theme.palette.secondary.hover,
-                    boxShadow: 'none',
-                  },
-                  '&:active': {
-                    background: theme.palette.secondary.active,
-                  },
-                }}
-              >
-                Withdraw
-              </Button>
-            </a>
+            <Button
+              variant="contained"
+              sx={{
+                color: '#fff',
+                fontSize: '1rem',
+                py: '0.6rem',
+                px: '1.2rem',
+                textTransform: 'none',
+                background: theme.palette.secondary.main,
+                '&:hover': {
+                  background: theme.palette.secondary.hover,
+                  boxShadow: 'none',
+                },
+                '&:active': {
+                  background: theme.palette.secondary.active,
+                },
+              }}
+              onClick={() => {
+                const element = document.getElementById('withdraw');
+                if (element && element.scrollIntoView) {
+                  element.scrollIntoView();
+                }
+              }}
+            >
+              Withdraw
+            </Button>
           </Box>
         </Box>
       </Box>
