@@ -54,3 +54,12 @@ a {
 .MuiDivider-pages {
   margin-bottom: 1.5rem!important;
 }
+
+::selection {
+  background: #3ABAB4; /* WebKit/Blink Browsers */
+  color: rgb( 29, 29, 32 );
+}
+::-moz-selection {
+  background: #3ABAB4; /* Gecko Browsers */
+  color: rgb( 29, 29, 32 );
+}

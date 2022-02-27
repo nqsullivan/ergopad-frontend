@@ -1,5 +1,5 @@
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
-import theme from '@styles/theme';
+// import theme from '@styles/theme';
 
 const gridBox = {
   background: 'rgba(35, 35, 39, 0.7)',
@@ -34,7 +34,7 @@ const StakingRewardsBox = (props) => {
       <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
         <Box sx={gridBox}>
           <Typography>ErgoPad Staked</Typography>
-          <Typography variant="h3" sx={{ mb: 3 }}>
+          <Typography variant="h3" sx={{ mb: 0 }}>
             {props.loading ? (
               <CircularProgress sx={{ mt: 2, color: '#fff' }} />
             ) : props.totalStaked ? (
@@ -47,7 +47,7 @@ const StakingRewardsBox = (props) => {
           <Typography variant="h3" sx={{ mb: 3 }}>
             -
           </Typography> */}
-          <Box
+{/*           <Box
             sx={{
               width: '100%',
               display: 'flex',
@@ -72,15 +72,16 @@ const StakingRewardsBox = (props) => {
                 },
               }}
               onClick={() => {
+                props.setTabValue(1)
                 const element = document.getElementById('withdraw');
                 if (element && element.scrollIntoView) {
                   element.scrollIntoView();
                 }
               }}
             >
-              Withdraw
+              Unstake
             </Button>
-          </Box>
+          </Box> */}
         </Box>
       </Box>
     </>
