@@ -32,13 +32,13 @@ const Homepage = () => {
           subtitle="We are a token launch platform for Ergo giving you an opportunity to get in on the ground floor with Ergo token IDOs. We help projects navigate Ergoscript to build safe apps for you to invest in."
         />
         <Divider sx={{ mb: 10 }} />
-        <Features />
+          <Features />
         <Divider sx={{ mb: 10 }} />
-        <Dashboard />
+          <Dashboard />
         <Divider sx={{ mb: 10 }} />
-        <Projects />
+          <Projects />
         {/* <Divider sx={{ mb: 10 }} />
-        <Announcements /> */}
+          <Announcements /> */}
       </Container>
     </>
   );
