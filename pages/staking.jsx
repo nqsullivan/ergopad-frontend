@@ -15,7 +15,7 @@ import {
   FormHelperText,
   TextField,
   CircularProgress,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
@@ -36,9 +36,8 @@ import { useWallet } from 'utils/WalletContext';
 import { forwardRef, useEffect, useState } from 'react';
 import axios from 'axios';
 
-// todo: change to ergopad after testing
 const STAKE_TOKEN_ID =
-  '000e21f8e51ad4a3d3bdde9ac34d19eb2c24c92d2022260af6f99148cbc021d1';
+  'd71693c49a84fbbecd4908c94813b46514b18b67a99952dc1e6e4791556de413';
 
 const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -104,11 +103,7 @@ function TabPanel(props) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ pt: 3 }}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
     </div>
   );
 }
@@ -187,20 +182,8 @@ const Staking = () => {
       setUnstakeTableLoading(false);
     };
 
-    const getTokenBalance = async () => {
-      try {
-        if (dAppWallet.connected) {
-          const balance = await ergo.get_balance(STAKE_TOKEN_ID); // eslint-disable-line
-          setTokenBalance(balance);
-        }
-      } catch (e) {
-        console.log('ERROR: ', e);
-      }
-    };
-
     if (wallet !== '') {
       getStaked();
-      getTokenBalance();
     }
   }, [wallet, dAppWallet.connected]);
 
@@ -220,6 +203,24 @@ const Staking = () => {
     });
   }, [dAppWallet.connected]);
 
+  useEffect(() => {
+    // get ergopad balance
+    const getTokenBalance = async () => {
+      try {
+        if (dAppWallet.connected) {
+          const balance = await ergo.get_balance(STAKE_TOKEN_ID); // eslint-disable-line
+          setTokenBalance(balance);
+        }
+      } catch (e) {
+        console.log('ERROR: ', e);
+      }
+    };
+
+    if (openModal) {
+      getTokenBalance();
+    }
+  }, [dAppWallet.connected, openModal]);
+
   const stake = async (e) => {
     e.preventDefault();
     setStakeLoading(true);
@@ -228,7 +229,7 @@ const Staking = () => {
       // prettier-ignore
       const tokens = await ergo.get_utxos(tokenAmount.toString(), STAKE_TOKEN_ID); // eslint-disable-line
       // prettier-ignore
-      const fees = await ergo.get_utxos('4000000'); // eslint-disable-line
+      const fees = await ergo.get_utxos('30000000'); // eslint-disable-line
       const utxos = Array.from(
         new Set([...fees, ...tokens].map((x) => x.boxId))
       );
@@ -281,7 +282,7 @@ const Staking = () => {
       // prettier-ignore
       const tokens = await ergo.get_utxos('1', stakeKey); // eslint-disable-line
       // prettier-ignore
-      const fees = await ergo.get_utxos('3000000'); // eslint-disable-line
+      const fees = await ergo.get_utxos('20000000'); // eslint-disable-line
       const utxos = Array.from(
         new Set([...tokens, ...fees].map((x) => x.boxId))
       );
@@ -414,99 +415,133 @@ const Staking = () => {
           <Grid item xs={12} md={8} sx={{ pr: { lg: 1, xs: 0 } }}>
             <Box sx={{ width: '100%' }}>
               <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs value={tabValue} onChange={handleTabChange} aria-label="basic tabs example">
+                <Tabs
+                  value={tabValue}
+                  onChange={handleTabChange}
+                  aria-label="basic tabs example"
+                >
                   <Tab label="Stake" {...a11yProps(0)} />
                   <Tab label="Unstake" {...a11yProps(1)} />
                   <Tab label="Tiers" {...a11yProps(2)} />
                 </Tabs>
               </Box>
               <TabPanel value={tabValue} index={0}>
-              <Typography variant="h4">Staking Info</Typography>
-              <Typography variant="p">
-                Staking your tokens will generate new tokens daily based on the APY percentage above. If you stake in one of the <a onClick={() => {setTabValue(2)}} style={{cursor: 'pointer', color: theme.palette.primary.main }}>tiers</a>, it also makes you eligible for early contribution rounds to IDOs of projects launched on Ergopad. 
-              </Typography>
-              <Typography variant="p">
-                Be aware of the unstaking fees, as outlined in the table. These fees are in place to prevent someone from staking right before a tier snapshot, then unstaking immediately after. Unstaking fees are burned and will no longer be in ciruclation, reducing the total supply of Ergopad tokens. 
-              </Typography>
-              <Typography variant="h4">Terms &amp; Conditions</Typography>
-              <Typography variant="p">
-                By using this website to stake tokens on the Ergo blockchain, you accept that your are interacting with a smart contract that this website has no control over. The operators of this website accept no liability whatsoever in relation to your use of these smart contracts. By using this website to stake, you also have read and agree to the <MuiNextLink href="/terms">Terms and Conditions</MuiNextLink>.
-              </Typography>
-              <FormGroup sx={{ marginBottom: '1rem', mt: '-1rem', color: theme.palette.text.secondary }}>
-                <FormControlLabel 
-                  control={
-                    <Checkbox 
-                      color="primary"
-                      checked={checkBox}
-                      onChange={(e, checked) => setCheckBox(checked)}
-                    />
-                  } 
-                  sx={{ label: {fontSize: '1.125rem' }}}
-                  label="I have read and accept the terms described above. "
-                />
-              </FormGroup>
-              <Box
-                sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
-              >
-                <Button
-                  variant="contained"
-                  disabled={!stakeButtonEnabled}
+                <Typography variant="h4">Staking Info</Typography>
+                <Typography variant="p">
+                  Staking your tokens will generate new tokens daily based on
+                  the APY percentage above. If you stake in one of the{' '}
+                  <a
+                    onClick={() => {
+                      setTabValue(2);
+                    }}
+                    style={{
+                      cursor: 'pointer',
+                      color: theme.palette.primary.main,
+                    }}
+                  >
+                    tiers
+                  </a>
+                  , it also makes you eligible for early contribution rounds to
+                  IDOs of projects launched on Ergopad.
+                </Typography>
+                <Typography variant="p">
+                  Be aware of the unstaking fees, as outlined in the table.
+                  These fees are in place to prevent someone from staking right
+                  before a tier snapshot, then unstaking immediately after.
+                  Unstaking fees are burned and will no longer be in
+                  ciruclation, reducing the total supply of Ergopad tokens.
+                </Typography>
+                <Typography variant="h4">Terms &amp; Conditions</Typography>
+                <Typography variant="p">
+                  By using this website to stake tokens on the Ergo blockchain,
+                  you accept that your are interacting with a smart contract
+                  that this website has no control over. The operators of this
+                  website accept no liability whatsoever in relation to your use
+                  of these smart contracts. By using this website to stake, you
+                  also have read and agree to the{' '}
+                  <MuiNextLink href="/terms">Terms and Conditions</MuiNextLink>.
+                </Typography>
+                <FormGroup
                   sx={{
-                    color: '#fff',
-                    fontSize: '1rem',
-                    py: '0.6rem',
-                    px: '1.2rem',
-                    textTransform: 'none',
-                    background: theme.palette.primary.main,
-                    '&:hover': {
-                      background: theme.palette.primary.hover,
-                      boxShadow: 'none',
-                    },
-                    '&:active': {
-                      background: theme.palette.primary.active,
-                    },
-                  }}
-                  onClick={() => {
-                    setOpenModal(true);
-                    setTransactionSubmitted(null);
+                    marginBottom: '1rem',
+                    mt: '-1rem',
+                    color: theme.palette.text.secondary,
                   }}
                 >
-                  Stake Now
-                </Button>
-              </Box>
-              </TabPanel>
-              <TabPanel value={tabValue} index={1} id="withdraw" >
-                
-                  <Paper sx={{ p: { xs: 2, sm: 4 }, borderRadius: 3 }}>
-                    <Typography variant="h5" sx={{ fontWeight: '700' }}>
-                      Withdraw
-                    </Typography>
-                    {unstakeTableLoading ? (
-                      <CircularProgress color="inherit" />
-                    ) : (
-                      <UnstakingTable
-                        data={stakedData}
-                        unstake={(boxId, stakeKeyId, stakeAmount, penaltyPct) => {
-                          initUnstake();
-                          setOpenUnstakeModal(true);
-                          setUnstakeModalData({
-                            boxId,
-                            stakeKeyId,
-                            stakeAmount,
-                            penaltyPct,
-                          });
-                        }}
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        color="primary"
+                        checked={checkBox}
+                        onChange={(e, checked) => setCheckBox(checked)}
                       />
-                    )}
-                  </Paper>
-                
+                    }
+                    sx={{ label: { fontSize: '1.125rem' } }}
+                    label="I have read and accept the terms described above. "
+                  />
+                </FormGroup>
+                <Box
+                  sx={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    disabled={!stakeButtonEnabled}
+                    sx={{
+                      color: '#fff',
+                      fontSize: '1rem',
+                      py: '0.6rem',
+                      px: '1.2rem',
+                      textTransform: 'none',
+                      background: theme.palette.primary.main,
+                      '&:hover': {
+                        background: theme.palette.primary.hover,
+                        boxShadow: 'none',
+                      },
+                      '&:active': {
+                        background: theme.palette.primary.active,
+                      },
+                    }}
+                    onClick={() => {
+                      setOpenModal(true);
+                      setTransactionSubmitted(null);
+                    }}
+                  >
+                    Stake Now
+                  </Button>
+                </Box>
+              </TabPanel>
+              <TabPanel value={tabValue} index={1} id="withdraw">
+                <Paper sx={{ p: { xs: 2, sm: 4 }, borderRadius: 3 }}>
+                  <Typography variant="h5" sx={{ fontWeight: '700' }}>
+                    Withdraw
+                  </Typography>
+                  {unstakeTableLoading ? (
+                    <CircularProgress color="inherit" />
+                  ) : (
+                    <UnstakingTable
+                      data={stakedData}
+                      unstake={(boxId, stakeKeyId, stakeAmount, penaltyPct) => {
+                        initUnstake();
+                        setOpenUnstakeModal(true);
+                        setUnstakeModalData({
+                          boxId,
+                          stakeKeyId,
+                          stakeAmount,
+                          penaltyPct,
+                        });
+                      }}
+                    />
+                  )}
+                </Paper>
               </TabPanel>
               <TabPanel value={tabValue} index={2}>
-                
-                  <Paper sx={{ p: { xs: 2, sm: 4 }, borderRadius: 3 }}>
-                    <StakingTiers />
-                  </Paper>
-                
+                <Paper sx={{ p: { xs: 2, sm: 4 }, borderRadius: 3 }}>
+                  <StakingTiers />
+                </Paper>
               </TabPanel>
             </Box>
           </Grid>
@@ -520,8 +555,7 @@ const Staking = () => {
           </Grid>
         </Grid>
       </Container>
-      
-      
+
       <Modal
         open={openModal}
         onClose={() => {
