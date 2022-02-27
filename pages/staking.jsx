@@ -209,7 +209,7 @@ const Staking = () => {
       try {
         if (dAppWallet.connected) {
           const balance = await ergo.get_balance(STAKE_TOKEN_ID); // eslint-disable-line
-          setTokenBalance(balance);
+          setTokenBalance(balance / 100);
         }
       } catch (e) {
         console.log('ERROR: ', e);
