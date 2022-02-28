@@ -112,7 +112,7 @@ const StakingTable = ({ data }) => {
     <>
       <Box>
         <Typography variant="h5" color="text.primary" sx={{ mb: 1, pl: 1 }}>
-          Total Staked Tokens: {stakeObject.totalStaked}
+          Total Staked Tokens: {stakeObject.totalStaked?.toLocaleString(navigator.language, { maximumFractionDigits: 2 })}
         </Typography>
         <Typography
           variant="p"
@@ -150,7 +150,7 @@ const StakingTable = ({ data }) => {
               color="text.secondary"
               sx={{ textTransform: 'capitalize', fontWeight: '400' }}
             >
-              {stakeObject.addresses[address].totalStaked}
+              {stakeObject.addresses[address].totalStaked?.toLocaleString(navigator.language, { maximumFractionDigits: 2 })}
             </Typography>
           </Typography>
           {checkSmall ? (
