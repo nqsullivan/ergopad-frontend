@@ -117,7 +117,7 @@ const UnstakingTable = ({ data, unstake }) => {
     <>
       <Box>
         <Typography variant="h6" color="text.primary" sx={{ mb: 1, pl: 1 }}>
-          Total Staked Tokens: {stakeObject.totalStaked}
+          Total Staked Tokens: {stakeObject.totalStaked?.toLocaleString(navigator.language, { maximumFractionDigits: 2 })}
         </Typography>
         <Typography
           variant="p"
@@ -155,7 +155,7 @@ const UnstakingTable = ({ data, unstake }) => {
               color="text.secondary"
               sx={{ textTransform: 'capitalize', fontWeight: '400' }}
             >
-              {stakeObject.addresses[address].totalStaked}
+              {stakeObject.addresses[address].totalStaked?.toLocaleString(navigator.language, { maximumFractionDigits: 2 })}
             </Typography>
           </Typography>
           <Table sx={{ p: 0 }}>
