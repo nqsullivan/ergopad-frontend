@@ -57,9 +57,9 @@ const VestingTable = ({ vestedObject }) => {
                         </TableHead>
                         
                         <TableBody>
-                            {vestedToken.outstanding.map((vested) => {
+                            {vestedToken.outstanding.map((vested, index) => {
                                 return(
-                                    <TableRow key={vested.amount}>
+                                    <TableRow key={index}>
                                         <TableCell sx={{ color: theme.palette.text.secondary }}>
                                             {vested.date}
                                         </TableCell>

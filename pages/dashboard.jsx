@@ -131,6 +131,8 @@ const Dashboard = () => {
     const noAssetArray = tokenDataArray(rawData2);
     setHoldingData(noAssetArray);
     setHistoryData(initHistoryData);
+    setStakedTokens(initStakedData);
+    setVestedTokens([]);
   };
 
   useEffect(() => {
@@ -489,30 +491,33 @@ const Dashboard = () => {
                     Tokens Locked in Vesting Contracts
                   </Typography>
                 </Grid>
-                <Grid
-                  container
-                  xs={12}
-                  md={4}
-                  sx={{
-                    justifyContent: checkSmall ? 'flex-end' : 'flex-start',
-                  }}
-                >
-                  <FormGroup
-                    sx={{ alignItems: checkSmall ? 'flex-end' : 'flex-start' }}
+                {vestedTokens.length > 0 && (
+                  <Grid
+                    container
+                    xs={12}
+                    md={4}
+                    sx={{
+                      justifyContent: checkSmall ? 'flex-end' : 'flex-start',
+                    }}
                   >
-                    <Switch
-                      disabled={
-                        loading || loadingStakingTable || loadingVestingTable
-                      }
-                      checked={addVestingTableTokens}
-                      onChange={(e) => setAddVestingTable(e.target.checked)}
-                      color="default"
-                    />
-                    <FormHelperText>
-                      Add to Wallet Holdings for Total
-                    </FormHelperText>
-                  </FormGroup>
-                </Grid>
+                    <FormGroup
+                      sx={{
+                        alignItems: checkSmall ? 'flex-end' : 'flex-start',
+                      }}
+                    >
+                      <Switch
+                        disabled={
+                          loading || loadingStakingTable || loadingVestingTable
+                        }
+                        checked={addVestingTableTokens}
+                        onChange={(e) => setAddVestingTable(e.target.checked)}
+                      />
+                      <FormHelperText>
+                        Add to Wallet Holdings for Total
+                      </FormHelperText>
+                    </FormGroup>
+                  </Grid>
+                )}
               </Grid>
               {loadingVestingTable ? (
                 <CircularProgress color="inherit" />
@@ -529,30 +534,33 @@ const Dashboard = () => {
                     Tokens Locked in Staking Contracts
                   </Typography>
                 </Grid>
-                <Grid
-                  container
-                  xs={12}
-                  md={4}
-                  sx={{
-                    justifyContent: checkSmall ? 'flex-end' : 'flex-start',
-                  }}
-                >
-                  <FormGroup
-                    sx={{ alignItems: checkSmall ? 'flex-end' : 'flex-start' }}
+                {stakedTokens.totalStaked > 0 && (
+                  <Grid
+                    container
+                    xs={12}
+                    md={4}
+                    sx={{
+                      justifyContent: checkSmall ? 'flex-end' : 'flex-start',
+                    }}
                   >
-                    <Switch
-                      disabled={
-                        loading || loadingStakingTable || loadingVestingTable
-                      }
-                      checked={addStakingTableTokens}
-                      onChange={(e) => setAddStakingTable(e.target.checked)}
-                      color="default"
-                    />
-                    <FormHelperText>
-                      Add to Wallet Holdings for Total
-                    </FormHelperText>
-                  </FormGroup>
-                </Grid>
+                    <FormGroup
+                      sx={{
+                        alignItems: checkSmall ? 'flex-end' : 'flex-start',
+                      }}
+                    >
+                      <Switch
+                        disabled={
+                          loading || loadingStakingTable || loadingVestingTable
+                        }
+                        checked={addStakingTableTokens}
+                        onChange={(e) => setAddStakingTable(e.target.checked)}
+                      />
+                      <FormHelperText>
+                        Add to Wallet Holdings for Total
+                      </FormHelperText>
+                    </FormGroup>
+                  </Grid>
+                )}
               </Grid>
               {loadingStakingTable ? (
                 <CircularProgress color="inherit" />
