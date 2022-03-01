@@ -1,3 +1,4 @@
+import { useMediaQuery } from '@mui/material';
 import {
   VictoryArea,
   VictoryAxis,
@@ -18,6 +19,8 @@ const toValueText = (value) => {
 };
 
 const StackedAreaPortfolioHistory = (props) => {
+  const checkSmall = useMediaQuery((theme) => theme.breakpoints.up('md'));
+
   return (
     <VictoryChart
       padding={{ top: 10, bottom: 60, left: 40, right: 40 }}
@@ -32,12 +35,13 @@ const StackedAreaPortfolioHistory = (props) => {
       }
     >
       <VictoryLegend
-        gutter={20}
+        borderPadding={10}
+        gutter={30}
         orientation="horizontal"
         colorScale="cool"
         itemsPerRow={3}
-        x={80}
-        y={-40}
+        x={40}
+        y={checkSmall ? -80 : -40}
         data={props.data.map((priceHistory, index) => {
           return {
             id: index,

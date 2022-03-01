@@ -5,6 +5,10 @@ import {
   CircularProgress,
   Container,
   Paper,
+  Switch,
+  useMediaQuery,
+  FormHelperText,
+  FormGroup,
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -20,6 +24,10 @@ import PriceChart from '@components/dashboard/PriceChart';
 // step size
 const STEP_SIZE = 1;
 const STEP_UNIT = 'w';
+
+// token
+const ERGOPAD_TOKEN =
+  'd71693c49a84fbbecd4908c94813b46514b18b67a99952dc1e6e4791556de413';
 
 // placeholder data
 const rawData2 = {
@@ -89,13 +97,22 @@ const Dashboard = () => {
   const [vestedTokens, setVestedTokens] = useState([]);
   const [stakedTokens, setStakedTokens] = useState(initStakedData);
   const [holdingData, setHoldingData] = useState(defaultHoldingData);
+  const [holdingDataAggregated, setHoldingDataAggregated] =
+    useState(defaultHoldingData);
   const [historyData, setHistoryData] = useState(initHistoryData);
+  const [historyDataAggregated, setHistoryDataAggregated] =
+    useState(initHistoryData);
   const [assetList, setAssetList] = useState(assetListArray(rawData2));
   const [imgNftList, setImgNftList] = useState([]);
   const [audNftList, setAudNftList] = useState([]);
+  const [priceData, setPriceData] = useState({});
+  const [priceHistoryData, setPriceHistoryData] = useState([]);
+  const [addVestingTableTokens, setAddVestingTable] = useState(true);
+  const [addStakingTableTokens, setAddStakingTable] = useState(true);
   const [loading, setLoading] = useState(false);
   const [loadingVestingTable, setLoadingVestingTable] = useState(false);
   const [loadingStakingTable, setLoadingStakingTable] = useState(false);
+  const checkSmall = useMediaQuery((theme) => theme.breakpoints.up('md'));
 
   useEffect(() => {
     setHoldingData(wantedHoldingData); // Setting the data that we want to display
@@ -246,6 +263,12 @@ const Dashboard = () => {
             orderingData
           );
           setHistoryData(totals);
+          // store current ergopad price
+          const ergopadPrice = res.data
+            .filter((pt) => pt.token === 'ergopad')
+            .map((token) => token.history[0].price);
+          setPriceData({ ergopad: ergopadPrice.length ? ergopadPrice[0] : 0 });
+          setPriceHistoryData([...res.data]);
         } catch (e) {
           console.log('Error: building history', e);
         }
@@ -319,6 +342,74 @@ const Dashboard = () => {
     }
   }, [wallet, dAppWallet.addresses]);
 
+  useEffect(() => {
+    // previous state
+    const holdingState = JSON.parse(JSON.stringify(holdingData));
+    const historyState = JSON.parse(JSON.stringify(historyData));
+    // build new state
+    if (priceData.ergopad) {
+      if (addVestingTableTokens) {
+        try {
+          const ergopadValueOpt = vestedTokens.filter(
+            (token) => token.tokenId === ERGOPAD_TOKEN
+          );
+          if (ergopadValueOpt.length) {
+            const ergopadValue =
+              ergopadValueOpt[0].totalVested * priceData.ergopad;
+            holdingState.push({ x: 'ergopad (vested)', y: ergopadValue });
+          }
+          const ergopadHistoryOpt = priceHistoryData.filter(
+            (token) => token.token === 'ergopad'
+          );
+          if (ergopadValueOpt.length && ergopadHistoryOpt.length) {
+            const history = ergopadHistoryOpt[0].history.map((pt) => {
+              return {
+                timestamp: pt.timestamp,
+                value: pt.price * ergopadValueOpt[0].totalVested,
+              };
+            });
+            historyState.push({ token: 'ergopad (vested)', history: history });
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      if (addStakingTableTokens) {
+        try {
+          const ergopadValue = stakedTokens.totalStaked * priceData.ergopad;
+          if (ergopadValue) {
+            holdingState.push({ x: 'ergopad (staked)', y: ergopadValue });
+          }
+          const ergopadHistoryOpt = priceHistoryData.filter(
+            (token) => token.token === 'ergopad'
+          );
+          if (ergopadValue && ergopadHistoryOpt.length) {
+            const history = ergopadHistoryOpt[0].history.map((pt) => {
+              return {
+                timestamp: pt.timestamp,
+                value: pt.price * stakedTokens.totalStaked,
+              };
+            });
+            historyState.push({ token: 'ergopad (staked)', history: history });
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    }
+    setHoldingDataAggregated(holdingState);
+    setHistoryDataAggregated(historyState);
+  }, [
+    addVestingTableTokens,
+    addStakingTableTokens,
+    holdingData,
+    historyData,
+    vestedTokens,
+    stakedTokens,
+    priceData,
+    priceHistoryData,
+  ]);
+
   return (
     <>
       <CenterTitle
@@ -342,7 +433,7 @@ const Dashboard = () => {
                 </>
               ) : (
                 <>
-                  <PieChart holdingData={holdingData} />
+                  <PieChart holdingData={holdingDataAggregated} />
                 </>
               )}
             </Paper>
@@ -356,7 +447,7 @@ const Dashboard = () => {
                 </>
               ) : (
                 <>
-                  <StackedAreaPortfolioHistory data={historyData} />
+                  <StackedAreaPortfolioHistory data={historyDataAggregated} />
                 </>
               )}
             </Paper>
@@ -392,9 +483,37 @@ const Dashboard = () => {
           )}
           <Grid item xs={12}>
             <Paper sx={paperStyle}>
-              <Typography variant="h4" sx={{ fontWeight: '700' }}>
-                Tokens Locked in Vesting Contracts
-              </Typography>
+              <Grid container>
+                <Grid item xs={12} md={8}>
+                  <Typography variant="h4" sx={{ fontWeight: '700' }}>
+                    Tokens Locked in Vesting Contracts
+                  </Typography>
+                </Grid>
+                <Grid
+                  container
+                  xs={12}
+                  md={4}
+                  sx={{
+                    justifyContent: checkSmall ? 'flex-end' : 'flex-start',
+                  }}
+                >
+                  <FormGroup
+                    sx={{ alignItems: checkSmall ? 'flex-end' : 'flex-start' }}
+                  >
+                    <Switch
+                      disabled={
+                        loading || loadingStakingTable || loadingVestingTable
+                      }
+                      checked={addVestingTableTokens}
+                      onChange={(e) => setAddVestingTable(e.target.checked)}
+                      color="default"
+                    />
+                    <FormHelperText>
+                      Add to Wallet Holdings for Total
+                    </FormHelperText>
+                  </FormGroup>
+                </Grid>
+              </Grid>
               {loadingVestingTable ? (
                 <CircularProgress color="inherit" />
               ) : (
@@ -404,9 +523,37 @@ const Dashboard = () => {
           </Grid>
           <Grid item xs={12}>
             <Paper sx={paperStyle}>
-              <Typography variant="h4" sx={{ fontWeight: '700' }}>
-                Tokens Locked in Staking Contracts
-              </Typography>
+              <Grid container>
+                <Grid item xs={12} md={8}>
+                  <Typography variant="h4" sx={{ fontWeight: '700' }}>
+                    Tokens Locked in Staking Contracts
+                  </Typography>
+                </Grid>
+                <Grid
+                  container
+                  xs={12}
+                  md={4}
+                  sx={{
+                    justifyContent: checkSmall ? 'flex-end' : 'flex-start',
+                  }}
+                >
+                  <FormGroup
+                    sx={{ alignItems: checkSmall ? 'flex-end' : 'flex-start' }}
+                  >
+                    <Switch
+                      disabled={
+                        loading || loadingStakingTable || loadingVestingTable
+                      }
+                      checked={addStakingTableTokens}
+                      onChange={(e) => setAddStakingTable(e.target.checked)}
+                      color="default"
+                    />
+                    <FormHelperText>
+                      Add to Wallet Holdings for Total
+                    </FormHelperText>
+                  </FormGroup>
+                </Grid>
+              </Grid>
               {loadingStakingTable ? (
                 <CircularProgress color="inherit" />
               ) : (
