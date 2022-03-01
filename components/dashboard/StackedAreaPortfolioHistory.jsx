@@ -32,11 +32,11 @@ const StackedAreaPortfolioHistory = (props) => {
       }
     >
       <VictoryLegend
-        gutter={20}
+        gutter={30}
         orientation="horizontal"
         colorScale="cool"
         itemsPerRow={3}
-        x={80}
+        x={40}
         y={-40}
         data={props.data.map((priceHistory, index) => {
           return {

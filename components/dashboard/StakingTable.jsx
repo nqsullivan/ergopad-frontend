@@ -110,7 +110,7 @@ const StakingTable = ({ data }) => {
 
   return (
     <>
-      <Box>
+      <Box sx={{ mt: 4 }}>
         <Typography variant="h5" color="text.primary" sx={{ mb: 1, pl: 1 }}>
           Total Staked Tokens: {stakeObject.totalStaked}
         </Typography>
