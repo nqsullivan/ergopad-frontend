@@ -1,4 +1,9 @@
-import { VictoryContainer, VictoryLabel, VictoryPie } from 'victory';
+import {
+  VictoryContainer,
+  VictoryLabel,
+  VictoryPie,
+  VictoryTooltip,
+} from 'victory';
 
 const toValueText = (value) => {
   if (value < 1000) {
@@ -26,6 +31,16 @@ const PieChart = (props) => {
         data={props.holdingData}
         colorScale="cool"
         style={{ labels: { fill: 'white' } }}
+        labelComponent={
+          <VictoryTooltip
+            style={{ fontSize: 12 }}
+            flyoutPadding={({ text }) =>
+              text.length > 1 ? { top: 5, bottom: 5, left: 20, right: 20 } : 10
+            }
+            constrainToVisibleArea
+          />
+        }
+        labels={(d) => d.datum.x + ': ' + toValueText(d.datum.y)}
         containerComponent={
           <VictoryContainer
             id="victory-stack-chart-container"
