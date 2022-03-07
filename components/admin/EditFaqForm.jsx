@@ -7,6 +7,10 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { forwardRef } from 'react';
 import { useEffect, useState } from 'react';
@@ -14,30 +18,28 @@ import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import FileUploadS3 from '@components/FileUploadS3';
 import PaginatedTable from '@components/PaginatedTable';
 
 const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+const tags = ['Default', 'Token', 'Staking', 'Company'];
+
 const initialFormData = Object.freeze({
   id: '',
-  title: '',
-  shortDescription: '',
-  description: '',
-  bannerImgUrl: '',
+  question: '',
+  solution: '',
+  tag: 'default',
 });
 
 const initialFormErrors = Object.freeze({
-  title: false,
-  shortDescription: false,
-  bannerImgUrl: false,
+  question: false,
 });
 
-const EditAnnouncementForm = () => {
-  // announcement data
-  const [announcementData, setAnnouncementData] = useState([]);
+const EditFaqForm = () => {
+  // faq data
+  const [faqData, setFaqData] = useState([]);
   // form data is all strings
   const [formData, updateFormData] = useState(initialFormData);
   // form error object, all booleans
@@ -67,9 +69,9 @@ const EditAnnouncementForm = () => {
     const getTableData = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${process.env.API_URL}/announcements/`);
+        const res = await axios.get(`${process.env.API_URL}/faq/`);
         res.data.sort((a, b) => a.id - b.id);
-        setAnnouncementData(res.data);
+        setFaqData(res.data);
       } catch (e) {
         console.log(e);
       }
@@ -121,30 +123,17 @@ const EditAnnouncementForm = () => {
     e.preventDefault();
     setLoading(true);
     setOpenError(false);
-    try {
-      const id = formData.id;
-      if (id) {
-        const res = await axios.get(
-          `${process.env.API_URL}/announcements/${id}`
-        );
-        updateFormData({ ...res.data });
-        setFormErrors(initialFormErrors);
-      }
-    } catch (e) {
-      setErrorMessage('Announcement not found');
+    const id = formData.id;
+    const res = faqData.filter((faq) => faq.id === id);
+    if (id && res.length) {
+      const data = res[0];
+      updateFormData({ ...data });
+      setFormErrors(initialFormErrors);
+    } else {
+      setErrorMessage('FAQ not found');
       setOpenError(true);
     }
     setLoading(false);
-  };
-
-  const handleImageUpload = (res) => {
-    if (res.status === 'success') {
-      updateFormData({ ...formData, bannerImgUrl: res.image_url });
-      setFormErrors({ ...formErrors, bannerImgUrl: false });
-    } else {
-      setErrorMessage('Image upload failed');
-      setOpenError(true);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -152,8 +141,7 @@ const EditAnnouncementForm = () => {
     setOpenError(false);
     setLoading(true);
     const errorCheck = Object.values(formErrors).every((v) => v === false);
-    const emptyCheck = formData.bannerImgUrl !== '';
-    if (errorCheck && emptyCheck) {
+    if (errorCheck) {
       const id = formData.id;
       const defaultOptions = {
         headers: {
@@ -165,7 +153,7 @@ const EditAnnouncementForm = () => {
       const data = { ...formData };
       try {
         await axios.put(
-          `${process.env.API_URL}/announcements/${id}`,
+          `${process.env.API_URL}/faq/${id}`,
           data,
           defaultOptions
         );
@@ -198,19 +186,19 @@ const EditAnnouncementForm = () => {
     <>
       <Box component="form" onSubmit={handleSubmit}>
         <Typography variant="h4" sx={{ mt: 10, mb: 2, fontWeight: '700' }}>
-          Edit Announcement
+          Edit FAQ
         </Typography>
         <Grid container spacing={2} />
         <Grid item xs={12}>
           <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
-            Enter announcement id manually or select one from the table below.
+            Enter FAQ id manually or select one from the table below.
           </Typography>
           <TextField
             InputProps={{ disableUnderline: true }}
             required
             fullWidth
             id="id"
-            label="Announcement Id"
+            label="FAQ Id"
             name="id"
             variant="filled"
             value={formData.id}
@@ -218,11 +206,13 @@ const EditAnnouncementForm = () => {
           />
           <Accordion sx={{ mt: 1 }}>
             <AccordionSummary>
-              <strong>Expand to see announcements</strong>
+              <strong>Expand to see FAQs</strong>
             </AccordionSummary>
             <AccordionDetails>
               <PaginatedTable
-                rows={announcementData}
+                rows={faqData.map((faq) => {
+                  return { ...faq, name: faq.question };
+                })}
                 onClick={(id) => {
                   updateFormData({ ...formData, id: id });
                 }}
@@ -237,7 +227,7 @@ const EditAnnouncementForm = () => {
             variant="contained"
             sx={{ mt: 1, mb: 2 }}
           >
-            Fetch Announcement Details
+            Fetch FAQ Details
           </Button>
           {isLoading && (
             <CircularProgress
@@ -253,75 +243,73 @@ const EditAnnouncementForm = () => {
           )}
         </Box>
         <Grid item xs={12}>
-          <TextField
-            InputProps={{ disableUnderline: true }}
-            required
-            fullWidth
-            id="title"
-            label="Title"
-            name="title"
-            variant="filled"
-            value={formData.title}
-            onChange={handleChange}
-            error={formErrors.title}
-            helperText={formErrors.title && 'Enter the announcement header'}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
-            A short summary for the announcement.
+          <Typography color="text.secondary" sx={{ mb: 1 }}>
+            The frequently asked question.
           </Typography>
           <TextField
             InputProps={{ disableUnderline: true }}
             required
             fullWidth
-            id="shortDescription"
-            label="Short Description"
-            name="shortDescription"
+            id="question"
+            label="Question"
+            name="question"
             variant="filled"
-            value={formData.shortDescription}
+            value={formData.question}
             onChange={handleChange}
-            error={formErrors.shortDescription}
+            error={formErrors.question}
             helperText={
-              formErrors.shortDescription && 'Enter a short description'
+              formErrors.question && 'Enter the question to be answered'
             }
           />
         </Grid>
-        <Grid item xs={12} sx={{ mt: 2 }}>
-          <TextField
-            InputProps={{ disableUnderline: true }}
-            required
-            disabled
-            fullWidth
-            id="bannerImgUrl"
-            label="Banner Image Url"
-            name="bannerImgUrl"
-            variant="filled"
-            value={formData.bannerImgUrl}
-            onChange={handleChange}
-            error={formErrors.bannerImgUrl}
-            helperText={formErrors.bannerImgUrl && 'Banner image is required'}
-          />
-        </Grid>
-        <Box sx={{ position: 'relative', my: 2 }}>
-          <FileUploadS3 onUpload={handleImageUpload} />
-        </Box>
         <Grid item xs={12}>
           <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
-            Detailed description.
+            Answer to the question above.
           </Typography>
           <TextField
             InputProps={{ disableUnderline: true }}
             fullWidth
             multiline
-            id="description"
-            label="Detailed Description"
-            name="description"
+            id="solution"
+            label="Solution"
+            name="solution"
             variant="filled"
-            value={formData.description}
+            value={formData.solution}
             onChange={handleChange}
             rows={6}
           />
+        </Grid>
+        <Grid item xs={12}>
+          <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
+            Select tag
+          </Typography>
+          <FormControl variant="filled" sx={{ minWidth: 120 }}>
+            <InputLabel id="tag-select">Tag</InputLabel>
+            <Select
+              labelId="tag-select"
+              id="tag"
+              name="tag"
+              value={formData.tag}
+              onChange={handleChange}
+            >
+              {tags.map((tag) => {
+                return (
+                  <MenuItem
+                    sx={{
+                      borderRadius: '5px',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      },
+                    }}
+                    key={tag.toLowerCase()}
+                    value={tag.toLowerCase()}
+                  >
+                    {tag}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
         </Grid>
         <Box sx={{ position: 'relative' }}>
           <Button
@@ -376,4 +364,4 @@ const EditAnnouncementForm = () => {
   );
 };
 
-export default EditAnnouncementForm;
+export default EditFaqForm;

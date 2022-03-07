@@ -8,36 +8,29 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
+import PaginatedTable from '@components/PaginatedTable';
 import { forwardRef } from 'react';
 import { useEffect, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
-import axios from 'axios';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import FileUploadS3 from '@components/FileUploadS3';
-import PaginatedTable from '@components/PaginatedTable';
+import axios from 'axios';
 
 const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
 const initialFormData = Object.freeze({
-  id: '',
-  title: '',
-  shortDescription: '',
-  description: '',
-  bannerImgUrl: '',
+  url: '',
 });
 
 const initialFormErrors = Object.freeze({
-  title: false,
-  shortDescription: false,
-  bannerImgUrl: false,
+  url: false,
 });
 
-const EditAnnouncementForm = () => {
+const DeleteFaqForm = () => {
   // announcement data
-  const [announcementData, setAnnouncementData] = useState([]);
+  const [faqData, setFaqData] = useState([]);
   // form data is all strings
   const [formData, updateFormData] = useState(initialFormData);
   // form error object, all booleans
@@ -67,9 +60,9 @@ const EditAnnouncementForm = () => {
     const getTableData = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${process.env.API_URL}/announcements/`);
+        const res = await axios.get(`${process.env.API_URL}/faq/`);
         res.data.sort((a, b) => a.id - b.id);
-        setAnnouncementData(res.data);
+        setFaqData(res.data);
       } catch (e) {
         console.log(e);
       }
@@ -113,38 +106,9 @@ const EditAnnouncementForm = () => {
 
     updateFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      // Trimming any whitespace
+      [e.target.name]: e.target.value.trim(),
     });
-  };
-
-  const fetchDetails = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setOpenError(false);
-    try {
-      const id = formData.id;
-      if (id) {
-        const res = await axios.get(
-          `${process.env.API_URL}/announcements/${id}`
-        );
-        updateFormData({ ...res.data });
-        setFormErrors(initialFormErrors);
-      }
-    } catch (e) {
-      setErrorMessage('Announcement not found');
-      setOpenError(true);
-    }
-    setLoading(false);
-  };
-
-  const handleImageUpload = (res) => {
-    if (res.status === 'success') {
-      updateFormData({ ...formData, bannerImgUrl: res.image_url });
-      setFormErrors({ ...formErrors, bannerImgUrl: false });
-    } else {
-      setErrorMessage('Image upload failed');
-      setOpenError(true);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -152,9 +116,8 @@ const EditAnnouncementForm = () => {
     setOpenError(false);
     setLoading(true);
     const errorCheck = Object.values(formErrors).every((v) => v === false);
-    const emptyCheck = formData.bannerImgUrl !== '';
-    if (errorCheck && emptyCheck) {
-      const id = formData.id;
+    if (errorCheck) {
+      const id = formData.url;
       const defaultOptions = {
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem(
@@ -162,16 +125,12 @@ const EditAnnouncementForm = () => {
           )}`,
         },
       };
-      const data = { ...formData };
       try {
-        await axios.put(
-          `${process.env.API_URL}/announcements/${id}`,
-          data,
-          defaultOptions
-        );
+        await axios.delete(`${process.env.API_URL}/faq/${id}`, defaultOptions);
         setOpenSuccess(true);
         updateFormData(initialFormData);
-      } catch {
+      } catch (e) {
+        console.log(e);
         setErrorMessage('Invalid credentials or form data');
         setOpenError(true);
       }
@@ -179,7 +138,7 @@ const EditAnnouncementForm = () => {
       let updateErrors = {};
       Object.entries(formData).forEach((entry) => {
         const [key, value] = entry;
-        if (value === '' && Object.hasOwnProperty.call(formErrors, key)) {
+        if (value == '' && Object.hasOwnProperty.call(formErrors, key)) {
           let newEntry = { [key]: true };
           updateErrors = { ...updateErrors, ...newEntry };
         }
@@ -198,139 +157,53 @@ const EditAnnouncementForm = () => {
     <>
       <Box component="form" onSubmit={handleSubmit}>
         <Typography variant="h4" sx={{ mt: 10, mb: 2, fontWeight: '700' }}>
-          Edit Announcement
+          Delete FAQ
         </Typography>
         <Grid container spacing={2} />
         <Grid item xs={12}>
           <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
-            Enter announcement id manually or select one from the table below.
+            Enter FAQ id manually or select one from the table below. This is an
+            irreversible action. All faq details will be deleted and cannot be
+            recovered afterwards.
           </Typography>
           <TextField
             InputProps={{ disableUnderline: true }}
             required
             fullWidth
-            id="id"
-            label="Announcement Id"
-            name="id"
+            id="url"
+            label="FAQ Id"
+            name="url"
             variant="filled"
-            value={formData.id}
+            value={formData.url}
             onChange={handleChange}
+            error={formErrors.url}
+            helperText={formErrors.url && 'Enter the id'}
           />
           <Accordion sx={{ mt: 1 }}>
             <AccordionSummary>
-              <strong>Expand to see announcements</strong>
+              <strong>Expand to see FAQs</strong>
             </AccordionSummary>
             <AccordionDetails>
               <PaginatedTable
-                rows={announcementData}
+                rows={faqData.map((faq) => {
+                  return { ...faq, name: faq.question };
+                })}
                 onClick={(id) => {
-                  updateFormData({ ...formData, id: id });
+                  updateFormData({ ...formData, url: id });
                 }}
               />
             </AccordionDetails>
           </Accordion>
-        </Grid>
-        <Box sx={{ position: 'relative', mb: 2 }}>
-          <Button
-            onClick={fetchDetails}
-            disabled={buttonDisabled}
-            variant="contained"
-            sx={{ mt: 1, mb: 2 }}
-          >
-            Fetch Announcement Details
-          </Button>
-          {isLoading && (
-            <CircularProgress
-              size={24}
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                marginTop: '-9px',
-                marginLeft: '-12px',
-              }}
-            />
-          )}
-        </Box>
-        <Grid item xs={12}>
-          <TextField
-            InputProps={{ disableUnderline: true }}
-            required
-            fullWidth
-            id="title"
-            label="Title"
-            name="title"
-            variant="filled"
-            value={formData.title}
-            onChange={handleChange}
-            error={formErrors.title}
-            helperText={formErrors.title && 'Enter the announcement header'}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
-            A short summary for the announcement.
-          </Typography>
-          <TextField
-            InputProps={{ disableUnderline: true }}
-            required
-            fullWidth
-            id="shortDescription"
-            label="Short Description"
-            name="shortDescription"
-            variant="filled"
-            value={formData.shortDescription}
-            onChange={handleChange}
-            error={formErrors.shortDescription}
-            helperText={
-              formErrors.shortDescription && 'Enter a short description'
-            }
-          />
-        </Grid>
-        <Grid item xs={12} sx={{ mt: 2 }}>
-          <TextField
-            InputProps={{ disableUnderline: true }}
-            required
-            disabled
-            fullWidth
-            id="bannerImgUrl"
-            label="Banner Image Url"
-            name="bannerImgUrl"
-            variant="filled"
-            value={formData.bannerImgUrl}
-            onChange={handleChange}
-            error={formErrors.bannerImgUrl}
-            helperText={formErrors.bannerImgUrl && 'Banner image is required'}
-          />
-        </Grid>
-        <Box sx={{ position: 'relative', my: 2 }}>
-          <FileUploadS3 onUpload={handleImageUpload} />
-        </Box>
-        <Grid item xs={12}>
-          <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
-            Detailed description.
-          </Typography>
-          <TextField
-            InputProps={{ disableUnderline: true }}
-            fullWidth
-            multiline
-            id="description"
-            label="Detailed Description"
-            name="description"
-            variant="filled"
-            value={formData.description}
-            onChange={handleChange}
-            rows={6}
-          />
         </Grid>
         <Box sx={{ position: 'relative' }}>
           <Button
             type="submit"
             disabled={buttonDisabled}
             variant="contained"
-            sx={{ mt: 3, mb: 1 }}
+            color="error"
+            sx={{ mt: 1, mb: 1 }}
           >
-            Submit
+            Delete
           </Button>
           {isLoading && (
             <CircularProgress
@@ -376,4 +249,4 @@ const EditAnnouncementForm = () => {
   );
 };
 
-export default EditAnnouncementForm;
+export default DeleteFaqForm;

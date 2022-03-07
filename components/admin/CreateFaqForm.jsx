@@ -4,33 +4,35 @@ import {
   Typography,
   TextField,
   Button,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
 } from '@mui/material';
-import PaginatedTable from '@components/PaginatedTable';
 import { forwardRef } from 'react';
 import { useEffect, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
+import axios from 'axios';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import axios from 'axios';
 
 const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+const tags = ['Default', 'Token', 'Staking', 'Company'];
+
 const initialFormData = Object.freeze({
-  url: '',
+  question: '',
+  solution: '',
+  tag: 'default',
 });
 
 const initialFormErrors = Object.freeze({
-  url: false,
+  question: false,
 });
 
-const DeleteAnnouncementForm = () => {
-  // announcement data
-  const [announcementData, setAnnouncementData] = useState([]);
+const CreateFaqForm = () => {
   // form data is all strings
   const [formData, updateFormData] = useState(initialFormData);
   // form error object, all booleans
@@ -55,22 +57,6 @@ const DeleteAnnouncementForm = () => {
       setbuttonDisabled(false);
     }
   }, [isLoading]);
-
-  useEffect(() => {
-    const getTableData = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`${process.env.API_URL}/announcements/`);
-        res.data.sort((a, b) => a.id - b.id);
-        setAnnouncementData(res.data);
-      } catch (e) {
-        console.log(e);
-      }
-      setLoading(false);
-    };
-
-    getTableData();
-  }, [openSuccess]);
 
   // snackbar for error reporting
   const handleCloseError = (event, reason) => {
@@ -106,8 +92,7 @@ const DeleteAnnouncementForm = () => {
 
     updateFormData({
       ...formData,
-      // Trimming any whitespace
-      [e.target.name]: e.target.value.trim(),
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -117,7 +102,6 @@ const DeleteAnnouncementForm = () => {
     setLoading(true);
     const errorCheck = Object.values(formErrors).every((v) => v === false);
     if (errorCheck) {
-      const id = formData.url;
       const defaultOptions = {
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem(
@@ -125,15 +109,12 @@ const DeleteAnnouncementForm = () => {
           )}`,
         },
       };
+      const data = { ...formData };
       try {
-        await axios.delete(
-          `${process.env.API_URL}/announcements/${id}`,
-          defaultOptions
-        );
+        await axios.post(`${process.env.API_URL}/faq/`, data, defaultOptions);
         setOpenSuccess(true);
         updateFormData(initialFormData);
-      } catch (e) {
-        console.log(e);
+      } catch {
         setErrorMessage('Invalid credentials or form data');
         setOpenError(true);
       }
@@ -159,52 +140,87 @@ const DeleteAnnouncementForm = () => {
   return (
     <>
       <Box component="form" onSubmit={handleSubmit}>
-        <Typography variant="h4" sx={{ mt: 10, mb: 2, fontWeight: '700' }}>
-          Delete Announcement
+        <Typography variant="h4" sx={{ mt: 10, mb: 4, fontWeight: '700' }}>
+          Create FAQ
         </Typography>
         <Grid container spacing={2} />
         <Grid item xs={12}>
-          <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
-            Enter announcement id manually or select one from the table below.
-            This is an irreversible action. All announcement details will be
-            deleted and cannot be recovered afterwards.
+          <Typography color="text.secondary" sx={{ mb: 1 }}>
+            The frequently asked question.
           </Typography>
           <TextField
             InputProps={{ disableUnderline: true }}
             required
             fullWidth
-            id="url"
-            label="Announcement Id"
-            name="url"
+            id="question"
+            label="Question"
+            name="question"
             variant="filled"
-            value={formData.url}
+            value={formData.question}
             onChange={handleChange}
-            error={formErrors.url}
-            helperText={formErrors.url && 'Enter the id'}
+            error={formErrors.question}
+            helperText={
+              formErrors.question && 'Enter the question to be answered'
+            }
           />
-          <Accordion sx={{ mt: 1 }}>
-            <AccordionSummary>
-              <strong>Expand to see announcements</strong>
-            </AccordionSummary>
-            <AccordionDetails>
-              <PaginatedTable
-                rows={announcementData}
-                onClick={(id) => {
-                  updateFormData({ ...formData, url: id });
-                }}
-              />
-            </AccordionDetails>
-          </Accordion>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
+            Answer to the question above.
+          </Typography>
+          <TextField
+            InputProps={{ disableUnderline: true }}
+            fullWidth
+            multiline
+            id="solution"
+            label="Solution"
+            name="solution"
+            variant="filled"
+            value={formData.solution}
+            onChange={handleChange}
+            rows={6}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
+            Select tag
+          </Typography>
+          <FormControl variant="filled" sx={{ minWidth: 120 }}>
+            <InputLabel id="tag-select">Tag</InputLabel>
+            <Select
+              labelId="tag-select"
+              id="tag"
+              name="tag"
+              value={formData.tag}
+              onChange={handleChange}
+            >
+              {tags.map((tag) => {
+                return (
+                  <MenuItem
+                    sx={{
+                      borderRadius: '5px',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      },
+                    }}
+                    key={tag.toLowerCase()}
+                    value={tag.toLowerCase()}
+                  >
+                    {tag}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
         </Grid>
         <Box sx={{ position: 'relative' }}>
           <Button
             type="submit"
             disabled={buttonDisabled}
             variant="contained"
-            color="error"
-            sx={{ mt: 1, mb: 1 }}
+            sx={{ mt: 3, mb: 1 }}
           >
-            Delete
+            Submit
           </Button>
           {isLoading && (
             <CircularProgress
@@ -250,4 +266,4 @@ const DeleteAnnouncementForm = () => {
   );
 };
 
-export default DeleteAnnouncementForm;
+export default CreateFaqForm;
