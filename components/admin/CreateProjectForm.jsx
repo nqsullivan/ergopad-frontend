@@ -150,7 +150,8 @@ const CreateProjectForm = () => {
     setOpenError(false);
     setLoading(true);
     const errorCheck = Object.values(formErrors).every((v) => v === false);
-    if (errorCheck) {
+    const emptyCheck = formData.bannerImgUrl !== '';
+    if (errorCheck && emptyCheck) {
       const defaultOptions = {
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem(
@@ -175,7 +176,7 @@ const CreateProjectForm = () => {
       let updateErrors = {};
       Object.entries(formData).forEach((entry) => {
         const [key, value] = entry;
-        if (value == '' && Object.hasOwnProperty.call(formErrors, key)) {
+        if (value === '' && Object.hasOwnProperty.call(formErrors, key)) {
           let newEntry = { [key]: true };
           updateErrors = { ...updateErrors, ...newEntry };
         }

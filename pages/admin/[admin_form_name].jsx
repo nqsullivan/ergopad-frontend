@@ -10,6 +10,12 @@ import EditUserForm from '@components/admin/EditUserForm';
 import CreateJobForm from '@components/admin/CreateJobForm';
 import EditJobForm from '@components/admin/EditJobForm';
 import DeleteJobForm from '@components/admin/DeleteJobForm';
+import CreateAnnouncementForm from '@components/admin/CreateAnnouncementForm';
+import EditAnnouncementForm from '@components/admin/EditAnnouncementForm';
+import DeleteAnnouncementForm from '@components/admin/DeleteAnnouncementForm';
+import CreateFaqForm from '@components/admin/CreateFaqForm';
+import EditFaqForm from '@components/admin/EditFaqForm';
+import DeleteFaqForm from '@components/admin/DeleteFaqForm';
 
 const AdminForm = () => {
   const JWT_TOKEN =
@@ -28,6 +34,12 @@ const AdminForm = () => {
     create_job: <CreateJobForm />,
     edit_job: <EditJobForm />,
     delete_job: <DeleteJobForm />,
+    create_announcement: <CreateAnnouncementForm />,
+    edit_announcement: <EditAnnouncementForm />,
+    delete_announcement: <DeleteAnnouncementForm />,
+    create_faq: <CreateFaqForm />,
+    edit_faq: <EditFaqForm />,
+    delete_faq: <DeleteFaqForm />,
   };
 
   useEffect(() => {
