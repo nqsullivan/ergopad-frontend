@@ -25,7 +25,7 @@ import DiscordIcon from '@components/DiscordIcon';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { styled } from '@mui/system';
-import theme from '../../styles/theme';
+import theme from '@styles/theme';
 
 const MarkdownList = styled(List)({
   listStyle: 'disc',
