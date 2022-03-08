@@ -9,32 +9,33 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-
-const announcements = [
-  {
-    id: 1,
-    title: 'Darkpool',
-    shortDescription:
-      'Stylized RPG where a lone Ergonaut must struggle to survive on a remote alien moon and get back to Earth. Dig, speculate, discover and harvest the mineral ERG for energy. Discover, befriend or defend against local fauna.',
-    bannerImgUrl:
-      'https://s3-alpha-sig.figma.com/img/05a4/1a67/b9bd6df71f1644ad453a5280e083ccda?Expires=1645401600&Signature=CH5hz87lU45uAJDgi4av6thvnhtAnD~zSqEyizih8WTWbm-icAPsJ1I6LxszwVLM-wEddkmcur8XGiygWCNpsugKjhVg-44-7GTftkmS8Zxv7bhG82YdWXZHQAoosGdf0NQckC9FJW8f8Zgk~6fZQCFfZxlYPnKl-tbH6o4fG6SD4~2Pc0vB8eWoPL18DuPhEzlnJfAovUzMcethq8-pVuYVJmqVTNCqIBQ2qEj8eedhlMOQ01Y41SOP1uUs-U34VF-beRG-aLlbDbkMYrk2gBJSCmEdSscv7gRuyqs9pidTt-ExoEgy0JWc4NeJT2KB3r23XNPGpyW323eZKPLpsQ__&Key-Pair-Id=APKAINTVSUGEWH5XD5UA',
-  },
-  {
-    id: 2,
-    title: 'Testing phase for Nautilus Wallet',
-    shortDescription:
-      'Great news! We’re pleased to announce that we were invited to the testing phase for Nautilus Wallet beta. Our Developers have successfully integrated Yoroi Wallet and Nautilus Wallet to the ergopad dAPP.',
-    bannerImgUrl:
-      'https://s3-alpha-sig.figma.com/img/cca6/4da2/715d0bf8e1d5a5bc1258c32af28bb826?Expires=1645401600&Signature=JRCK62AU-W4BjNfCNHN2ur2rhWD0udoEjCz3xqDb7jVCMn9nQ99IanuS~XanBxOyh0LWh~H1~8zP8vjcQ4o4~oBi3t~E5SmTFqscfMjutwe6NR3fOKtTOCk9miy-i7CPkAgomtrZlEUwGEE56ApweeJPvrv3TxOXYeI16dE0JCwHqLEmP1gZUxzlW68tGAPUyFQ1lg4RPaniCXZZhJr43ycJfE-G6mZBqhqxNWvd6wWAxcLsb5yxEolcn4It-QU3aPi3TqBnKNxmJ2yGWeRUvVskcl~E5alF~~SPUkaO~43ChQauCUfN9fwue~RtqEmMnRqASNTW1oxkHODCivE5uQ__&Key-Pair-Id=APKAINTVSUGEWH5XD5UA',
-  },
-];
+import axios from 'axios';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
 const Announcements = () => {
+  const router = useRouter();
   const mtheme = useTheme();
   const matches = useMediaQuery(mtheme.breakpoints.up('md'));
-  const annoucementCard = (annoucement) => {
+  const [announcements, setAnnouncements] = useState([]);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const res = await axios.get(`${process.env.API_URL}/announcements/`);
+        res.data.reverse();
+        setAnnouncements(res.data.slice(0, 2));
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getData();
+  }, []);
+
+  const annoucementCard = (announcement) => {
     return (
-      <Grid item xs={12} sm={6} md={6} key={annoucement.id}>
+      <Grid item xs={12} sm={6} md={6} key={announcement.id}>
         <Card
           sx={{
             display: 'flex',
@@ -46,12 +47,26 @@ const Announcements = () => {
             backgroundColor: 'transparent',
           }}
         >
-          <CardActionArea>
+          <CardActionArea
+            onClick={() =>
+              router.push(
+                '/announcements/' +
+                  announcement.title
+                    .toLowerCase()
+                    .replaceAll(' ', '_')
+                    .replaceAll(/[^a-zA-Z0-9_]/g, '')
+              )
+            }
+          >
             <CardMedia
               component="img"
               alt=""
               height={matches ? '300' : '200'}
-              image={annoucement.bannerImgUrl}
+              image={
+                announcement.bannerImgUrl === ''
+                  ? '/announcement-default.png'
+                  : announcement.bannerImgUrl
+              }
             />
             <CardContent>
               <Typography
@@ -60,10 +75,10 @@ const Announcements = () => {
                 component="div"
                 sx={{ my: 3 }}
               >
-                {annoucement.title}
+                {announcement.title}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {annoucement.shortDescription}
+                {announcement.shortDescription}
               </Typography>
             </CardContent>
           </CardActionArea>
