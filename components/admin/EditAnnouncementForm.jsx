@@ -32,7 +32,6 @@ const initialFormData = Object.freeze({
 const initialFormErrors = Object.freeze({
   title: false,
   shortDescription: false,
-  bannerImgUrl: false,
 });
 
 const EditAnnouncementForm = () => {
@@ -140,7 +139,6 @@ const EditAnnouncementForm = () => {
   const handleImageUpload = (res) => {
     if (res.status === 'success') {
       updateFormData({ ...formData, bannerImgUrl: res.image_url });
-      setFormErrors({ ...formErrors, bannerImgUrl: false });
     } else {
       setErrorMessage('Image upload failed');
       setOpenError(true);
@@ -152,8 +150,7 @@ const EditAnnouncementForm = () => {
     setOpenError(false);
     setLoading(true);
     const errorCheck = Object.values(formErrors).every((v) => v === false);
-    const emptyCheck = formData.bannerImgUrl !== '';
-    if (errorCheck && emptyCheck) {
+    if (errorCheck) {
       const id = formData.id;
       const defaultOptions = {
         headers: {
@@ -290,7 +287,6 @@ const EditAnnouncementForm = () => {
         <Grid item xs={12} sx={{ mt: 2 }}>
           <TextField
             InputProps={{ disableUnderline: true }}
-            required
             disabled
             fullWidth
             id="bannerImgUrl"
@@ -299,8 +295,6 @@ const EditAnnouncementForm = () => {
             variant="filled"
             value={formData.bannerImgUrl}
             onChange={handleChange}
-            error={formErrors.bannerImgUrl}
-            helperText={formErrors.bannerImgUrl && 'Banner image is required'}
           />
         </Grid>
         <Box sx={{ position: 'relative', my: 2 }}>
