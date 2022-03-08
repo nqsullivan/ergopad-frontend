@@ -11,7 +11,8 @@ import {
     AccordionSummary,
     AccordionDetails,
     ListItemIcon,
-    Icon
+    Icon,
+    Paper
  } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useState } from 'react';
@@ -19,7 +20,8 @@ import { VictoryContainer, VictoryPie } from 'victory';
 import CenterTitle from '@components/CenterTitle';
 import RelatedLinks from '@components/RelatedLinks/RelatedLinks';
 import theme from '../styles/theme';
-import MuiNextLink from '@components/MuiNextLink'
+import MuiNextLink from '@components/MuiNextLink';
+import PriceChart from '@components/token/PriceChart';
 
 const relatedLinkList = [
     { 
@@ -116,6 +118,12 @@ const gridBox = {
     borderColor: 'rgba(46,46,51,1)'
 }
 
+const paperStyle = {
+    p: 3,
+    borderRadius: 2,
+    height: '100%',
+  };
+
 const Token = () => {
     const [expanded, setExpanded] = useState(false);
 
@@ -131,7 +139,6 @@ const Token = () => {
                 subtitle="For Ergo projects, are tokenomics called Ergonomics? "
                 main={true}
             />
-
 
                     <Grid container 
                         spacing={3} 
@@ -158,8 +165,21 @@ const Token = () => {
 
         </Container>
 
-        
+        <Container maxWidth='lg' sx={{ }}>
 
+            <Divider sx={{ my: 10 }} />
+            <CenterTitle 
+                title="Price Chart" 
+                subtitle="Average prices from ErgoDex trading pairs"
+            />
+
+            <Grid item xs={12} md={12}>
+                <Paper sx={paperStyle}>
+                    <PriceChart />
+                </Paper>
+            </Grid>
+
+        </Container>
         
             <Container maxWidth='lg' sx={{ }}>
 
