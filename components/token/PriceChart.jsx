@@ -44,8 +44,8 @@ const stepUnitMapper = {
 };
 
 const pairBaseCurrencyMapper = {
-  ergopad_sigusd: '$',
-  ergopad_erg: 'erg',
+  ergopad_sigusd: ' SigUSD',
+  ergopad_erg: ' Erg',
 };
 
 const initHistoryData = {
@@ -110,7 +110,7 @@ const PriceChart = () => {
   return (
     <>
       <Typography variant="h4">
-        $ERGOPAD: {lastPrice}
+        1 Ergopad = {lastPrice}
         {pairBaseCurrencyMapper[pair]}
       </Typography>
       <Grid>
@@ -122,6 +122,7 @@ const PriceChart = () => {
               exclusive
               onChange={handlePairChange}
               sx={{ mb: 2, mt: 0 }}
+              size="small"
             >
               <ToggleButton value="ergopad_sigusd">SigUSD</ToggleButton>
               <ToggleButton value="ergopad_erg">Erg</ToggleButton>
@@ -142,6 +143,7 @@ const PriceChart = () => {
               exclusive
               onChange={handleStepChange}
               sx={{ mb: 2, mt: 0 }}
+              size="small"
             >
               <ToggleButton value="1h">1 hour</ToggleButton>
               <ToggleButton value="4h">4 hours</ToggleButton>
@@ -182,7 +184,7 @@ const PriceChart = () => {
           <VictoryAxis
             dependentAxis
             tickFormat={(price) => {
-              return price + pairBaseCurrencyMapper[pair];
+              return price;
             }}
             style={{
               axis: { stroke: 'white' },
@@ -195,7 +197,9 @@ const PriceChart = () => {
             crossAxis
             invertAxis
             tickFormat={(timestamp) => {
-              return new Date(Date.parse(timestamp)).toDateString();
+              let theDate = new Date(Date.parse(timestamp));
+              let parseDate = theDate.getMonth() + '/' + theDate.getDate();
+              return parseDate;
             }}
             style={{
               axis: { stroke: 'white' },

@@ -1,4 +1,5 @@
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
+import MuiNextLink from '@components/MuiNextLink'
 // import theme from '@styles/theme';
 
 const gridBox = {
@@ -43,6 +44,7 @@ const StakingRewardsBox = (props) => {
               '-'
             )}
           </Typography>
+          
           {/* <Typography>Rewards</Typography>
           <Typography variant="h3" sx={{ mb: 3 }}>
             -
@@ -83,7 +85,11 @@ const StakingRewardsBox = (props) => {
             </Button>
           </Box> */}
         </Box>
+        
       </Box>
+      <Typography variant="p" sx={{ fontSize: '0.9rem', mb: 0, p: 2, pb: 0 }}>
+              Note: This only display tokens in your primary connected address. To see all staked tokens across all connected addresses in this wallet, see <MuiNextLink href="/dashboard">Dashboard</MuiNextLink>. 
+      </Typography>
     </>
   );
 };
