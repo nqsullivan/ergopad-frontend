@@ -6,12 +6,7 @@ import {
   Divider,
   Box,
   Grid,
-  List,
-  ListItem,
 } from '@mui/material';
-import MuiNextLink from '@components/MuiNextLink';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import CircularProgress from '@mui/material/CircularProgress';
 import Link from '@components/MuiNextLink';
 import CenterTitle from '@components/CenterTitle';
@@ -24,21 +19,7 @@ import CopyToClipboard from '@components/CopyToClipboard';
 import DiscordIcon from '@components/DiscordIcon';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { styled } from '@mui/system';
-import theme from '../../styles/theme';
-
-const MarkdownList = styled(List)({
-  listStyle: 'disc',
-  listStylePosition: 'inside',
-  padding: 0,
-  marginBottom: '2rem',
-});
-
-const MarkdownListItem = styled(ListItem)({
-  display: 'list-item',
-  color: theme.palette.text.secondary,
-  paddingTop: 0,
-});
+import MarkdownRender from '@components/MarkdownRender';
 
 const Project = () => {
   const router = useRouter();
@@ -61,31 +42,6 @@ const Project = () => {
 
     if (project_id) getProject();
   }, [project_id]);
-
-  const MultilineProjectDescription = ({ description }) => {
-    return (
-      <ReactMarkdown
-        components={{
-          h1: ({ node, ...props }) => <Typography variant="h4" {...props} />,
-          h2: ({ node, ...props }) => <Typography variant="h5" {...props} />,
-          h3: ({ node, ...props }) => (
-            <Typography
-              variant="h6"
-              sx={{ marginBottom: '0.2rem' }}
-              {...props}
-            />
-          ),
-          p: ({ node, ...props }) => <Typography variant="p" {...props} />,
-          ul: ({ node, ...props }) => <MarkdownList {...props} />,
-          li: ({ node, ...props }) => <MarkdownListItem {...props} />,
-          a: ({ node, ...props }) => <MuiNextLink {...props} />,
-        }}
-        remarkPlugins={[remarkGfm]}
-      >
-        {description}
-      </ReactMarkdown>
-    );
-  };
 
   return (
     <>
@@ -123,9 +79,7 @@ const Project = () => {
                   <Typography variant="h4" sx={{ mt: '2rem' }}>
                     Description
                   </Typography>
-                  <MultilineProjectDescription
-                    description={project.description}
-                  />
+                  <MarkdownRender description={project.description} />
                 </>
               )}
               {/* <Typography variant="h4">Meet the team</Typography>

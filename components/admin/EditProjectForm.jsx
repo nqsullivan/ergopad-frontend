@@ -27,7 +27,7 @@ const Alert = forwardRef(function Alert(props, ref) {
 const socials = ['telegram', 'discord', 'github', 'twitter', 'website'];
 
 const initialFormData = Object.freeze({
-  url: '',
+  id: '',
   name: '',
   shortDescription: '',
   description: '',
@@ -163,11 +163,14 @@ const EditProjectForm = () => {
     setLoading(true);
     setOpenError(false);
     try {
-      const projectId = formData.url;
-      const res = await axios.get(
-        `${process.env.API_URL}/projects/${projectId}`
-      );
-      updateFormData({ url: projectId, ...res.data });
+      const projectId = formData.id;
+      if (projectId) {
+        const res = await axios.get(
+          `${process.env.API_URL}/projects/${projectId}`
+        );
+        updateFormData({ ...res.data });
+        setFormErrors(initialFormErrors);
+      }
     } catch (e) {
       setErrorMessage('Project not found');
       setOpenError(true);
@@ -190,8 +193,9 @@ const EditProjectForm = () => {
     setOpenError(false);
     setLoading(true);
     const errorCheck = Object.values(formErrors).every((v) => v === false);
-    if (errorCheck) {
-      const projectId = formData.url;
+    const emptyCheck = formData.bannerImgUrl !== '';
+    if (errorCheck && emptyCheck) {
+      const projectId = formData.id;
       const defaultOptions = {
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem(
@@ -216,7 +220,7 @@ const EditProjectForm = () => {
       let updateErrors = {};
       Object.entries(formData).forEach((entry) => {
         const [key, value] = entry;
-        if (value == '' && Object.hasOwnProperty.call(formErrors, key)) {
+        if (value === '' && Object.hasOwnProperty.call(formErrors, key)) {
           let newEntry = { [key]: true };
           updateErrors = { ...updateErrors, ...newEntry };
         }
@@ -246,11 +250,11 @@ const EditProjectForm = () => {
             InputProps={{ disableUnderline: true }}
             required
             fullWidth
-            id="url"
+            id="id"
             label="Project Id"
-            name="url"
+            name="id"
             variant="filled"
-            value={formData.url}
+            value={formData.id}
             onChange={handleChange}
           />
           <Accordion sx={{ mt: 1 }}>
@@ -261,7 +265,7 @@ const EditProjectForm = () => {
               <PaginatedTable
                 rows={projectData}
                 onClick={(id) => {
-                  updateFormData({ ...formData, url: id });
+                  updateFormData({ ...formData, id: id });
                 }}
               />
             </AccordionDetails>

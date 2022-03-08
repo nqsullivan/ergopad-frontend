@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Container, Typography, Divider } from '@mui/material';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import CircularProgress from '@mui/material/CircularProgress';
+import { CircularProgress } from '@mui/material';
+import MuiNextLink from '@components/MuiNextLink';
 import CenterTitle from '@components/CenterTitle';
 import axios from 'axios';
+import MarkdownRender from '@components/MarkdownRender';
 
 const Job = () => {
   const router = useRouter();
@@ -26,22 +26,6 @@ const Job = () => {
 
     if (job_id) getJobDetails();
   }, [job_id]);
-
-  const MultilineJobDescription = ({ description }) => {
-    return (
-      <ReactMarkdown
-        components={{
-          h1: ({ node, ...props }) => <Typography variant="h4" {...props} />,
-          h2: ({ node, ...props }) => <Typography variant="h5" {...props} />,
-          h3: ({ node, ...props }) => <Typography variant="h6" {...props} />,
-          p: ({ node, ...props }) => <Typography variant="p" {...props} />,
-        }}
-        remarkPlugins={[remarkGfm]}
-      >
-        {description}
-      </ReactMarkdown>
-    );
-  };
 
   return (
     <>
@@ -77,14 +61,22 @@ const Job = () => {
                   <Typography variant="h4" sx={{ mt: '2rem' }}>
                     Description
                   </Typography>
-                  <MultilineJobDescription description={job.description} />
+                  <MarkdownRender description={job.description} />
                 </>
               )}
               <Typography variant="h4" sx={{ mt: '2rem' }}>
                 Apply
               </Typography>
               <Typography variant="p">
-                Placeholder How to Apply? text.
+                Join the{' '}
+                <MuiNextLink
+                  href="https://discord.gg/Ph9Wsw6v"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  #development
+                </MuiNextLink>{' '}
+                channel today.
               </Typography>
             </Container>
           )}

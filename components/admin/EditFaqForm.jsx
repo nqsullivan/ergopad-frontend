@@ -3,16 +3,17 @@ import {
   Box,
   Typography,
   TextField,
-  FormControlLabel,
-  Checkbox,
   Button,
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { forwardRef } from 'react';
 import { useEffect, useState } from 'react';
-import theme from '@styles/theme';
 import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
 import Snackbar from '@mui/material/Snackbar';
@@ -23,25 +24,22 @@ const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+const tags = ['Default', 'Token', 'Staking', 'Company'];
+
 const initialFormData = Object.freeze({
   id: '',
-  title: '',
-  shortDescription: '',
-  description: '',
-  category: '',
-  archived: false,
+  question: '',
+  solution: '',
+  tag: 'default',
 });
 
 const initialFormErrors = Object.freeze({
-  id: false,
-  name: false,
-  shortDescription: false,
-  category: false,
+  question: false,
 });
 
-const EditJobForm = () => {
-  // job data
-  const [jobData, setJobData] = useState([]);
+const EditFaqForm = () => {
+  // faq data
+  const [faqData, setFaqData] = useState([]);
   // form data is all strings
   const [formData, updateFormData] = useState(initialFormData);
   // form error object, all booleans
@@ -71,9 +69,9 @@ const EditJobForm = () => {
     const getTableData = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${process.env.API_URL}/jobs/`);
+        const res = await axios.get(`${process.env.API_URL}/faq/`);
         res.data.sort((a, b) => a.id - b.id);
-        setJobData(res.data);
+        setFaqData(res.data);
       } catch (e) {
         console.log(e);
       }
@@ -114,10 +112,10 @@ const EditJobForm = () => {
         [e.target.name]: false,
       });
     }
+
     updateFormData({
       ...formData,
-      [e.target.name]:
-        e.target.name === 'archived' ? e.target.checked : e.target.value,
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -125,15 +123,14 @@ const EditJobForm = () => {
     e.preventDefault();
     setLoading(true);
     setOpenError(false);
-    try {
-      const jobId = formData.id;
-      if (jobId) {
-        const res = await axios.get(`${process.env.API_URL}/jobs/${jobId}`);
-        updateFormData({ ...res.data });
-        setFormErrors(initialFormErrors);
-      }
-    } catch (e) {
-      setErrorMessage('Job listing not found');
+    const id = formData.id;
+    const res = faqData.filter((faq) => faq.id === id);
+    if (id && res.length) {
+      const data = res[0];
+      updateFormData({ ...data });
+      setFormErrors(initialFormErrors);
+    } else {
+      setErrorMessage('FAQ not found');
       setOpenError(true);
     }
     setLoading(false);
@@ -145,6 +142,7 @@ const EditJobForm = () => {
     setLoading(true);
     const errorCheck = Object.values(formErrors).every((v) => v === false);
     if (errorCheck) {
+      const id = formData.id;
       const defaultOptions = {
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem(
@@ -155,7 +153,7 @@ const EditJobForm = () => {
       const data = { ...formData };
       try {
         await axios.put(
-          `${process.env.API_URL}/jobs/${formData.id}`,
+          `${process.env.API_URL}/faq/${id}`,
           data,
           defaultOptions
         );
@@ -169,7 +167,7 @@ const EditJobForm = () => {
       let updateErrors = {};
       Object.entries(formData).forEach((entry) => {
         const [key, value] = entry;
-        if (value == '' && Object.hasOwnProperty.call(formErrors, key)) {
+        if (value === '' && Object.hasOwnProperty.call(formErrors, key)) {
           let newEntry = { [key]: true };
           updateErrors = { ...updateErrors, ...newEntry };
         }
@@ -187,20 +185,20 @@ const EditJobForm = () => {
   return (
     <>
       <Box component="form" onSubmit={handleSubmit}>
-        <Typography variant="h4" sx={{ mt: 10, mb: 4, fontWeight: '700' }}>
-          Edit Job Listing
+        <Typography variant="h4" sx={{ mt: 10, mb: 2, fontWeight: '700' }}>
+          Edit FAQ
         </Typography>
         <Grid container spacing={2} />
         <Grid item xs={12}>
           <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
-            Enter job id manually or select a job listing from the table below.
+            Enter FAQ id manually or select one from the table below.
           </Typography>
           <TextField
             InputProps={{ disableUnderline: true }}
             required
             fullWidth
             id="id"
-            label="Job Id"
+            label="FAQ Id"
             name="id"
             variant="filled"
             value={formData.id}
@@ -208,11 +206,13 @@ const EditJobForm = () => {
           />
           <Accordion sx={{ mt: 1 }}>
             <AccordionSummary>
-              <strong>Expand to see job listings</strong>
+              <strong>Expand to see FAQs</strong>
             </AccordionSummary>
             <AccordionDetails>
               <PaginatedTable
-                rows={jobData}
+                rows={faqData.map((faq) => {
+                  return { ...faq, name: faq.question };
+                })}
                 onClick={(id) => {
                   updateFormData({ ...formData, id: id });
                 }}
@@ -227,7 +227,7 @@ const EditJobForm = () => {
             variant="contained"
             sx={{ mt: 1, mb: 2 }}
           >
-            Fetch Job Details
+            Fetch FAQ Details
           </Button>
           {isLoading && (
             <CircularProgress
@@ -243,90 +243,80 @@ const EditJobForm = () => {
           )}
         </Box>
         <Grid item xs={12}>
-          <TextField
-            InputProps={{ disableUnderline: true }}
-            required
-            fullWidth
-            id="title"
-            label="Job Title"
-            name="title"
-            variant="filled"
-            value={formData.title}
-            onChange={handleChange}
-            error={formErrors.title}
-            helperText={formErrors.title && 'Enter the job title'}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
-            A short summary for the job opening.
+          <Typography color="text.secondary" sx={{ mb: 1 }}>
+            The frequently asked question.
           </Typography>
           <TextField
             InputProps={{ disableUnderline: true }}
             required
             fullWidth
-            id="shortDescription"
-            label="Job Short Description"
-            name="shortDescription"
+            id="question"
+            label="Question"
+            name="question"
             variant="filled"
-            value={formData.shortDescription}
+            value={formData.question}
             onChange={handleChange}
-            error={formErrors.shortDescription}
-            helperText={formErrors.shortDescription && 'Enter the job summary'}
+            error={formErrors.question}
+            helperText={
+              formErrors.question && 'Enter the question to be answered'
+            }
           />
         </Grid>
         <Grid item xs={12}>
           <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
-            Detailed description and Job deliverables (markdown supported).
+            Answer to the question above.
           </Typography>
           <TextField
             InputProps={{ disableUnderline: true }}
             fullWidth
             multiline
-            id="description"
-            label="Job Description"
-            name="description"
+            id="solution"
+            label="Solution"
+            name="solution"
             variant="filled"
-            value={formData.description}
+            value={formData.solution}
             onChange={handleChange}
             rows={6}
           />
         </Grid>
-        <Grid item xs={12} sx={{ mt: 1 }}>
-          <TextField
-            InputProps={{ disableUnderline: true }}
-            required
-            fullWidth
-            id="category"
-            label="Category Tag"
-            name="category"
-            variant="filled"
-            value={formData.category}
-            onChange={handleChange}
-            error={formErrors.category}
-            helperText={
-              formErrors.category &&
-              'Enter a helpful job tag (development or marketing etc)'
-            }
-          />
-        </Grid>
-        <FormControlLabel
-          control={
-            <Checkbox
-              name="archived"
-              checked={formData.archived ?? 0}
+        <Grid item xs={12}>
+          <Typography color="text.secondary" sx={{ mt: 2, mb: 1 }}>
+            Select tag
+          </Typography>
+          <FormControl variant="filled" sx={{ minWidth: 120 }}>
+            <InputLabel id="tag-select">Tag</InputLabel>
+            <Select
+              labelId="tag-select"
+              id="tag"
+              name="tag"
+              value={formData.tag}
               onChange={handleChange}
-            />
-          }
-          label="Archived?"
-          sx={{ color: theme.palette.text.secondary, mb: 3 }}
-        />
+            >
+              {tags.map((tag) => {
+                return (
+                  <MenuItem
+                    sx={{
+                      borderRadius: '5px',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      },
+                    }}
+                    key={tag.toLowerCase()}
+                    value={tag.toLowerCase()}
+                  >
+                    {tag}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        </Grid>
         <Box sx={{ position: 'relative' }}>
           <Button
             type="submit"
             disabled={buttonDisabled}
             variant="contained"
-            sx={{ mt: 1, mb: 1 }}
+            sx={{ mt: 3, mb: 1 }}
           >
             Submit
           </Button>
@@ -374,4 +364,4 @@ const EditJobForm = () => {
   );
 };
 
-export default EditJobForm;
+export default EditFaqForm;

@@ -18,7 +18,6 @@ import VestingTable from '@components/dashboard/VestingTable';
 import StakingTable from '@components/dashboard/StakingTable';
 import StackedAreaPortfolioHistory from '@components/dashboard/StackedAreaPortfolioHistory';
 import PieChart from '@components/dashboard/PieChart';
-import PriceChart from '@components/dashboard/PriceChart';
 
 // CONFIG for portfolio history
 // step size
@@ -421,11 +420,6 @@ const Dashboard = () => {
       />
       <Container maxWidth="lg" sx={{ mx: 'auto' }}>
         <Grid container spacing={3} alignItems="stretch" sx={{ pt: 4 }}>
-          <Grid item xs={12} md={12}>
-            <Paper sx={paperStyle}>
-              <PriceChart />
-            </Paper>
-          </Grid>
           <Grid item xs={12} md={6}>
             <Paper sx={paperStyle}>
               <Typography variant="h4">Wallet Holdings</Typography>

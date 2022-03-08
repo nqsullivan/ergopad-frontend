@@ -55,7 +55,7 @@ const Sidenav = () => {
               router.push('/admin/edit_user');
             }}
           >
-            <ListItemText primary="Edit Users" />
+            <ListItemText primary="Edit User" />
           </ListItem>
           <ListItem
             button
@@ -65,6 +65,40 @@ const Sidenav = () => {
             }}
           >
             <ListItemText primary="Delete Users" />
+          </ListItem>
+        </List>
+      </Box>
+      <Box sx={{ mr: { md: 12, xs: 0 }, mt: { md: 0, xs: 4 } }}>
+        <Typography variant="h4" sx={{ fontWeight: '700', lineHeight: '1.2' }}>
+          Announcements
+        </Typography>
+        <List>
+          <ListItem
+            button
+            sx={{ ...listItemSx }}
+            onClick={() => {
+              router.push('/admin/create_announcement');
+            }}
+          >
+            <ListItemText primary="Create Announcements" />
+          </ListItem>
+          <ListItem
+            button
+            sx={{ ...listItemSx }}
+            onClick={() => {
+              router.push('/admin/edit_announcement');
+            }}
+          >
+            <ListItemText primary="Edit Announcements" />
+          </ListItem>
+          <ListItem
+            button
+            sx={{ mb: 2, ...listItemSx }}
+            onClick={() => {
+              router.push('/admin/delete_announcement');
+            }}
+          >
+            <ListItemText primary="Delete Announcements" />
           </ListItem>
         </List>
       </Box>
@@ -133,6 +167,40 @@ const Sidenav = () => {
             }}
           >
             <ListItemText primary="Delete Job Listings" />
+          </ListItem>
+        </List>
+      </Box>
+      <Box sx={{ mr: { md: 12, xs: 0 }, mt: { md: 0, xs: 4 } }}>
+        <Typography variant="h4" sx={{ fontWeight: '700', lineHeight: '1.2' }}>
+          FAQ Section
+        </Typography>
+        <List>
+          <ListItem
+            button
+            sx={{ ...listItemSx }}
+            onClick={() => {
+              router.push('/admin/create_faq');
+            }}
+          >
+            <ListItemText primary="Add FAQs" />
+          </ListItem>
+          <ListItem
+            button
+            sx={{ ...listItemSx }}
+            onClick={() => {
+              router.push('/admin/edit_faq');
+            }}
+          >
+            <ListItemText primary="Edit FAQs" />
+          </ListItem>
+          <ListItem
+            button
+            sx={{ mb: 2, ...listItemSx }}
+            onClick={() => {
+              router.push('/admin/delete_faq');
+            }}
+          >
+            <ListItemText primary="Delete FAQs" />
           </ListItem>
         </List>
       </Box>

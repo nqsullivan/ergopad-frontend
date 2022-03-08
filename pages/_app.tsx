@@ -34,7 +34,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 		<CacheProvider value={emotionCache}>
 			<Head>
 				<title>ErgoPad</title>
-				<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+				<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes" />
 			</Head>
 			{/* MUI Theme Provider */}
 			<ThemeProvider theme={theme}>
