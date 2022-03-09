@@ -198,7 +198,7 @@ const PriceChart = () => {
             invertAxis
             tickFormat={(timestamp) => {
               let theDate = new Date(Date.parse(timestamp));
-              let parseDate = theDate.getMonth() + '/' + theDate.getDate();
+              let parseDate = (theDate.getMonth() + 1) + '/' + theDate.getDate();
               return parseDate;
             }}
             style={{
