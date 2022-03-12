@@ -2,6 +2,7 @@ import { Grid, Typography, Button, Box } from '@mui/material';
 import LowerGradients from '@components/stylistic/LowerGradients';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import DiscordIcon from '@components/DiscordIcon';
+import QqIcon from '@components/QqIcon';
 import theme from '@styles/theme';
 import Image from 'next/image';
 
@@ -27,11 +28,11 @@ const Hero = ({ title, subtitle }) => {
           <Typography variant="h1">{title}</Typography>
           <Typography variant="subtitle1">{subtitle}</Typography>
           <Typography variant="subtitle1">
-            Follow our announcement channels to receive updates and be the first
-            to invest in the ErgoPad token IDO and new projects:
+            Join our communities:
           </Typography>
-          <Box sx={{ my: '3rem' }}>
-            <a href="http://t.me/ergopad" target="_blank" rel="noreferrer">
+
+          <Box sx={{ my: '1rem' }}>
+            <a href="http://t.me/ergopad_chat" target="_blank" rel="noreferrer">
               <Button
                 startIcon={<TelegramIcon />}
                 variant="contained"
@@ -40,7 +41,7 @@ const Hero = ({ title, subtitle }) => {
                   fontSize: '1rem',
                   py: '0.6rem',
                   px: '1.2rem',
-                  mr: '1.7rem',
+                  m: '0.7rem',
                   textTransform: 'none',
                   backgroundColor: theme.palette.primary.main,
                   '&:hover': {
@@ -68,6 +69,7 @@ const Hero = ({ title, subtitle }) => {
                   fontSize: '1rem',
                   py: '0.6rem',
                   px: '1.2rem',
+                  m: '0.7rem',
                   textTransform: 'none',
                   backgroundColor: theme.palette.secondary.main,
                   '&:hover': {
@@ -80,6 +82,62 @@ const Hero = ({ title, subtitle }) => {
                 }}
               >
                 Discord
+              </Button>
+            </a>
+            <a
+              href="https://jq.qq.com/?_wv=1027&k=PoOW9H0T"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button
+                startIcon={<QqIcon />}
+                variant="contained"
+                sx={{
+                  color: '#fff',
+                  fontSize: '1rem',
+                  py: '0.6rem',
+                  px: '1.2rem',
+                  m: '0.7rem',
+                  textTransform: 'none',
+                  backgroundColor: theme.palette.tertiary.main,
+                  '&:hover': {
+                    backgroundColor: theme.palette.tertiary.hover,
+                    boxShadow: 'none',
+                  },
+                  '&:active': {
+                    backgroundColor: theme.palette.tertiary.active,
+                  },
+                }}
+              >
+                中文 QQ
+              </Button>
+            </a>
+            <a
+              href="https://t.me/+yN8QD_adXQ9mNTk1"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button
+                startIcon={<TelegramIcon />}
+                variant="contained"
+                sx={{
+                  color: '#fff',
+                  fontSize: '1rem',
+                  py: '0.6rem',
+                  px: '1.2rem',
+                  m: '0.7rem',
+                  textTransform: 'none',
+                  backgroundColor: theme.palette.primary.main,
+                  '&:hover': {
+                    backgroundColor: theme.palette.primary.hover,
+                    boxShadow: 'none',
+                  },
+                  '&:active': {
+                    backgroundColor: theme.palette.primary.active,
+                  },
+                }}
+              >
+                中文 Telegram
               </Button>
             </a>
           </Box>
