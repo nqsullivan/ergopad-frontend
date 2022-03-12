@@ -89,7 +89,7 @@ const Announcements = () => {
 
   return (
     <>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
         <Box
           sx={{
             textAlign: 'center',
