@@ -449,12 +449,15 @@ const Staking = () => {
                   These fees are in place to prevent someone from staking right
                   before a tier snapshot, then unstaking immediately after.
                   Unstaking fees are burned and will no longer be in
-                  ciruclation, reducing the total supply of Ergopad tokens.
+                  circulation, reducing the total supply of Ergopad tokens.
+                </Typography>
+                <Typography variant="p">
+                  Note: Please stake a minimum of 10 ergopad tokens, fewer will not work. 
                 </Typography>
                 <Typography variant="h4">Terms &amp; Conditions</Typography>
                 <Typography variant="p">
                   By using this website to stake tokens on the Ergo blockchain,
-                  you accept that your are interacting with a smart contract
+                  you accept that you are interacting with a smart contract
                   that this website has no control over. The operators of this
                   website accept no liability whatsoever in relation to your use
                   of these smart contracts. By using this website to stake, you

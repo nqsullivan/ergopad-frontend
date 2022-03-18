@@ -8,3 +8,4 @@ pages/whitelist.json
 pages/dashboardrechart.jsx
 /.pnp
 .pnp.js
+.eslintrc.json
