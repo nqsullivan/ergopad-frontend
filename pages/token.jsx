@@ -15,13 +15,17 @@ import {
     Paper
  } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { VictoryContainer, VictoryPie } from 'victory';
 import CenterTitle from '@components/CenterTitle';
 import RelatedLinks from '@components/RelatedLinks/RelatedLinks';
 import theme from '../styles/theme';
 import MuiNextLink from '@components/MuiNextLink';
 import PriceChart from '@components/token/PriceChart';
+import axios from 'axios';
+
+const TOKEN_ID =
+  'd71693c49a84fbbecd4908c94813b46514b18b67a99952dc1e6e4791556de413';
 
 const relatedLinkList = [
     { 
@@ -78,33 +82,6 @@ const tokenAllocation = [
     },
 ]
 
-const tokenCards = [
-    {
-        title: 'Token Name:',
-        desc: 'ErgoPad'
-    },
-    {
-        title: 'Blockchain:',
-        desc: 'Ergo'
-    },
-    {
-        title: 'Initial Available Supply:',
-        desc: '20M'
-    },
-    {
-        title: 'Market Cap at IDO:',
-        desc: '800k SigUSD'
-    },
-    {
-        title: 'IDO Price:',
-        desc: '0.04 SigUSD'
-    },
-    {
-        title: 'Total Available Supply:',
-        desc: '400M'
-    },
-]
-
 const gridBox = {
     background: 'rgba(35, 35, 39, 0.7)',
     display: 'flex',
@@ -122,14 +99,63 @@ const paperStyle = {
     p: 3,
     borderRadius: 2,
     height: '100%',
-  };
+};
 
 const Token = () => {
     const [expanded, setExpanded] = useState(false);
+    const [initialErgopadSupply, setInitialErgopadSupply] = useState('Loading...');
+    const [currentErgopadSupply, setCurrentErgopadSupply] = useState('Loading...');
+    const [ergopadBurned, setErgopadBurned] = useState('Loading...');
+    const [ergopadInCirculation, setErgopadInCirculation] = useState('Loading...');
 
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
     };
+
+    useEffect(() => {
+        const initualSupply = 400000000.0
+
+        axios.get(`${process.env.API_URL}/blockchain/totalSupply/${TOKEN_ID}`)
+            .then((res) => {
+                setCurrentErgopadSupply((res.data).toLocaleString(window.navigator.language, { maximumFractionDigits: 0 }))
+                setErgopadBurned((initualSupply - res.data).toLocaleString(window.navigator.language, { maximumFractionDigits: 0 }))
+            });
+          
+        axios.get(`${process.env.API_URL}/blockchain/ergopadInCirculation`)
+            .then((res) => {
+                setErgopadInCirculation((res.data).toLocaleString(window.navigator.language, { maximumFractionDigits: 0 }))
+            });
+        
+        setInitialErgopadSupply(initualSupply.toLocaleString(window.navigator.language, { maximumFractionDigits: 0 }))
+    }, [])
+
+    const tokenCards = [
+        {
+            title: 'Token Name:',
+            desc: 'ErgoPad'
+        },
+        {
+            title: 'Blockchain:',
+            desc: 'Ergo'
+        },
+        {
+            title: 'Initial Total Supply:',
+            desc: initialErgopadSupply
+        },
+        {
+            title: 'Current Total Supply:',
+            desc: currentErgopadSupply
+        },
+        {
+            title: 'Ergopad Burned:',
+            desc: ergopadBurned
+        },
+        {
+            title: 'Ergopad in Circulation:',
+            desc: ergopadInCirculation
+        },
+    ]
+    
 
   return (
     <>
