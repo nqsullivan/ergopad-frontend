@@ -139,15 +139,15 @@ const Token = () => {
         },
         {
             title: 'Current Total Supply:',
-            desc: currentErgopadSupply.toLocaleString(navigator.language, { maximumFractionDigits: 0 })
+            desc: currentErgopadSupply.toLocaleString({ maximumFractionDigits: 0 })
         },
         {
             title: 'Ergopad Burned:',
-            desc: ergopadBurned.toLocaleString(navigator.language, { maximumFractionDigits: 0 })
+            desc: ergopadBurned.toLocaleString({ maximumFractionDigits: 0 })
         },
         {
             title: 'Ergopad in Circulation:',
-            desc: ergopadInCirculation.toLocaleString(navigator.language, { maximumFractionDigits: 0 })
+            desc: ergopadInCirculation.toLocaleString({ maximumFractionDigits: 0 })
         },
     ]
 
