@@ -252,7 +252,7 @@ const Dashboard = () => {
 
         try {
           const res = await axios.get(
-            `${process.env.API_URL}/asset/price/history/all?stepSize=${STEP_SIZE}&stepUnit=${STEP_UNIT}&limit=6`,
+            `${process.env.API_URL}/asset/price/history/all?stepSize=${STEP_SIZE}&stepUnit=${STEP_UNIT}&limit=12`,
             { ...defaultOptions }
           );
           const priceHistory = res.data;
