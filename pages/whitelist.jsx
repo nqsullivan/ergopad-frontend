@@ -551,8 +551,8 @@ const Whitelist = () => {
               <Button
                 type="submit"
                 fullWidth
-                disabled={buttonDisabled}
-                // disabled={true}
+                // disabled={buttonDisabled}
+                disabled={true}
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
               >
@@ -581,7 +581,7 @@ const Whitelist = () => {
             </Typography>
             <Typography sx={{ color: theme.palette.text.secondary }}>
               {whitelistState === NOT_STARTED &&
-                'This form is not yet active. Please check back later.'}
+                'This event is complete. The whitelist & waitlist will be shared shortly. '}
             </Typography>
             <Snackbar
               open={openError}
