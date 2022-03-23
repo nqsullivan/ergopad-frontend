@@ -643,7 +643,7 @@ const Staking = () => {
                     type="ergoAddress"
                     sx={{
                       width: '100%',
-                      border: '1px solid rgba(82,82,90,1)',
+                      border: '1px solid #F53F3F',
                       borderRadius: '4px',
                     }}
                   />
@@ -680,6 +680,31 @@ const Staking = () => {
                       size={'1.2rem'}
                     />
                   )}
+                </Button>
+                <Button
+                    variant="contained"
+                    sx={{
+                      color: '#fff',
+                      fontSize: '1rem',
+                      mt: 2,
+                      py: '0.6rem',
+                      px: '1.2rem',
+                      textTransform: 'none',
+                      background: theme.palette.quinary.main,
+                      '&:hover': {
+                        background: theme.palette.quinary.hover,
+                        boxShadow: 'none',
+                      },
+                      '&:active': {
+                        background: theme.palette.quinary.active,
+                      },
+                    }}
+                    onClick={() => {
+                      setOpenModal(false);
+                      setTransactionSubmitted(null);
+                    }}
+                >
+                  Cancel
                 </Button>
               </Box>
             </>
