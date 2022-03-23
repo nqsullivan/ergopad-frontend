@@ -601,8 +601,7 @@ const Staking = () => {
                       value={stakingForm.tokenAmount}
                       error={stakingFormErrors.tokenAmount}
                       helperText={
-                        stakingFormErrors.tokenAmount &&
-                        'Enter a valid token amount'
+                        stakingFormErrors.tokenAmount && (tokenBalance ? 'Enter a valid token amount' : 'Please connect with yoroi or nautilus to use MaxAmount')
                       }
                     />
                   </Grid>
