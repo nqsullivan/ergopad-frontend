@@ -594,7 +594,7 @@ const Staking = () => {
                       required
                       fullWidth
                       id="stakingAmount"
-                      label={`Enter the token amount you are staking`}
+                      label={`Token amount to stake`}
                       name="stakingAmount"
                       variant="filled"
                       onChange={handleStakingFormChange}
