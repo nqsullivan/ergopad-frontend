@@ -610,7 +610,7 @@ const Staking = () => {
                       }
                     />
                   </Grid>
-                    <Grid item md={2} xs={2} sx={{ mt: 0.5, minWidth: '63.03px', maxWidth: '63.03px'}}>
+                    <Grid item md={2} xs={3} sx={{minWidth: '4.5rem', maxWidth: '4.5rem'}}>
                       <Button
                           sx={{p: '0.25rem',  minWidth: '4.5rem', maxWidth: '4.5rem'}}
                           onClick={() => {
