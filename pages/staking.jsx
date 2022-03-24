@@ -648,7 +648,7 @@ const Staking = () => {
                     type="ergoAddress"
                     sx={{
                       width: '100%',
-                      border: '1px solid #F53F3F',
+                      border: '1px solid rgba(82,82,90,1)',
                       borderRadius: '4px',
                     }}
                   />
