@@ -587,8 +587,8 @@ const Staking = () => {
                     You have {tokenBalance} ergopad tokens.
                   </Typography>
                 )}
-                <Grid container sx={{mb: 2}} justifyContent={'space-between'} alignItems={'flex-start'}>
-                  <Grid item md={9} xs={9} sx={{ minWidth: 0}}>
+                <Grid container sx={{mb: 2}} justifyContent={'space-between'} alignItems={'flex-start'} >
+                  <Grid item md={9} xs={8} sx={{ minWidth: 0 }}>
                     <TextField
                       InputProps={{ disableUnderline: true }}
                       required
@@ -601,13 +601,13 @@ const Staking = () => {
                       value={stakingForm.tokenAmount}
                       error={stakingFormErrors.tokenAmount}
                       helperText={
-                          stakingFormErrors.tokenAmount && (tokenBalance ? 'Enter a valid token amount' : 'Please connect with yoroi or nautilus to use MaxAmount')
+                          stakingFormErrors.tokenAmount && (dAppWallet.connected ? 'Enter a valid token amount' : 'Please connect with yoroi or nautilus to use MaxAmount')
                       }
                     />
                   </Grid>
-                  <Grid item md={2} xs={2} sx={{ mt: 0.5, minWidth: '63.03px', maxWidth: '63.03px'}}>
+                  <Grid item md={2} xs={3} sx={{ minWidth: '4.5rem', maxWidth: '4.5rem' }}>
                     <Button
-                        sx={{p: 0,  minWidth: '63.03px', maxWidth: '63.03px'}}
+                        sx={{ p: '0.25rem',  minWidth: '4.5rem', maxWidth: '4.5rem' }}
                         onClick={() => {
                           handleStakingFormChange({
                             target: {
@@ -643,7 +643,7 @@ const Staking = () => {
                     type="ergoAddress"
                     sx={{
                       width: '100%',
-                      border: '1px solid #F53F3F',
+                      border: '1px solid rgba(82,82,90,1)',
                       borderRadius: '4px',
                     }}
                   />
@@ -652,37 +652,9 @@ const Staking = () => {
                       'Please connect with yoroi or nautilus to proceed'}
                   </FormHelperText>
                 </FormControl>
-                <Button
-                  variant="contained"
-                  disabled={stakeLoading || stakingFormErrors.wallet}
-                  sx={{
-                    color: '#fff',
-                    fontSize: '1rem',
-                    mt: 2,
-                    py: '0.6rem',
-                    px: '1.2rem',
-                    textTransform: 'none',
-                    background: theme.palette.tertiary.main,
-                    '&:hover': {
-                      background: theme.palette.tertiary.hover,
-                      boxShadow: 'none',
-                    },
-                    '&:active': {
-                      background: theme.palette.tertiary.active,
-                    },
-                  }}
-                  type="submit"
-                >
-                  Submit
-                  {stakeLoading && (
-                    <CircularProgress
-                      sx={{ ml: 2, color: 'white' }}
-                      size={'1.2rem'}
-                    />
-                  )}
-                </Button>
-                <Button
+                  <Button
                     variant="contained"
+                    disabled={stakeLoading || stakingFormErrors.wallet}
                     sx={{
                       color: '#fff',
                       fontSize: '1rem',
@@ -690,22 +662,25 @@ const Staking = () => {
                       py: '0.6rem',
                       px: '1.2rem',
                       textTransform: 'none',
-                      background: theme.palette.quinary.main,
+                      background: theme.palette.tertiary.main,
                       '&:hover': {
-                        background: theme.palette.quinary.hover,
+                        background: theme.palette.tertiary.hover,
                         boxShadow: 'none',
                       },
                       '&:active': {
-                        background: theme.palette.quinary.active,
+                        background: theme.palette.tertiary.active,
                       },
                     }}
-                    onClick={() => {
-                      setOpenModal(false);
-                      setTransactionSubmitted(null);
-                    }}
-                >
-                  Cancel
-                </Button>
+                    type="submit"
+                  >
+                    Submit
+                    {stakeLoading && (
+                        <CircularProgress
+                            sx={{ ml: 2, color: 'white' }}
+                            size={'1.2rem'}
+                        />
+                    )}
+                  </Button>
               </Box>
             </>
           )}
