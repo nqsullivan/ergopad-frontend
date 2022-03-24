@@ -587,7 +587,12 @@ const Staking = () => {
                     You have {tokenBalance} ergopad tokens.
                   </Typography>
                 )}
-                <Grid container sx={{mb: 2}} justifyContent={'space-between'} alignItems={'flex-start'}>
+                <Grid
+                    container
+                    sx={{ mb: 2 }}
+                    justifyContent="space-between"
+                    alignItems="flex-start"
+                >
                   <Grid item md={9} xs={9} sx={{ minWidth: 0}}>
                     <TextField
                       InputProps={{ disableUnderline: true }}
