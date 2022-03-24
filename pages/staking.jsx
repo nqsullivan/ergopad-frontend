@@ -593,7 +593,7 @@ const Staking = () => {
                     justifyContent="space-between"
                     alignItems="flex-start"
                 >
-                  <Grid item md={9} xs={9} sx={{ minWidth: 0}}>
+                  <Grid item md={9} xs={9} sx={{ minWidth: 0 }}>
                     <TextField
                       InputProps={{ disableUnderline: true }}
                       required
