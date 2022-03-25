@@ -679,10 +679,10 @@ const Staking = () => {
                 >
                   Submit
                   {stakeLoading && (
-                      <CircularProgress
-                          sx={{ ml: 2, color: 'white' }}
-                          size={'1.2rem'}
-                      />
+                    <CircularProgress
+                      sx={{ ml: 2, color: 'white' }}
+                      size={'1.2rem'}
+                    />
                   )}
                 </Button>
               </Box>
