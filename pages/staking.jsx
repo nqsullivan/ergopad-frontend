@@ -588,7 +588,7 @@ const Staking = () => {
                   </Typography>
                 )}
                 <Grid container sx={{mb: 2}} justifyContent={'space-between'} alignItems={'flex-start'} >
-                  <Grid item md={9} xs={8} sx={{ minWidth: 0 }}>
+                  <Grid container item md={9} xs={8} sx={{ minWidth: 0 }}>
                     <TextField
                       InputProps={{ disableUnderline: true }}
                       required
@@ -605,7 +605,7 @@ const Staking = () => {
                       }
                     />
                   </Grid>
-                  <Grid item md={2} xs={3} sx={{ minWidth: '4.5rem', maxWidth: '4.5rem' }}>
+                  <Grid container item md={2} xs={3} justifyContent="flex-end" sx={{ minWidth: '4.5rem', maxWidth: '4.5rem' }}>
                     <Button
                         sx={{ p: '0.25rem',  minWidth: '4.5rem', maxWidth: '4.5rem' }}
                         onClick={() => {
@@ -652,35 +652,58 @@ const Staking = () => {
                       'Please connect with yoroi or nautilus to proceed'}
                   </FormHelperText>
                 </FormControl>
-                  <Button
-                    variant="contained"
-                    disabled={stakeLoading || stakingFormErrors.wallet}
-                    sx={{
-                      color: '#fff',
-                      fontSize: '1rem',
-                      mt: 2,
-                      py: '0.6rem',
-                      px: '1.2rem',
-                      textTransform: 'none',
-                      background: theme.palette.tertiary.main,
-                      '&:hover': {
-                        background: theme.palette.tertiary.hover,
-                        boxShadow: 'none',
-                      },
-                      '&:active': {
-                        background: theme.palette.tertiary.active,
-                      },
-                    }}
-                    type="submit"
-                  >
-                    Submit
-                    {stakeLoading && (
-                        <CircularProgress
-                            sx={{ ml: 2, color: 'white' }}
-                            size={'1.2rem'}
-                        />
-                    )}
-                  </Button>
+                <Grid container justifyContent= "space-between">
+                  <Grid container item md={6} xs={6} justifyContent="flex-start">
+                    <Button
+                        item
+                        variant="contained"
+                        disabled={stakeLoading || stakingFormErrors.wallet}
+                        sx={{
+                          color: '#fff',
+                          fontSize: '1rem',
+                          mt: 2,
+                          py: '0.6rem',
+                          px: '1.2rem',
+                          textTransform: 'none',
+                          background: theme.palette.tertiary.main,
+                          '&:hover': {
+                            background: theme.palette.tertiary.hover,
+                            boxShadow: 'none',
+                          },
+                          '&:active': {
+                            background: theme.palette.tertiary.active,
+                          },
+                        }}
+                        type="submit"
+                    >
+                      Submit
+                      {stakeLoading && (
+                          <CircularProgress
+                              sx={{ ml: 2, color: 'white' }}
+                              size={'1.2rem'}
+                          />
+                      )}
+                    </Button>
+                  </Grid>
+                  <Grid container item md={6} xs={6} justifyContent="flex-end">
+                    <Button
+                        item
+                        sx={{
+                          minWidth: 0,
+                          fontSize: '1rem',
+                          mt: 2,
+                          py: '0.6rem',
+                          px: '1.2rem',
+                          textTransform: 'none'}}
+                        onClick={() => {
+                          setOpenModal(false);
+                          setTransactionSubmitted(null);
+                        }}
+                    >
+                      Close Window
+                    </Button>
+                  </Grid>
+                </Grid>
               </Box>
             </>
           )}
