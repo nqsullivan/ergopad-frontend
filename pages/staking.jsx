@@ -652,35 +652,35 @@ const Staking = () => {
                       'Please connect with yoroi or nautilus to proceed'}
                   </FormHelperText>
                 </FormControl>
-                  <Button
-                    variant="contained"
-                    disabled={stakeLoading || stakingFormErrors.wallet}
-                    sx={{
-                      color: '#fff',
-                      fontSize: '1rem',
-                      mt: 2,
-                      py: '0.6rem',
-                      px: '1.2rem',
-                      textTransform: 'none',
-                      background: theme.palette.tertiary.main,
-                      '&:hover': {
-                        background: theme.palette.tertiary.hover,
-                        boxShadow: 'none',
-                      },
-                      '&:active': {
-                        background: theme.palette.tertiary.active,
-                      },
-                    }}
-                    type="submit"
-                  >
-                    Submit
-                    {stakeLoading && (
-                        <CircularProgress
-                            sx={{ ml: 2, color: 'white' }}
-                            size={'1.2rem'}
-                        />
-                    )}
-                  </Button>
+                <Button
+                  variant="contained"
+                  disabled={stakeLoading || stakingFormErrors.wallet}
+                  sx={{
+                    color: '#fff',
+                    fontSize: '1rem',
+                    mt: 2,
+                    py: '0.6rem',
+                    px: '1.2rem',
+                    textTransform: 'none',
+                    background: theme.palette.tertiary.main,
+                    '&:hover': {
+                      background: theme.palette.tertiary.hover,
+                      boxShadow: 'none',
+                    },
+                    '&:active': {
+                      background: theme.palette.tertiary.active,
+                    },
+                  }}
+                  type="submit"
+                >
+                  Submit
+                  {stakeLoading && (
+                      <CircularProgress
+                          sx={{ ml: 2, color: 'white' }}
+                          size={'1.2rem'}
+                      />
+                  )}
+                </Button>
               </Box>
             </>
           )}
