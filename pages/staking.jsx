@@ -601,7 +601,11 @@ const Staking = () => {
                       value={stakingForm.tokenAmount}
                       error={stakingFormErrors.tokenAmount}
                       helperText={
-                          stakingFormErrors.tokenAmount && (dAppWallet.connected ? 'Enter a valid token amount' : 'Please connect with yoroi or nautilus to use MaxAmount')
+                          stakingFormErrors.tokenAmount && (
+                              dAppWallet.connected ?
+                                  'Enter a valid token amount' :
+                                  'Please connect with yoroi or nautilus to use MaxAmount'
+                          )
                       }
                     />
                   </Grid>
